@@ -1,0 +1,4 @@
+kubernetes
+chaostoolkit-lib
+pycodestyle
+pyyaml
