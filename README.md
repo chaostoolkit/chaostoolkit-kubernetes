@@ -38,6 +38,14 @@ That's it!
 
 Please explore the code to see existing provbes and actions.
 
+## Configuration
+
+This extension to the Chaos Toolkit expects the Kubernetes configuyration to 
+be found at the usual place in your HOME directory under `~/.kube/`.
+
+You should therefore ensure you can fully connect to your Kubernetes cluster
+from a `kubectl` command before using this extension in your experiment.
+
 ## Contribute
 
 If you wish to contribute more functions to this package, you are more than
