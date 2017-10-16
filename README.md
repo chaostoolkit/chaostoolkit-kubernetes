@@ -1,5 +1,7 @@
 # Chaos Toolkit Kubernetes Support
 
+[![Build Status](https://travis-ci.org/chaostoolkit/chaostoolkit-kubernetes.svg?branch=master)](https://travis-ci.org/chaostoolkit/chaostoolkit-kubernetes)
+
 This project contains activities, such as probes and actions, you can call from
 your experiment through the Chaos Toolkit.
 
