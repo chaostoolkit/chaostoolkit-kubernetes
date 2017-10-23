@@ -84,8 +84,8 @@ def microservice_is_not_available(name: str, ns: str = "default") -> bool:
 
 def service_endpoint_is_initialized(name: str, ns: str= "default"):
     """
-    Lookup a service endpoint by its name and raises :exc:`FailedProbe` when the
-    service was not found or not initialized.
+    Lookup a service endpoint by its name and raises :exc:`FailedProbe` when
+    the service was not found or not initialized.
     """
     config.load_kube_config()
 
@@ -96,4 +96,3 @@ def service_endpoint_is_initialized(name: str, ns: str= "default"):
     if not ret.items:
         raise FailedProbe(
             "service '{name}' is not initialized".format(name=name))
-

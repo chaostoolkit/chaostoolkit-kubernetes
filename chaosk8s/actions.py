@@ -76,11 +76,11 @@ def kill_microservice(name: str, ns: str = "default"):
             p.metadata.name, ns, body)
 
 
-def remove_service_endpoint(name: str, ns : str = "default"):
+def remove_service_endpoint(name: str, ns: str = "default"):
     """
     Remove the service endpoint that sits in front of microservices (pods).
     """
     config.load_kube_config()
 
     v1 = client.CoreV1Api()
-    v1.delete_namespaced_service(name, namespace=ns)    
+    v1.delete_namespaced_service(name, namespace=ns)
