@@ -6,7 +6,8 @@ from kubernetes import client, config
 import pytest
 
 from chaosk8s.probes import all_microservices_healthy, \
-    microservice_available_and_healthy, microservice_is_not_available
+    microservice_available_and_healthy, microservice_is_not_available, \
+    service_endpoint_is_initialized
 
 
 @patch('chaosk8s.probes.client', autospec=True)
@@ -66,3 +67,33 @@ def test_expecting_microservice_is_there_when_it_should_not(config, client):
     with pytest.raises(FailedProbe) as excinfo:
         microservice_is_not_available("mysvc")
     assert "microservice 'mysvc' looks healthy" in str(excinfo)
+
+
+@patch('chaosk8s.probes.client', autospec=True)
+@patch('chaosk8s.probes.config', autospec=True)
+def test_expecting_service_endpoint_should_be_initialized(config, client):
+    service = MagicMock()
+    result = MagicMock()
+    result.items = [service]
+
+    v1 = MagicMock()
+    v1.list_namespaced_service.return_value = result
+    client.CoreV1Api.return_value = v1
+
+    assert service_endpoint_is_initialized("mysvc") is None
+
+
+@patch('chaosk8s.probes.client', autospec=True)
+@patch('chaosk8s.probes.config', autospec=True)
+def test_unitialized_or_not_existing_service_endpoint_should_not_be_considered_available(config, client):
+    service = MagicMock()
+    result = MagicMock()
+    result.items = []
+
+    v1 = MagicMock()
+    v1.list_namespaced_service.return_value = result
+    client.CoreV1Api.return_value = v1
+
+    with pytest.raises(FailedProbe) as excinfo:
+        service_endpoint_is_initialized("mysvc")
+    assert "service 'mysvc' is not initialized" in str(excinfo)

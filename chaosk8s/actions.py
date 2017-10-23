@@ -10,7 +10,8 @@ import yaml
 from chaoslib.exceptions import FailedProbe
 from chaoslib.types import MicroservicesStatus
 
-__all__ = ["start_microservice", "kill_microservice"]
+__all__ = ["start_microservice", "kill_microservice",
+           "remove_service_endpoint"]
 
 
 def start_microservice(spec_path: str, ns: str = "default"):
@@ -73,3 +74,13 @@ def kill_microservice(name: str, ns: str = "default"):
     for p in ret.items:
         res = v1.delete_namespaced_pod(
             p.metadata.name, ns, body)
+
+
+def remove_service_endpoint(name: str, ns : str = "default"):
+    """
+    Remove the service endpoint that sits in front of microservices (pods).
+    """
+    config.load_kube_config()
+
+    v1 = client.CoreV1Api()
+    v1.delete_namespaced_service(name, namespace=ns)    

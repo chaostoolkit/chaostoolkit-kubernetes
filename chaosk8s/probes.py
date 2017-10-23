@@ -10,7 +10,7 @@ from chaoslib.exceptions import FailedProbe
 from chaoslib.types import MicroservicesStatus
 
 __all__ = ["all_microservices_healthy", "microservice_available_and_healthy",
-           "microservice_is_not_available"]
+           "microservice_is_not_available", "service_endpoint_is_initialized"]
 
 
 def all_microservices_healthy(ns: str = "default") -> MicroservicesStatus:
@@ -80,3 +80,20 @@ def microservice_is_not_available(name: str, ns: str = "default") -> bool:
     if ret.items:
         raise FailedProbe(
             "microservice '{name}' looks healthy".format(name=name))
+
+
+def service_endpoint_is_initialized(name: str, ns: str= "default"):
+    """
+    Lookup a service endpoint by its name and raises :exc:`FailedProbe` when the
+    service was not found or not initialized.
+    """
+    config.load_kube_config()
+
+    v1 = client.CoreV1Api()
+    ret = v1.list_namespaced_service(
+        ns, label_selector="service={name}".format(name=name))
+
+    if not ret.items:
+        raise FailedProbe(
+            "service '{name}' is not initialized".format(name=name))
+
