@@ -17,9 +17,9 @@ def test_client_can_be_created_from_environ(has_conf):
         "KUBERNETES_API_KEY_PREFIX": "Boom"
     })
     api = create_k8s_api_client()
-    assert api.config.host == "http://someplace"
-    assert api.config.api_key.get("authorization", "6789")
-    assert api.config.api_key_prefix.get("authorization", "Boom")
+    assert api.configuration.host == "http://someplace"
+    assert api.configuration.api_key.get("authorization", "6789")
+    assert api.configuration.api_key_prefix.get("authorization", "Boom")
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -31,6 +31,6 @@ def test_client_can_be_created_from_secrets(has_conf):
         "KUBERNETES_API_KEY_PREFIX": "Boom"
     }
     api = create_k8s_api_client(secrets)
-    assert api.config.host == "http://someplace"
-    assert api.config.api_key.get("authorization", "6789")
-    assert api.config.api_key_prefix.get("authorization", "Boom")
+    assert api.configuration.host == "http://someplace"
+    assert api.configuration.api_key.get("authorization", "6789")
+    assert api.configuration.api_key_prefix.get("authorization", "Boom")
