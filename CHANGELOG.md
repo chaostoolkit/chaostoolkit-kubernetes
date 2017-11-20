@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.4.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.4.2...HEAD
+
+## [0.4.2][] - 2017-11-20
+
+[0.4.2]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.4.1...0.4.2
+
+### Changed
+
+- Proper verify SSL reading of the environment key
 
 ## [0.4.1][] - 2017-11-20
 
