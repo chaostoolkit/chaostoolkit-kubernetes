@@ -5,7 +5,7 @@ import os.path
 from typing import Union
 
 from chaoslib.exceptions import FailedProbe
-from chaoslib.types import MicroservicesStatus
+from chaoslib.types import MicroservicesStatus, Secrets
 from kubernetes import client
 import yaml
 
@@ -16,7 +16,8 @@ __all__ = ["start_microservice", "kill_microservice",
            "remove_service_endpoint"]
 
 
-def start_microservice(spec_path: str, ns: str = "default"):
+def start_microservice(spec_path: str, ns: str = "default",
+                       secrets: Secrets = None):
     """
     Start a microservice described by the deployment config, which must be the
     path to the JSON or YAML representation of the deployment.
@@ -38,7 +39,8 @@ def start_microservice(spec_path: str, ns: str = "default"):
     return resp
 
 
-def kill_microservice(name: str, ns: str = "default"):
+def kill_microservice(name: str, ns: str = "default",
+                      secrets: Secrets = None):
     """
     Kill a microservice by `name` in the namespace `ns`.
 
@@ -78,7 +80,8 @@ def kill_microservice(name: str, ns: str = "default"):
             p.metadata.name, ns, body)
 
 
-def remove_service_endpoint(name: str, ns: str = "default"):
+def remove_service_endpoint(name: str, ns: str = "default",
+                            secrets: Secrets = None):
     """
     Remove the service endpoint that sits in front of microservices (pods).
     """

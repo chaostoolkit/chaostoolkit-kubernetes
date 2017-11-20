@@ -2,13 +2,21 @@
 import os
 import os.path
 
+from chaoslib.types import Secrets
 from kubernetes import client, config
 
+
 __all__ = ["create_k8s_api_client", "__version__"]
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 
 
-def create_k8s_api_client() -> client.ApiClient:
+def has_local_config_file():
+    config_path = os.path.expanduser(
+        os.environ.get('KUBECONFIG', '~/.kube/config'))
+    return os.path.exists(config_path)
+
+
+def create_k8s_api_client(secrets: Secrets = None) -> client.ApiClient:
     """
     Create a Kubernetes client from either the local config or, if none is
     found, from the following variables:
@@ -31,28 +39,33 @@ def create_k8s_api_client() -> client.ApiClient:
     * KUBERNETES_VERIFY_SSL: should we verify the SSL (unset means no)
     * KUBERNETES_CA_CERT_FILE: path the CA certificate when verification is
       expected
+
+    You may pass a secrets dictionary, in which case, values will be looked
+    there before the environ.
     """
     env = os.environ
+    secrets = secrets or {}
 
-    config_path = os.path.expanduser(env.get('KUBECONFIG', '~/.kube/config'))
+    def lookup(k: str, d: str = None) -> str:
+        return secrets.get(k, env.get(k, d))
 
-    if os.path.exists(config_path):
+    if has_local_config_file():
         return config.new_client_from_config()
 
     configuration = client.Configuration()
-    configuration.host = env.get("KUBERNETES_HOST", "http://localhost")
-    configuration.verify_ssl = "KUBERNETES_VERIFY_SSL" in env
-    configuration.cert_file = env.get("KUBERNETES_CA_CERT_FILE")
+    configuration.host = lookup("KUBERNETES_HOST", "http://localhost")
+    configuration.verify_ssl = lookup("KUBERNETES_VERIFY_SSL", False) is False
+    configuration.cert_file = lookup("KUBERNETES_CA_CERT_FILE")
 
-    if "KUBERNETES_API_KEY" in env:
-        configuration.api_key['authorization'] = env.get("KUBERNETES_API_KEY")
-        configuration.api_key_prefix['authorization'] = env.get(
+    if "KUBERNETES_API_KEY" in env or "KUBERNETES_API_KEY" in secrets:
+        configuration.api_key['authorization'] = lookup("KUBERNETES_API_KEY")
+        configuration.api_key_prefix['authorization'] = lookup(
             "KUBERNETES_API_KEY_PREFIX", "Bearer")
-    elif "KUBERNETES_CERT_FILE" in env:
-        configuration.cert_file = env["KUBERNETES_CERT_FILE"]
-        configuration.key_file = env["KUBERNETES_KEY_FILE"]
-    elif "KUBERNETES_USERNAME" in env:
-        configuration.username = env["KUBERNETES_USERNAME"]
-        configuration.password = env.get("KUBERNETES_PASSWORD", "")
+    elif "KUBERNETES_CERT_FILE" in env or "KUBERNETES_CERT_FILE" in secrets:
+        configuration.cert_file = lookup("KUBERNETES_CERT_FILE")
+        configuration.key_file = lookup("KUBERNETES_KEY_FILE")
+    elif "KUBERNETES_USERNAME" in env or "KUBERNETES_USERNAME" in secrets:
+        configuration.username = lookup("KUBERNETES_USERNAME")
+        configuration.password = lookup("KUBERNETES_PASSWORD", "")
 
     return client.ApiClient(configuration)
