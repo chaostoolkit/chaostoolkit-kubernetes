@@ -2,7 +2,18 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.2.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.3.0...HEAD
+
+## [0.3.0][] - 2017-11-20
+
+[0.3.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.2.0...0.3.0
+
+### Added
+
+- Can now authenticate to the Kubernetes API endpoint either via a token,
+  username/password or certificate/pkey. All of this via environment variable.
+  By default, still looks up for ~/kube/config if it exists
+
 
 ## [0.2.0][] - 2017-10-23
 

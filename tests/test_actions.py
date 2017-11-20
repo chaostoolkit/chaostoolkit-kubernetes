@@ -9,8 +9,9 @@ from chaosk8s.actions import start_microservice, kill_microservice
 
 
 @patch('chaosk8s.actions.client', autospec=True)
-@patch('chaosk8s.actions.config', autospec=True)
-def test_cannot_process_other_than_yaml_and_json(config, client):
+@patch('chaosk8s.client', autospec=True)
+@patch('chaosk8s.config', autospec=True)
+def test_cannot_process_other_than_yaml_and_json(cfg, cl, client):
     path = "./tests/fixtures/invalid-k8s.txt"
     with pytest.raises(FailedProbe) as excinfo:
         start_microservice(spec_path=path)

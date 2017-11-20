@@ -11,8 +11,9 @@ from chaosk8s.probes import all_microservices_healthy, \
 
 
 @patch('chaosk8s.probes.client', autospec=True)
-@patch('chaosk8s.probes.config', autospec=True)
-def test_unhealthy_system_should_be_reported(config, client):
+@patch('chaosk8s.client', autospec=True)
+@patch('chaosk8s.config', autospec=True)
+def test_unhealthy_system_should_be_reported(config, cl, client):
     pod = MagicMock()
     pod.status.phase = "Failed"
 
@@ -29,8 +30,10 @@ def test_unhealthy_system_should_be_reported(config, client):
 
 
 @patch('chaosk8s.probes.client', autospec=True)
-@patch('chaosk8s.probes.config', autospec=True)
+@patch('chaosk8s.client', autospec=True)
+@patch('chaosk8s.config', autospec=True)
 def test_expecting_a_healthy_microservice_should_be_reported_when_not(config,
+                                                                      cl,
                                                                       client):
     result = MagicMock()
     result.items = []
@@ -54,8 +57,9 @@ def test_expecting_a_healthy_microservice_should_be_reported_when_not(config,
 
 
 @patch('chaosk8s.probes.client', autospec=True)
-@patch('chaosk8s.probes.config', autospec=True)
-def test_expecting_microservice_is_there_when_it_should_not(config, client):
+@patch('chaosk8s.client', autospec=True)
+@patch('chaosk8s.config', autospec=True)
+def test_expecting_microservice_is_there_when_it_should_not(config, cl, client):
     deployment = MagicMock()
     result = MagicMock()
     result.items = [deployment]
@@ -70,8 +74,9 @@ def test_expecting_microservice_is_there_when_it_should_not(config, client):
 
 
 @patch('chaosk8s.probes.client', autospec=True)
-@patch('chaosk8s.probes.config', autospec=True)
-def test_expecting_service_endpoint_should_be_initialized(config, client):
+@patch('chaosk8s.client', autospec=True)
+@patch('chaosk8s.config', autospec=True)
+def test_expecting_service_endpoint_should_be_initialized(config, cl, client):
     service = MagicMock()
     result = MagicMock()
     result.items = [service]
@@ -84,8 +89,9 @@ def test_expecting_service_endpoint_should_be_initialized(config, client):
 
 
 @patch('chaosk8s.probes.client', autospec=True)
-@patch('chaosk8s.probes.config', autospec=True)
-def test_unitialized_or_not_existing_service_endpoint_should_not_be_considered_available(config, client):
+@patch('chaosk8s.client', autospec=True)
+@patch('chaosk8s.config', autospec=True)
+def test_unitialized_or_not_existing_service_endpoint_should_not_be_considered_available(config, cl, client):
     service = MagicMock()
     result = MagicMock()
     result.items = []
