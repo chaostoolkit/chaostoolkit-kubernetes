@@ -10,10 +10,11 @@ from chaosk8s.probes import all_microservices_healthy, \
     service_endpoint_is_initialized
 
 
+@patch('chaosk8s.has_local_config_file', autospec=True)
 @patch('chaosk8s.probes.client', autospec=True)
-@patch('chaosk8s.client', autospec=True)
-@patch('chaosk8s.config', autospec=True)
-def test_unhealthy_system_should_be_reported(config, cl, client):
+@patch('chaosk8s.client')
+def test_unhealthy_system_should_be_reported(cl, client, has_conf):
+    has_conf.return_value = False
     pod = MagicMock()
     pod.status.phase = "Failed"
 
@@ -29,12 +30,13 @@ def test_unhealthy_system_should_be_reported(config, cl, client):
     assert "the system is unhealthy" in str(excinfo)
 
 
+@patch('chaosk8s.has_local_config_file', autospec=True)
 @patch('chaosk8s.probes.client', autospec=True)
-@patch('chaosk8s.client', autospec=True)
-@patch('chaosk8s.config', autospec=True)
-def test_expecting_a_healthy_microservice_should_be_reported_when_not(config,
-                                                                      cl,
-                                                                      client):
+@patch('chaosk8s.client')
+def test_expecting_a_healthy_microservice_should_be_reported_when_not(cl,
+                                                                      client,
+                                                                      has_conf):
+    has_conf.return_value = False
     result = MagicMock()
     result.items = []
 
@@ -56,10 +58,12 @@ def test_expecting_a_healthy_microservice_should_be_reported_when_not(config,
     assert "microservice 'mysvc' is not healthy" in str(excinfo)
 
 
+@patch('chaosk8s.has_local_config_file', autospec=True)
 @patch('chaosk8s.probes.client', autospec=True)
-@patch('chaosk8s.client', autospec=True)
-@patch('chaosk8s.config', autospec=True)
-def test_expecting_microservice_is_there_when_it_should_not(config, cl, client):
+@patch('chaosk8s.client')
+def test_expecting_microservice_is_there_when_it_should_not(cl, client, 
+                                                            has_conf):
+    has_conf.return_value = False
     deployment = MagicMock()
     result = MagicMock()
     result.items = [deployment]
@@ -73,10 +77,12 @@ def test_expecting_microservice_is_there_when_it_should_not(config, cl, client):
     assert "microservice 'mysvc' looks healthy" in str(excinfo)
 
 
+@patch('chaosk8s.has_local_config_file', autospec=True)
 @patch('chaosk8s.probes.client', autospec=True)
-@patch('chaosk8s.client', autospec=True)
-@patch('chaosk8s.config', autospec=True)
-def test_expecting_service_endpoint_should_be_initialized(config, cl, client):
+@patch('chaosk8s.client')
+def test_expecting_service_endpoint_should_be_initialized(cl, client,
+                                                          has_conf):
+    has_conf.return_value = False
     service = MagicMock()
     result = MagicMock()
     result.items = [service]
@@ -88,10 +94,12 @@ def test_expecting_service_endpoint_should_be_initialized(config, cl, client):
     assert service_endpoint_is_initialized("mysvc") is None
 
 
+@patch('chaosk8s.has_local_config_file', autospec=True)
 @patch('chaosk8s.probes.client', autospec=True)
-@patch('chaosk8s.client', autospec=True)
-@patch('chaosk8s.config', autospec=True)
-def test_unitialized_or_not_existing_service_endpoint_should_not_be_considered_available(config, cl, client):
+@patch('chaosk8s.client')
+def test_unitialized_or_not_existing_service_endpoint_should_not_be_considered_available(
+    cl, client, has_conf):
+    has_conf.return_value = False
     service = MagicMock()
     result = MagicMock()
     result.items = []
