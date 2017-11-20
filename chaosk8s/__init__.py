@@ -54,7 +54,8 @@ def create_k8s_api_client(secrets: Secrets = None) -> client.ApiClient:
 
     configuration = client.Configuration()
     configuration.host = lookup("KUBERNETES_HOST", "http://localhost")
-    configuration.verify_ssl = lookup("KUBERNETES_VERIFY_SSL", False) is not False
+    configuration.verify_ssl = lookup(
+        "KUBERNETES_VERIFY_SSL", False) is not False
     configuration.cert_file = lookup("KUBERNETES_CA_CERT_FILE")
 
     if "KUBERNETES_API_KEY" in env or "KUBERNETES_API_KEY" in secrets:
