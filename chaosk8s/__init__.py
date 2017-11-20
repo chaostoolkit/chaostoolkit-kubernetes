@@ -7,7 +7,7 @@ from kubernetes import client, config
 
 
 __all__ = ["create_k8s_api_client", "__version__"]
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 
 
 def has_local_config_file():

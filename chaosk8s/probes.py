@@ -4,7 +4,7 @@ import os.path
 from typing import Union
 
 from chaoslib.exceptions import FailedProbe
-from chaoslib.types import MicroservicesStatus
+from chaoslib.types import MicroservicesStatus, Secrets
 from kubernetes import client
 import yaml
 
@@ -15,14 +15,15 @@ __all__ = ["all_microservices_healthy", "microservice_available_and_healthy",
            "microservice_is_not_available", "service_endpoint_is_initialized"]
 
 
-def all_microservices_healthy(ns: str = "default") -> MicroservicesStatus:
+def all_microservices_healthy(ns: str = "default",
+                              secrets: Secrets = None) -> MicroservicesStatus:
     """
     Check all microservices in the system are running and available.
 
     Raises :exc:`chaoslib.exceptions.FailedProbe` when the state is not
     as expected.
     """
-    api = create_k8s_api_client()
+    api = create_k8s_api_client(secrets)
     not_ready = []
     failed = []
 
@@ -41,7 +42,8 @@ def all_microservices_healthy(ns: str = "default") -> MicroservicesStatus:
 
 
 def microservice_available_and_healthy(
-        name: str, ns: str = "default") -> Union[bool, None]:
+        name: str, ns: str = "default",
+        secrets: Secrets = None) -> Union[bool, None]:
     """
     Lookup a deployment with a `service` label set to the given `name` in
     the specified `ns`.
@@ -49,7 +51,7 @@ def microservice_available_and_healthy(
     Raises :exc:`chaoslib.exceptions.FailedProbe` when the state is not
     as expected.
     """
-    api = create_k8s_api_client()
+    api = create_k8s_api_client(secrets)
 
     v1 = client.AppsV1beta1Api(api)
     ret = v1.list_namespaced_deployment(
@@ -65,7 +67,8 @@ def microservice_available_and_healthy(
                 "microservice '{name}' is not healthy".format(name=name))
 
 
-def microservice_is_not_available(name: str, ns: str = "default") -> bool:
+def microservice_is_not_available(name: str, ns: str = "default",
+                                  secrets: Secrets = None) -> bool:
     """
     Lookup a deployment with a `service` label set to the given `name` in
     the specified `ns`.
@@ -73,7 +76,7 @@ def microservice_is_not_available(name: str, ns: str = "default") -> bool:
     Raises :exc:`chaoslib.exceptions.FailedProbe` when the state is not
     as expected.
     """
-    api = create_k8s_api_client()
+    api = create_k8s_api_client(secrets)
 
     v1 = client.AppsV1beta1Api(api)
     ret = v1.list_namespaced_deployment(
@@ -84,12 +87,13 @@ def microservice_is_not_available(name: str, ns: str = "default") -> bool:
             "microservice '{name}' looks healthy".format(name=name))
 
 
-def service_endpoint_is_initialized(name: str, ns: str= "default"):
+def service_endpoint_is_initialized(name: str, ns: str= "default",
+                                    secrets: Secrets = None):
     """
     Lookup a service endpoint by its name and raises :exc:`FailedProbe` when
     the service was not found or not initialized.
     """
-    api = create_k8s_api_client()
+    api = create_k8s_api_client(secrets)
 
     v1 = client.CoreV1Api(api)
     ret = v1.list_namespaced_service(

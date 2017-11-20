@@ -22,7 +22,7 @@ def start_microservice(spec_path: str, ns: str = "default",
     Start a microservice described by the deployment config, which must be the
     path to the JSON or YAML representation of the deployment.
     """
-    api = create_k8s_api_client()
+    api = create_k8s_api_client(secrets)
 
     with open(spec_path) as f:
         p, ext = os.path.splitext(spec_path)
@@ -50,7 +50,7 @@ def kill_microservice(name: str, ns: str = "default",
     To work, the deployment must have a `service` label matching the
     `name` of the microservice.
     """
-    api = create_k8s_api_client()
+    api = create_k8s_api_client(secrets)
 
     v1 = client.AppsV1beta1Api(api)
     ret = v1.list_namespaced_deployment(
@@ -85,7 +85,7 @@ def remove_service_endpoint(name: str, ns: str = "default",
     """
     Remove the service endpoint that sits in front of microservices (pods).
     """
-    api = create_k8s_api_client()
+    api = create_k8s_api_client(secrets)
 
     v1 = client.CoreV1Api(api)
     v1.delete_namespaced_service(name, namespace=ns)

@@ -2,7 +2,16 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.4.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.4.1...HEAD
+
+## [0.4.1][] - 2017-11-20
+
+[0.4.1]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.4.0...0.4.1
+
+### Added
+
+- Passing secrets down to client function
+
 
 ## [0.4.0][] - 2017-11-20
 
