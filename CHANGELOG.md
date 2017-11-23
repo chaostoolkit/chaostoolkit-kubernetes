@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.4.2...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.4.3...HEAD
+
+## [0.4.3][] - 2017-11-23
+
+[0.4.3]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.4.2...0.4.3
+
+### Changed
+
+- Removing unwanted parameter
 
 ## [0.4.2][] - 2017-11-20
 
