@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from unittest.mock import MagicMock, patch
 
-from chaoslib.exceptions import FailedProbe
+from chaoslib.exceptions import FailedActivity
 from kubernetes import client, config
 import pytest
 
@@ -25,7 +25,7 @@ def test_unhealthy_system_should_be_reported(cl, client, has_conf):
     v1.list_namespaced_pod.return_value = result
     client.CoreV1Api.return_value = v1
 
-    with pytest.raises(FailedProbe) as excinfo:
+    with pytest.raises(FailedActivity) as excinfo:
         all_microservices_healthy()
     assert "the system is unhealthy" in str(excinfo)
 
@@ -44,7 +44,7 @@ def test_expecting_a_healthy_microservice_should_be_reported_when_not(cl,
     v1.list_namespaced_deployment.return_value = result
     client.AppsV1beta1Api.return_value = v1
 
-    with pytest.raises(FailedProbe) as excinfo:
+    with pytest.raises(FailedActivity) as excinfo:
         microservice_available_and_healthy("mysvc")
     assert "microservice 'mysvc' was not found" in str(excinfo)
 
@@ -53,7 +53,7 @@ def test_expecting_a_healthy_microservice_should_be_reported_when_not(cl,
     deployment.status.available_replicas = 1
     result.items.append(deployment)
 
-    with pytest.raises(FailedProbe) as excinfo:
+    with pytest.raises(FailedActivity) as excinfo:
         microservice_available_and_healthy("mysvc")
     assert "microservice 'mysvc' is not healthy" in str(excinfo)
 
@@ -72,7 +72,7 @@ def test_expecting_microservice_is_there_when_it_should_not(cl, client,
     v1.list_namespaced_deployment.return_value = result
     client.AppsV1beta1Api.return_value = v1
 
-    with pytest.raises(FailedProbe) as excinfo:
+    with pytest.raises(FailedActivity) as excinfo:
         microservice_is_not_available("mysvc")
     assert "microservice 'mysvc' looks healthy" in str(excinfo)
 
@@ -91,7 +91,7 @@ def test_expecting_service_endpoint_should_be_initialized(cl, client,
     v1.list_namespaced_service.return_value = result
     client.CoreV1Api.return_value = v1
 
-    assert service_endpoint_is_initialized("mysvc") is None
+    assert service_endpoint_is_initialized("mysvc") is True
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -108,6 +108,6 @@ def test_unitialized_or_not_existing_service_endpoint_should_not_be_considered_a
     v1.list_namespaced_service.return_value = result
     client.CoreV1Api.return_value = v1
 
-    with pytest.raises(FailedProbe) as excinfo:
+    with pytest.raises(FailedActivity) as excinfo:
         service_endpoint_is_initialized("mysvc")
     assert "service 'mysvc' is not initialized" in str(excinfo)

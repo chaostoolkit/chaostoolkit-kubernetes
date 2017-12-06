@@ -4,7 +4,7 @@ import json
 import os.path
 from typing import Union
 
-from chaoslib.exceptions import FailedProbe
+from chaoslib.exceptions import FailedActivity
 from chaoslib.types import MicroservicesStatus, Secrets
 from kubernetes import client
 import yaml
@@ -31,7 +31,7 @@ def start_microservice(spec_path: str, ns: str = "default",
         elif ext in ['.yml', '.yaml']:
             deployment = yaml.load(f.read())
         else:
-            raise FailedProbe(
+            raise FailedActivity(
                 "cannot process {path}".format(path=spec_path))
 
     v1 = client.AppsV1beta1Api(api)

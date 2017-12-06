@@ -3,7 +3,7 @@ import json
 import os.path
 from typing import Union
 
-from chaoslib.exceptions import FailedProbe
+from chaoslib.exceptions import FailedActivity
 from chaoslib.types import MicroservicesStatus, Secrets
 from kubernetes import client
 import yaml
@@ -20,7 +20,7 @@ def all_microservices_healthy(ns: str = "default",
     """
     Check all microservices in the system are running and available.
 
-    Raises :exc:`chaoslib.exceptions.FailedProbe` when the state is not
+    Raises :exc:`chaoslib.exceptions.FailedActivity` when the state is not
     as expected.
     """
     api = create_k8s_api_client(secrets)
@@ -38,7 +38,9 @@ def all_microservices_healthy(ns: str = "default",
 
     # we probably should list them in the message
     if failed or not_ready:
-        raise FailedProbe("the system is unhealthy")
+        raise FailedActivity("the system is unhealthy")
+
+    return True
 
 
 def microservice_available_and_healthy(
@@ -48,7 +50,7 @@ def microservice_available_and_healthy(
     Lookup a deployment with a `service` label set to the given `name` in
     the specified `ns`.
 
-    Raises :exc:`chaoslib.exceptions.FailedProbe` when the state is not
+    Raises :exc:`chaoslib.exceptions.FailedActivity` when the state is not
     as expected.
     """
     api = create_k8s_api_client(secrets)
@@ -58,13 +60,15 @@ def microservice_available_and_healthy(
         ns, label_selector="service={name}".format(name=name))
 
     if not ret.items:
-        raise FailedProbe(
+        raise FailedActivity(
             "microservice '{name}' was not found".format(name=name))
 
     for d in ret.items:
         if d.status.available_replicas != d.spec.replicas:
-            raise FailedProbe(
+            raise FailedActivity(
                 "microservice '{name}' is not healthy".format(name=name))
+
+    return True
 
 
 def microservice_is_not_available(name: str, ns: str = "default",
@@ -83,8 +87,10 @@ def microservice_is_not_available(name: str, ns: str = "default",
         ns, label_selector="service={name}".format(name=name))
 
     if ret.items:
-        raise FailedProbe(
+        raise FailedActivity(
             "microservice '{name}' looks healthy".format(name=name))
+
+    return True
 
 
 def service_endpoint_is_initialized(name: str, ns: str= "default",
@@ -100,5 +106,7 @@ def service_endpoint_is_initialized(name: str, ns: str= "default",
         ns, label_selector="service={name}".format(name=name))
 
     if not ret.items:
-        raise FailedProbe(
+        raise FailedActivity(
             "service '{name}' is not initialized".format(name=name))
+
+    return True

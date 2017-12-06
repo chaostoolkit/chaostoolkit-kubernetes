@@ -4,6 +4,12 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.4.3...HEAD
 
+### Changed
+
+- Updated to match chaostoolkit-lib 0.6.0 API changes
+- Probes now return `True` on success so they can be nicely used from the
+  steady state hypothesis checks
+
 ## [0.4.3][] - 2017-11-23
 
 [0.4.3]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.4.2...0.4.3

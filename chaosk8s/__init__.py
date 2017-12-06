@@ -53,6 +53,7 @@ def create_k8s_api_client(secrets: Secrets = None) -> client.ApiClient:
         return config.new_client_from_config()
 
     configuration = client.Configuration()
+    configuration.debug = True
     configuration.host = lookup("KUBERNETES_HOST", "http://localhost")
     configuration.verify_ssl = lookup(
         "KUBERNETES_VERIFY_SSL", False) is not False

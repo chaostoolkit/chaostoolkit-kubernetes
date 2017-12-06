@@ -1,4 +1,4 @@
 kubernetes
-chaostoolkit-lib
+chaostoolkit-lib>=0.6.0
 pycodestyle
 pyyaml
