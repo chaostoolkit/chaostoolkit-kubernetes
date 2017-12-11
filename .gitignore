@@ -108,3 +108,5 @@ docs/site/
 
 # pytest results
 junit-test-results.xml
+
+.DS_Store
