@@ -18,8 +18,6 @@ $ pip install chaostoolkit-kubernetes
 
 ## Usage
 
-First, in your experimenty project, make sure
-
 To use the probes and actions from this package, add the following to your
 experiment file:
 
@@ -38,11 +36,11 @@ experiment file:
 
 That's it!
 
-Please explore the code to see existing provbes and actions.
+Please explore the code to see existing probes and actions.
 
 ## Configuration
 
-This extension to the Chaos Toolkit expects the Kubernetes configuyration to 
+This extension to the Chaos Toolkit expects the Kubernetes configuration to 
 be found at the usual place in your HOME directory under `~/.kube/`.
 
 You should therefore ensure you can fully connect to your Kubernetes cluster
@@ -51,8 +49,8 @@ from a `kubectl` command before using this extension in your experiment.
 ## Contribute
 
 If you wish to contribute more functions to this package, you are more than
-welcome to do so. Please, fork this project, make your changes following the
-usual [PEP 8][pep8] code style, sprinkling with tests and submit a PR for
+welcome to do so. Please fork this project, make your changes following the
+usual [PEP 8][pep8] code style, add appropriate tests and submit a PR for
 review.
 
 [pep8]: https://pycodestyle.readthedocs.io/en/latest/
