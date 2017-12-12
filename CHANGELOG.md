@@ -4,6 +4,17 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.5.0...HEAD
 
+### Added
+
+- Logging at DEBUG level for investigation
+- Probe `deployment_is_not_fully_available` to wait until a deployment is not
+  fully available (its desired state is different from its current state)
+
+### Changed
+
+- Selecting on the name Label rather than Service as it's more commonly used
+- Updated chaostoolkit-lib to 0.7.0 for configuration support
+
 ## [0.5.0][] - 2017-12-06
 
 [0.5.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.4.3...0.5.0
