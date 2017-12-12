@@ -6,6 +6,7 @@ from typing import Union
 
 from chaoslib.exceptions import FailedActivity
 from chaoslib.types import MicroservicesStatus, Secrets
+from logzero import logger
 from kubernetes import client
 import yaml
 
@@ -54,7 +55,10 @@ def kill_microservice(name: str, ns: str = "default",
 
     v1 = client.AppsV1beta1Api(api)
     ret = v1.list_namespaced_deployment(
-        ns, label_selector="service={name}".format(name=name))
+        ns, label_selector="name in ({name})".format(name=name))
+
+    logger.debug("Found {d} deployments named '{n}'".format(
+        d=len(ret.items), n=name))
 
     body = client.V1DeleteOptions()
     for d in ret.items:
@@ -63,7 +67,10 @@ def kill_microservice(name: str, ns: str = "default",
 
     v1 = client.ExtensionsV1beta1Api(api)
     ret = v1.list_namespaced_replica_set(
-        ns, label_selector="service={name}".format(name=name))
+        ns, label_selector="name in ({name})".format(name=name))
+
+    logger.debug("Found {d} deployments named '{n}'".format(
+        d=len(ret.items), n=name))
 
     body = client.V1DeleteOptions()
     for r in ret.items:
@@ -72,7 +79,10 @@ def kill_microservice(name: str, ns: str = "default",
 
     v1 = client.CoreV1Api(api)
     ret = v1.list_namespaced_pod(
-        ns, label_selector="service={name}".format(name=name))
+        ns, label_selector="name in ({name})".format(name=name))
+
+    logger.debug("Found {d} pods named '{n}'".format(
+        d=len(ret.items), n=name))
 
     body = client.V1DeleteOptions()
     for p in ret.items:
