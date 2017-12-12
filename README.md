@@ -23,13 +23,15 @@ experiment file:
 
 ```json
 {
-    "title": "Our microservice should really be gone by now",
-    "layer": "kubernetes",
-    "type": "python",
-    "module": "chaosk8s.probes",
-    "func": "microservice_available_and_healthy",
-    "arguments": {
-        "name": "mysvc"
+    "name": "all-our-microservices-should-be-healthy",
+    "provider": {
+        "type": "python",
+        "module": "chaosk8s.probes",
+        "func": "microservice_available_and_healthy",
+        "arguments": {
+            "name": "myapp",
+            "ns": "myns"
+        }
     }
 }
 ```
@@ -40,11 +42,41 @@ Please explore the code to see existing probes and actions.
 
 ## Configuration
 
-This extension to the Chaos Toolkit expects the Kubernetes configuration to 
-be found at the usual place in your HOME directory under `~/.kube/`.
+This extension to the Chaos Toolkit can use the Kubernetes configuration 
+found at the usual place in your HOME directory under `~/.kube/`. You can
+also pass the credentials via secrets as follows:
 
-You should therefore ensure you can fully connect to your Kubernetes cluster
-from a `kubectl` command before using this extension in your experiment.
+```json
+{
+    "secrets": {
+        "kubernetes": {
+            "KUBERNETES_HOST": "http://somehost",
+            "KUBERNETES_API_KEY": {
+                "type": "env",
+                "key": "SO%E_ENV_VAR"
+            }
+        }
+    }
+}
+```
+
+Then in your probe or action:
+
+```
+{
+    "name": "all-our-microservices-should-be-healthy",
+    "provider": {
+        "type": "python",
+        "module": "chaosk8s.probes",
+        "func": "microservice_available_and_healthy",
+        "secrets": ["kubernetes"],
+        "arguments": {
+            "name": "myapp",
+            "ns": "myns"
+        }
+    }
+}
+```
 
 ## Contribute
 
