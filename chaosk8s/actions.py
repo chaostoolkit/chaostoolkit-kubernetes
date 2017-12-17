@@ -8,12 +8,13 @@ from chaoslib.exceptions import FailedActivity
 from chaoslib.types import MicroservicesStatus, Secrets
 from logzero import logger
 from kubernetes import client
+from kubernetes.client.rest import ApiException
 import yaml
 
 from chaosk8s import create_k8s_api_client
 
 
-__all__ = ["start_microservice", "kill_microservice",
+__all__ = ["start_microservice", "kill_microservice", "scale_microservice",
            "remove_service_endpoint"]
 
 
@@ -99,3 +100,20 @@ def remove_service_endpoint(name: str, ns: str = "default",
 
     v1 = client.CoreV1Api(api)
     v1.delete_namespaced_service(name, namespace=ns)
+
+
+def scale_microservice(name: str, replicas: int, ns: str = "default", 
+                       secrets: Secrets = None):
+    """
+    Scale a deployment up or down. The `name` is the name of the deployment.
+    """
+    api = create_k8s_api_client(secrets)
+
+    v1 = client.ExtensionsV1beta1Api(api)
+    body = {"spec": {"replicas": replicas}}
+    try:
+        v1.patch_namespaced_deployment_scale(name, namespace=ns, body=body)
+    except ApiException as e:
+        raise FailedActivity(
+            "failed to scale '{s}' to {r} replicas: {e}".format(
+                s=name, r=replicas, e=str(e)))
