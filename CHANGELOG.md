@@ -8,6 +8,10 @@
 
 - Deployment scaler action
 
+### Changed
+
+- Updated to chaostoolkit-lib 0.8.0
+
 ## [0.6.0][] - 2017-12-12
 
 [0.6.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.5.0...0.6.0
