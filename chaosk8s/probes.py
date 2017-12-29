@@ -181,7 +181,7 @@ def deployment_is_not_fully_available(name: str, ns: str= "default",
 
 
 def read_microservices_logs(name: str, last: Union[str, None] = None,
-                            ns: str="default", with_previous: bool=False,
+                            ns: str="default", from_previous: bool=False,
                             secrets: Secrets=None) -> Dict[str, str]:
     """
     Fetch logs for all the pods with the label `"name"` set to `name` and
@@ -191,7 +191,7 @@ def read_microservices_logs(name: str, last: Union[str, None] = None,
     If you provide `last`, this returns the logs of the last N seconds
     until now. This can set to a fluent delta such as `10 minutes`.
 
-    You may also set `with_previous` to `True` to capture the logs of a
+    You may also set `from_previous` to `True` to capture the logs of a
     previous pod's incarnation, if any.
     """
     api = create_k8s_api_client(secrets)
@@ -210,6 +210,7 @@ def read_microservices_logs(name: str, last: Union[str, None] = None,
     params = dict(
         namespace=ns,
         follow=False,
+        previous=from_previous,
         timestamps=True,
         _preload_content=False
     )
