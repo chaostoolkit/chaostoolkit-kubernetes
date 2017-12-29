@@ -180,7 +180,7 @@ def deployment_is_not_fully_available(name: str, ns: str= "default",
                 name=name, t=timeout))
 
 
-def read_microservices_logs(name: str, since_seconds: Union[str, None] = None,
+def read_microservices_logs(name: str, last: Union[str, None] = None,
                             ns: str="default", with_previous: bool=False,
                             secrets: Secrets=None) -> Dict[str, str]:
     """
@@ -188,7 +188,7 @@ def read_microservices_logs(name: str, since_seconds: Union[str, None] = None,
     return a dictionnary with the keys being the pod's name and the values
     the logs of said pod.
 
-    If you provide `since_seconds`, this returns the logs of the last N seconds
+    If you provide `last`, this returns the logs of the last N seconds
     until now. This can set to a fluent delta such as `10 minutes`.
 
     You may also set `with_previous` to `True` to capture the logs of a
@@ -202,10 +202,10 @@ def read_microservices_logs(name: str, since_seconds: Union[str, None] = None,
     logger.debug("Found {d} pods: [{p}]".format(
         d=len(ret.items), p=', '.join([p.metadata.name for p in ret.items])))
 
-    since = since_seconds
-    if since_seconds:
+    since = None
+    if last:
         now = datetime.now()
-        since = int((now - dateparser.parse(since_seconds)).total_seconds())
+        since = int((now - dateparser.parse(last)).total_seconds())
 
     params = dict(
         namespace=ns,
