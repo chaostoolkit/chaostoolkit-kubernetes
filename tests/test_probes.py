@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import io
 from unittest.mock import MagicMock, patch
 import urllib3
 
@@ -8,7 +9,8 @@ import pytest
 
 from chaosk8s.probes import all_microservices_healthy, \
     microservice_available_and_healthy, microservice_is_not_available, \
-    service_endpoint_is_initialized, deployment_is_not_fully_available
+    service_endpoint_is_initialized, deployment_is_not_fully_available, \
+    read_microservices_logs
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -153,3 +155,25 @@ def test_deployment_is_fully_available_when_it_should_not(cl, client,
     with pytest.raises(FailedActivity) as excinfo:
         deployment_is_not_fully_available("mysvc")
     assert "microservice 'mysvc' failed to stop running within" in str(excinfo)
+
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.probes.client', autospec=True)
+@patch('chaosk8s.client')
+def test_fetch_last_logs(cl, client, has_conf):
+    has_conf.return_value = False
+    pod = MagicMock()
+    pod.metadata.name = "myapp-1235"
+    result = MagicMock()
+    result.items = [pod]
+
+    v1 = MagicMock()
+    v1.list_namespaced_pod.return_value = result
+    client.CoreV1Api.return_value = v1
+
+    v1.read_namespaced_pod_log.return_value = io.BytesIO(b"hello")
+
+    logs = read_microservices_logs("myapp")
+
+    assert pod.metadata.name in logs
+    assert logs[pod.metadata.name] == "hello"

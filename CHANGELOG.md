@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.7.0...HEAD
 
+### Added
+
+- `read_microservices_logs` probe to fetch pod's logs
+
 ## [0.7.0][] - 2017-12-17
 
 [0.7.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.6.0...0.7.0
