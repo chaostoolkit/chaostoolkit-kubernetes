@@ -40,6 +40,14 @@ That's it!
 
 Please explore the code to see existing probes and actions.
 
+### Discovery
+
+You may use the Chaos Toolkit to discover the capabilities of this extension:
+
+```
+$ chaos discover chaostoolkit-kubernetes --no-install
+```
+
 ## Configuration
 
 This extension to the Chaos Toolkit can use the Kubernetes configuration 
