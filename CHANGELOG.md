@@ -4,6 +4,13 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.9.0...HEAD
 
+### Changed
+
+- activities now take a `label_selector` argument to let you adjust to your
+  conventions when selecting resources [#7][7]
+
+[7]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/7
+
 ## [0.9.0][] - 2018-01-16
 
 [0.9.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.8.0...0.9.0

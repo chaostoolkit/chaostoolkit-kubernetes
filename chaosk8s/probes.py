@@ -53,6 +53,7 @@ def all_microservices_healthy(ns: str = "default",
 
 def microservice_available_and_healthy(
         name: str, ns: str = "default",
+        label_selector: str="name in ({name})",
         secrets: Secrets = None) -> Union[bool, None]:
     """
     Lookup a deployment with a `service` label set to the given `name` in
@@ -61,11 +62,11 @@ def microservice_available_and_healthy(
     Raises :exc:`chaoslib.exceptions.FailedActivity` when the state is not
     as expected.
     """
+    label_selector = label_selector.format(name=name)
     api = create_k8s_api_client(secrets)
 
     v1 = client.AppsV1beta1Api(api)
-    ret = v1.list_namespaced_deployment(
-        ns, label_selector="name in ({name})".format(name=name))
+    ret = v1.list_namespaced_deployment(ns, label_selector=label_selector)
 
     logger.debug("Found {d} deployments named '{n}'".format(
         d=len(ret.items), n=name))
@@ -86,6 +87,7 @@ def microservice_available_and_healthy(
 
 
 def microservice_is_not_available(name: str, ns: str = "default",
+                                  label_selector: str="name in ({name})",
                                   secrets: Secrets = None) -> bool:
     """
     Lookup pods with a `name` label set to the given `name` in the specified
@@ -94,11 +96,11 @@ def microservice_is_not_available(name: str, ns: str = "default",
     Raises :exc:`chaoslib.exceptions.FailedActivity` when one of the pods
     with the specified `name` is in the `"Running"` phase.
     """
+    label_selector = label_selector.format(name=name)
     api = create_k8s_api_client(secrets)
 
     v1 = client.CoreV1Api(api)
-    ret = v1.list_namespaced_pod(
-        ns, label_selector="name  in ({name})".format(name=name))
+    ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
 
     logger.debug("Found {d} pod named '{n}'".format(
         d=len(ret.items), n=name))
@@ -115,16 +117,17 @@ def microservice_is_not_available(name: str, ns: str = "default",
 
 
 def service_endpoint_is_initialized(name: str, ns: str= "default",
+                                    label_selector: str="name in ({name})",
                                     secrets: Secrets = None):
     """
     Lookup a service endpoint by its name and raises :exc:`FailedProbe` when
     the service was not found or not initialized.
     """
+    label_selector = label_selector.format(name=name)
     api = create_k8s_api_client(secrets)
 
     v1 = client.CoreV1Api(api)
-    ret = v1.list_namespaced_service(
-        ns, label_selector="name in ({name})".format(name=name))
+    ret = v1.list_namespaced_service(ns, label_selector=label_selector)
 
     logger.debug("Found {d} services named '{n}'".format(
         d=len(ret.items), n=name))
@@ -137,6 +140,7 @@ def service_endpoint_is_initialized(name: str, ns: str= "default",
 
 
 def deployment_is_not_fully_available(name: str, ns: str= "default",
+                                      label_selector: str="name in ({name})",
                                       timeout: int = 30,
                                       secrets: Secrets = None):
     """
@@ -145,6 +149,7 @@ def deployment_is_not_fully_available(name: str, ns: str= "default",
     If the state is not reached after `timeout` seconds, a
     :exc:`chaoslib.exceptions.FailedActivity` exception is raised.
     """
+    label_selector = label_selector.format(name=name)
     api = create_k8s_api_client(secrets)
     v1 = client.AppsV1beta1Api(api)
     w = watch.Watch()
@@ -153,8 +158,8 @@ def deployment_is_not_fully_available(name: str, ns: str= "default",
     try:
         logger.debug("Watching events for {t}s".format(t=timeout))
         for event in w.stream(v1.list_namespaced_deployment, namespace=ns,
-                              label_selector="name  in ({name})".format(
-                                  name=name), _request_timeout=timeout):
+                              label_selector=label_selector,
+                              _request_timeout=timeout):
             deployment = event['object']
             status = deployment.status
             spec = deployment.spec
@@ -182,6 +187,7 @@ def deployment_is_not_fully_available(name: str, ns: str= "default",
 
 def read_microservices_logs(name: str, last: Union[str, None] = None,
                             ns: str="default", from_previous: bool=False,
+                            label_selector: str="name in ({name})",
                             secrets: Secrets=None) -> Dict[str, str]:
     """
     Fetch logs for all the pods with the label `"name"` set to `name` and
@@ -194,10 +200,10 @@ def read_microservices_logs(name: str, last: Union[str, None] = None,
     You may also set `from_previous` to `True` to capture the logs of a
     previous pod's incarnation, if any.
     """
+    label_selector = label_selector.format(name=name)
     api = create_k8s_api_client(secrets)
     v1 = client.CoreV1Api(api)
-    ret = v1.list_namespaced_pod(
-        ns, label_selector="name  in ({name})".format(name=name))
+    ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
 
     logger.debug("Found {d} pods: [{p}]".format(
         d=len(ret.items), p=', '.join([p.metadata.name for p in ret.items])))
