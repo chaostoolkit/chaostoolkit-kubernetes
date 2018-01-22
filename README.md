@@ -40,7 +40,7 @@ That's it!
 
 Please explore the code to see existing probes and actions.
 
-### Discovery
+### Discovery
 
 You may use the Chaos Toolkit to discover the capabilities of this extension:
 
@@ -94,3 +94,10 @@ usual [PEP 8][pep8] code style, add appropriate tests and submit a PR for
 review.
 
 [pep8]: https://pycodestyle.readthedocs.io/en/latest/
+
+The Chaos Toolkit projects require all contributors must sign a
+[Developer Certificate of Origin][dco] on each commit they would like to merge
+into the master branch of the repository. Please, make sure you can abide by
+the rules of the DCO before submitting a PR.
+
+[dco]: https://github.com/probot/dco#how-it-works
