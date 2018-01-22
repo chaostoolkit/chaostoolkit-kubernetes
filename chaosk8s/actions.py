@@ -42,6 +42,7 @@ def start_microservice(spec_path: str, ns: str = "default",
 
 
 def kill_microservice(name: str, ns: str = "default",
+                      label_selector: str = "name in ({name})",
                       secrets: Secrets = None):
     """
     Kill a microservice by `name` in the namespace `ns`.
@@ -49,14 +50,13 @@ def kill_microservice(name: str, ns: str = "default",
     The microservice is killed by deleting the deployment for it without
     a graceful period to trigger an abrupt termination.
 
-    To work, the deployment must have a `service` label matching the
-    `name` of the microservice.
+    The selected resources are matched by the given `label_selector`.
     """
+    label_selector = label_selector.format(name=name)
     api = create_k8s_api_client(secrets)
 
     v1 = client.AppsV1beta1Api(api)
-    ret = v1.list_namespaced_deployment(
-        ns, label_selector="name in ({name})".format(name=name))
+    ret = v1.list_namespaced_deployment(ns, label_selector=label_selector)
 
     logger.debug("Found {d} deployments named '{n}'".format(
         d=len(ret.items), n=name))
@@ -67,8 +67,7 @@ def kill_microservice(name: str, ns: str = "default",
             d.metadata.name, ns, body)
 
     v1 = client.ExtensionsV1beta1Api(api)
-    ret = v1.list_namespaced_replica_set(
-        ns, label_selector="name in ({name})".format(name=name))
+    ret = v1.list_namespaced_replica_set(ns, label_selector=label_selector)
 
     logger.debug("Found {d} deployments named '{n}'".format(
         d=len(ret.items), n=name))
@@ -79,8 +78,7 @@ def kill_microservice(name: str, ns: str = "default",
             r.metadata.name, ns, body)
 
     v1 = client.CoreV1Api(api)
-    ret = v1.list_namespaced_pod(
-        ns, label_selector="name in ({name})".format(name=name))
+    ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
 
     logger.debug("Found {d} pods named '{n}'".format(
         d=len(ret.items), n=name))

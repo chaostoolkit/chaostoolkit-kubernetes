@@ -177,3 +177,22 @@ def test_fetch_last_logs(cl, client, has_conf):
 
     assert pod.metadata.name in logs
     assert logs[pod.metadata.name] == "hello"
+
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.probes.client', autospec=True)
+@patch('chaosk8s.client')
+def test_can_select_by_label(cl, client, has_conf):
+    has_conf.return_value = False
+    result = MagicMock()
+    result.items = [MagicMock()]
+
+    v1 = MagicMock()
+    v1.list_namespaced_service.return_value = result
+    client.CoreV1Api.return_value = v1
+
+    label_selector = "app=my-super-app"
+    service_endpoint_is_initialized("mysvc", label_selector=label_selector)
+    v1.list_namespaced_service.assert_called_with(
+        "default", label_selector=label_selector
+    )
