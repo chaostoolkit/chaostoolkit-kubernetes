@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.10.0...HEAD
 
+### Changed
+
+-   Refactor dev/test dependencies so they are not deployed on install
+
 ## [0.10.0][] - 2018-01-22
 
 [0.10.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.9.0...0.10.0

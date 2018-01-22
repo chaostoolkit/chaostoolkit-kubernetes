@@ -1,0 +1,6 @@
+requests-mock
+coverage
+pycodestyle
+pytest>=2.8
+pytest-cov
+pytest-sugar

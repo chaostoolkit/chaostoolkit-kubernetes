@@ -2,5 +2,4 @@ dateparser
 kubernetes
 logzero
 chaostoolkit-lib>=0.10.0
-pycodestyle
 pyyaml
