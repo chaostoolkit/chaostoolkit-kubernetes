@@ -50,8 +50,7 @@ def kill_microservice(name: str, ns: str = "default",
     The microservice is killed by deleting the deployment for it without
     a graceful period to trigger an abrupt termination.
 
-    To work, the deployment must have a `service` label matching the
-    `name` of the microservice.
+    The selected resources are matched by the given `label_selector`.
     """
     label_selector = label_selector.format(name=name)
     api = create_k8s_api_client(secrets)
