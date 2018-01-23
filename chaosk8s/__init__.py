@@ -123,16 +123,16 @@ def explore_kubernetes_system() -> DiscoveredSystemInfo:
     v1ext = client.ExtensionsV1beta1Api(api)
 
     ret = v1core.list_namespace(_preload_content=False)
-    namespaces = ret.read()
+    namespaces = ret.read().decode('utf-8')
 
     info = {}
     for ns in json.loads(namespaces)["items"]:
         ret = v1core.list_namespaced_pod(
             namespace=ns["metadata"]["name"], _preload_content=False)
-        info["pods"] = json.loads(ret.read())
+        info["pods"] = json.loads(ret.read().decode('utf-8'))
 
         ret = v1ext.list_namespaced_deployment(
             namespace=ns["metadata"]["name"], _preload_content=False)
-        info["deployments"] = json.loads(ret.read())
+        info["deployments"] = json.loads(ret.read().decode('utf-8'))
 
     return info
