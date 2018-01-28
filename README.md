@@ -33,10 +33,28 @@ experiment file:
             "ns": "myns"
         }
     }
+},
+{
+    "type": "action",
+    "name": "terminate-db-pod",
+    "provider": {
+        "type": "python",
+        "module": "chaosk8s.pod.actions",
+        "func": "terminate_pods",
+        "arguments": {
+            "label_selector": "app=my-app",
+            "name_pattern": "my-app-[0-9]$",
+            "rand": true,
+            "ns": "default"
+        }
+    },
+    "pauses": {
+        "after": 5
+    }
 }
 ```
 
-That's it!
+That's it! Notice how the action gives you the way to kill one pod randomly.
 
 Please explore the code to see existing probes and actions.
 
@@ -70,7 +88,7 @@ also pass the credentials via secrets as follows:
 
 Then in your probe or action:
 
-```
+```json
 {
     "name": "all-our-microservices-should-be-healthy",
     "provider": {
