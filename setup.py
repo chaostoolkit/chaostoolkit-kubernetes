@@ -34,7 +34,8 @@ author_email = 'contact@chaostoolkit.org'
 url = 'http://chaostoolkit.org'
 license = 'Apache License Version 2.0'
 packages = [
-    'chaosk8s'
+    'chaosk8s',
+    'chaosk8s.pod'
 ]
 
 needs_pytest = set(['pytest', 'test']).intersection(sys.argv)

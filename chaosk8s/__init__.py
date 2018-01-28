@@ -14,7 +14,7 @@ from logzero import logger
 
 
 __all__ = ["create_k8s_api_client", "discover", "__version__"]
-__version__ = '0.10.0'
+__version__ = '0.11.0'
 
 
 def has_local_config_file():
@@ -106,6 +106,8 @@ def load_exported_activities() -> List[DiscoveredActivities]:
     activities = []
     activities.extend(discover_actions("chaosk8s.actions"))
     activities.extend(discover_probes("chaosk8s.probes"))
+    activities.extend(discover_actions("chaosk8s.pod.actions"))
+    activities.extend(discover_probes("chaosk8s.pod.probes"))
     return activities
 
 
