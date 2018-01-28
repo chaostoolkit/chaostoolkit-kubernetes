@@ -1,6 +1,7 @@
 # Chaos Toolkit Kubernetes Support
 
 [![Build Status](https://travis-ci.org/chaostoolkit/chaostoolkit-kubernetes.svg?branch=master)](https://travis-ci.org/chaostoolkit/chaostoolkit-kubernetes)
+[![Python versions](https://img.shields.io/pypi/pyversions/chaostoolkit-kubernetes.svg)](https://www.python.org/)
 
 This project contains activities, such as probes and actions, you can call from
 your experiment through the Chaos Toolkit.
@@ -79,7 +80,7 @@ also pass the credentials via secrets as follows:
             "KUBERNETES_HOST": "http://somehost",
             "KUBERNETES_API_KEY": {
                 "type": "env",
-                "key": "SO%E_ENV_VAR"
+                "key": "SOME_ENV_VAR"
             }
         }
     }
