@@ -68,7 +68,7 @@ def kill_microservice(name: str, ns: str = "default",
     v1 = client.ExtensionsV1beta1Api(api)
     ret = v1.list_namespaced_replica_set(ns, label_selector=label_selector)
 
-    logger.debug("Found {d} deployments named '{n}'".format(
+    logger.debug("Found {d} replica sets named '{n}'".format(
         d=len(ret.items), n=name))
 
     body = client.V1DeleteOptions()
