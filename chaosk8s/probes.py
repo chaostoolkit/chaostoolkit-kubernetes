@@ -56,8 +56,9 @@ def microservice_available_and_healthy(
         label_selector: str="name in ({name})",
         secrets: Secrets = None) -> Union[bool, None]:
     """
-    Lookup a deployment with a `service` label set to the given `name` in
-    the specified `ns`.
+    Lookup a deployment by `name` in the namespace `ns`.
+
+    The selected resources are matched by the given `label_selector`.
 
     Raises :exc:`chaoslib.exceptions.FailedActivity` when the state is not
     as expected.
