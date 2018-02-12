@@ -2,7 +2,19 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.11.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.12.0...HEAD
+
+## [0.12.0][] - 2018-02-12
+
+[0.12.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.11.0...0.12.0
+
+### Changed
+
+-   Moved the `chaosk8s.probes.read_microservice_logs` to 
+    `chaosk8s.pod.probes.read_pod_logs` for clarity
+-   Make name optional for `chaosk8s.pod.probes.read_pod_logs` as it usually
+    more preferred to use a label for that probe
+-   Removed the system discovery as it wasn't used by chaostoolkit anyway
 
 ## [0.11.0][] - 2018-01-28
 
