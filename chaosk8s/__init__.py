@@ -82,17 +82,13 @@ def create_k8s_api_client(secrets: Secrets = None) -> client.ApiClient:
 
 def discover(discover_system: bool = True) -> Discovery:
     """
-    Discover Kubernetes capabilities from this extension as well, if kube
-    config is available, some information about the Kubernetes cluster.
+    Discover Kubernetes capabilities offered by this extension.
     """
     logger.info("Discovering capabilities from chaostoolkit-kubernetes")
 
     discovery = initialize_discovery_result(
         "chaostoolkit-kubernetes", __version__, "kubernetes")
     discovery["activities"].extend(load_exported_activities())
-    if discover_system:
-        discovery["system"] = explore_kubernetes_system()
-
     return discovery
 
 
@@ -109,32 +105,3 @@ def load_exported_activities() -> List[DiscoveredActivities]:
     activities.extend(discover_actions("chaosk8s.pod.actions"))
     activities.extend(discover_probes("chaosk8s.pod.probes"))
     return activities
-
-
-def explore_kubernetes_system() -> DiscoveredSystemInfo:
-    """
-    Fetch information from the current Kubernetes context.
-    """
-    logger.info("Discovering Kubernetes system")
-    if not has_local_config_file():
-        logger.warn("Could not locate the default kubeconfig file")
-        return
-
-    api = config.new_client_from_config()
-    v1core = client.CoreV1Api(api)
-    v1ext = client.ExtensionsV1beta1Api(api)
-
-    ret = v1core.list_namespace(_preload_content=False)
-    namespaces = ret.read()
-
-    info = {}
-    for ns in json.loads(namespaces)["items"]:
-        ret = v1core.list_namespaced_pod(
-            namespace=ns["metadata"]["name"], _preload_content=False)
-        info["pods"] = json.loads(ret.read())
-
-        ret = v1ext.list_namespaced_deployment(
-            namespace=ns["metadata"]["name"], _preload_content=False)
-        info["deployments"] = json.loads(ret.read())
-
-    return info
