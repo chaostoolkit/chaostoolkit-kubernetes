@@ -186,5 +186,6 @@ def deployment_is_not_fully_available(name: str, ns: str= "default",
             "microservice '{name}' failed to stop running within {t}s".format(
                 name=name, t=timeout))
 
+
 # moved to pod/probes.py
 read_microservices_logs = read_pod_logs
