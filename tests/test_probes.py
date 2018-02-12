@@ -158,7 +158,7 @@ def test_deployment_is_fully_available_when_it_should_not(cl, client,
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.probes.client', autospec=True)
+@patch('chaosk8s.pod.probes.client', autospec=True)
 @patch('chaosk8s.client')
 def test_fetch_last_logs(cl, client, has_conf):
     has_conf.return_value = False

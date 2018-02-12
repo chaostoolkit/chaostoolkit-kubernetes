@@ -12,7 +12,8 @@ from logzero import logger
 from kubernetes import client, watch
 import yaml
 
-from chaosk8s import create_k8s_api_client
+from chaosk8s import __version__, create_k8s_api_client
+from chaosk8s.pod.probes import read_pod_logs
 
 
 __all__ = ["all_microservices_healthy", "microservice_available_and_healthy",
@@ -185,51 +186,5 @@ def deployment_is_not_fully_available(name: str, ns: str= "default",
             "microservice '{name}' failed to stop running within {t}s".format(
                 name=name, t=timeout))
 
-
-def read_microservices_logs(name: str, last: Union[str, None] = None,
-                            ns: str="default", from_previous: bool=False,
-                            label_selector: str="name in ({name})",
-                            secrets: Secrets=None) -> Dict[str, str]:
-    """
-    Fetch logs for all the pods with the label `"name"` set to `name` and
-    return a dictionnary with the keys being the pod's name and the values
-    the logs of said pod.
-
-    If you provide `last`, this returns the logs of the last N seconds
-    until now. This can set to a fluent delta such as `10 minutes`.
-
-    You may also set `from_previous` to `True` to capture the logs of a
-    previous pod's incarnation, if any.
-    """
-    label_selector = label_selector.format(name=name)
-    api = create_k8s_api_client(secrets)
-    v1 = client.CoreV1Api(api)
-    ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
-
-    logger.debug("Found {d} pods: [{p}]".format(
-        d=len(ret.items), p=', '.join([p.metadata.name for p in ret.items])))
-
-    since = None
-    if last:
-        now = datetime.now()
-        since = int((now - dateparser.parse(last)).total_seconds())
-
-    params = dict(
-        namespace=ns,
-        follow=False,
-        previous=from_previous,
-        timestamps=True,
-        _preload_content=False
-    )
-
-    if since:
-        params["since_seconds"] = since
-
-    logs = {}
-    for p in ret.items:
-        name = p.metadata.name
-        logger.debug("Fetching logs for pod '{n}'".format(n=name))
-        r = v1.read_namespaced_pod_log(name, **params)
-        logs[name] = r.read().decode('utf-8')
-
-    return logs
+# moved to pod/probes.py
+read_microservices_logs = read_pod_logs
