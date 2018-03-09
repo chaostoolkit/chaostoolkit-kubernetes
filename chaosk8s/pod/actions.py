@@ -40,8 +40,8 @@ def terminate_pods(label_selector: str=None, name_pattern: str=None,
         d=len(ret.items), s=label_selector))
 
     pods = []
-    pattern = re.compile(name_pattern)
     if name_pattern:
+        pattern = re.compile(name_pattern)
         for p in ret.items:
             if pattern.match(p.metadata.name):
                 pods.append(p)

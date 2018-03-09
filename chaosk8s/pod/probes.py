@@ -10,9 +10,10 @@ from logzero import logger
 from kubernetes import client, watch
 
 from chaosk8s import create_k8s_api_client
+from chaoslib.exceptions import FailedActivity
 
 
-__all__ = ["read_pod_logs"]
+__all__ = ["pods_in_phase", "pods_not_in_phase", "read_pod_logs"]
 
 
 def read_pod_logs(name: str=None, last: Union[str, None]=None,
@@ -68,3 +69,61 @@ def read_pod_logs(name: str=None, last: Union[str, None]=None,
         logs[name] = r.read().decode('utf-8')
 
     return logs
+
+
+def pods_in_phase(label_selector: str, phase: str = "Running",
+                  ns: str = "default", secrets: Secrets = None) -> bool:
+    """
+    Lookup a pod by `label_selector` in the namespace `ns`.
+
+    Raises :exc:`chaoslib.exceptions.FailedActivity` when the state is not
+    as expected.
+    """
+    api = create_k8s_api_client(secrets)
+
+    v1 = client.CoreV1Api(api)
+    ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
+
+    logger.debug("Found {d} pods matching label '{n}'".format(
+        d=len(ret.items), n=label_selector))
+
+    if not ret.items:
+        raise FailedActivity(
+            "no pods '{name}' were found".format(name=label_selector))
+
+    for d in ret.items:
+        if d.status.phase != phase:
+            raise FailedActivity(
+                "pod '{name}' is in phase '{s}' but should be '{p}'".format(
+                    name=label_selector, s=d.status.phase, p=phase))
+
+    return True
+
+
+def pods_not_in_phase(label_selector: str, phase: str = "Running",
+                      ns: str = "default", secrets: Secrets = None) -> bool:
+    """
+    Lookup a pod by `label_selector` in the namespace `ns`.
+
+    Raises :exc:`chaoslib.exceptions.FailedActivity` when the pod is in the
+    given phase and should not have.
+    """
+    api = create_k8s_api_client(secrets)
+
+    v1 = client.CoreV1Api(api)
+    ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
+
+    logger.debug("Found {d} pods matching label '{n}'".format(
+        d=len(ret.items), n=label_selector))
+
+    if not ret.items:
+        raise FailedActivity(
+            "no pods '{name}' were found".format(name=label_selector))
+
+    for d in ret.items:
+        if d.status.phase == phase:
+            raise FailedActivity(
+                "pod '{name}' should not be in phase '{s}'".format(
+                    name=label_selector, s=d.status.phase))
+
+    return True
