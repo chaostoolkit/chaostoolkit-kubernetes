@@ -2,7 +2,18 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.12.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.13.0...HEAD
+
+## [0.13.0][] - 2018-03-09
+
+[0.13.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.12.0...0.13.0
+
+### Added
+
+-   `chaosk8s.pod.probes.pods_in_phase` to probe that all pods matching a label
+    are in a given pod Phase
+-   `chaosk8s.pod.probes.pods_not_in_phase` to probe that all pods matching a
+    label are not in a given pod Phase
 
 ## [0.12.0][] - 2018-02-12
 
