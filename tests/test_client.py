@@ -45,6 +45,6 @@ def test_client_can_be_created_from_secrets(load_incluster_config, has_conf):
         has_conf.return_value = False
         load_incluster_config.return_value = None
         api = create_k8s_api_client()
-        load_incluster_config.assert_called_once()
+        load_incluster_config.assert_called_once_with()
     finally:
         os.environ.pop("CHAOSTOOLKIT_IN_POD", None)
