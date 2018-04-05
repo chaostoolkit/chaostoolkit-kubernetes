@@ -34,3 +34,17 @@ def test_client_can_be_created_from_secrets(has_conf):
     assert api.configuration.host == "http://someplace"
     assert api.configuration.api_key.get("authorization", "6789")
     assert api.configuration.api_key_prefix.get("authorization", "Boom")
+
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.config.load_incluster_config', autospec=True)
+def test_client_can_be_created_from_secrets(load_incluster_config, has_conf):
+    os.environ["CHAOSTOOLKIT_IN_POD"] = "true"
+
+    try:
+        has_conf.return_value = False
+        load_incluster_config.return_value = None
+        api = create_k8s_api_client()
+        load_incluster_config.assert_called_once()
+    finally:
+        os.environ.pop("CHAOSTOOLKIT_IN_POD", None)
