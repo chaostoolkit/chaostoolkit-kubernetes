@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.13.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.14.0...HEAD
+
+## [0.14.0][] - 2018-04-05
+
+[0.14.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.13.0...0.14.0
+
+### Added
+
+-   allow to create a Kubernetes client from a Kubernetes cluster pod
 
 ## [0.13.0][] - 2018-03-09
 
