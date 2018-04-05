@@ -70,8 +70,12 @@ $ chaos discover chaostoolkit-kubernetes --no-install
 ## Configuration
 
 This extension to the Chaos Toolkit can use the Kubernetes configuration 
-found at the usual place in your HOME directory under `~/.kube/`. You can
-also pass the credentials via secrets as follows:
+found at the usual place in your HOME directory under `~/.kube/`, or, when
+run from a Pod in a Kubernetes cluster, it will use the local service account.
+In that case, make sure to set the `CHAOSTOOLKIT_IN_POD` environment variable
+to `"true"`.
+
+You can also pass the credentials via secrets as follows:
 
 ```json
 {
