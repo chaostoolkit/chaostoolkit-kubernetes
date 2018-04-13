@@ -13,14 +13,14 @@ from chaosk8s import create_k8s_api_client
 from chaoslib.exceptions import FailedActivity
 
 
-__all__ = ["pods_in_phase", "pods_not_in_phase", "read_pod_logs"]
+__all__ = ["pods_in_phase", "pods_not_in_phase", "read_pod_logs", "count_pods"]
 
 
-def read_pod_logs(name: str=None, last: Union[str, None]=None,
-                  ns: str="default", from_previous: bool=False,
-                  label_selector: str="name in ({name})",
-                  container_name: str=None,
-                  secrets: Secrets=None) -> Dict[str, str]:
+def read_pod_logs(name: str = None, last: Union[str, None] = None,
+                  ns: str = "default", from_previous: bool = False,
+                  label_selector: str = "name in ({name})",
+                  container_name: str = None,
+                  secrets: Secrets = None) -> Dict[str, str]:
     """
     Fetch logs for all the pods with the label `"name"` set to `name` and
     return a dictionary with the keys being the pod's name and the values
@@ -127,3 +127,31 @@ def pods_not_in_phase(label_selector: str, phase: str = "Running",
                     name=label_selector, s=d.status.phase))
 
     return True
+
+
+def count_pods(label_selector: str, phase: str = None,
+               ns: str = "default", secrets: Secrets = None) -> int:
+    """
+    Count the number of pods matching the given selector in a given `phase`, if
+    one is given.
+    """
+    api = create_k8s_api_client(secrets)
+
+    v1 = client.CoreV1Api(api)
+    ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
+
+    logger.debug("Found {d} pods matching label '{n}'".format(
+        d=len(ret.items), n=label_selector))
+
+    if not ret.items:
+        return 0
+
+    if not phase:
+        return len(ret.items)
+
+    count = 0
+    for d in ret.items:
+        if d.status.phase == phase:
+            count = count + 1
+
+    return count

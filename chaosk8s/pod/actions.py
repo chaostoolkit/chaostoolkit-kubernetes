@@ -15,9 +15,9 @@ from chaosk8s import create_k8s_api_client
 __all__ = ["terminate_pods"]
 
 
-def terminate_pods(label_selector: str=None, name_pattern: str=None,
-                   all: bool=False, rand: bool=False,
-                   ns: str="default", secrets: Secrets=None):
+def terminate_pods(label_selector: str = None, name_pattern: str = None,
+                   all: bool = False, rand: bool = False,
+                   ns: str = "default", secrets: Secrets = None):
     """
     Terminate a pod gracefully. Select the appropriate pods by label and/or
     name patterns. Whenever a pattern is provided for the name, all pods

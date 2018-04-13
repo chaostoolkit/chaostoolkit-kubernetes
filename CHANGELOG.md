@@ -2,7 +2,20 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.14.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.15.0...HEAD
+
+## [0.15.0][] - 2018-04-13
+
+[0.15.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.14.0...0.15.0
+
+### Added
+
+-   a probe to count the number of pods
+-   actions to delete and create nodes
+-   actions to cordon, uncordon and drain nodes
+-   canot locate credentials automatically when ran from within a Pod if
+    you set the `CHAOSTOOLKIT_IN_POD: "true"` environment variable in the Pod
+    spec
 
 ## [0.14.0][] - 2018-04-05
 

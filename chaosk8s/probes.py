@@ -54,7 +54,7 @@ def all_microservices_healthy(ns: str = "default",
 
 def microservice_available_and_healthy(
         name: str, ns: str = "default",
-        label_selector: str="name in ({name})",
+        label_selector: str = "name in ({name})",
         secrets: Secrets = None) -> Union[bool, None]:
     """
     Lookup a deployment by `name` in the namespace `ns`.
@@ -89,7 +89,7 @@ def microservice_available_and_healthy(
 
 
 def microservice_is_not_available(name: str, ns: str = "default",
-                                  label_selector: str="name in ({name})",
+                                  label_selector: str = "name in ({name})",
                                   secrets: Secrets = None) -> bool:
     """
     Lookup pods with a `name` label set to the given `name` in the specified
@@ -118,8 +118,8 @@ def microservice_is_not_available(name: str, ns: str = "default",
     return True
 
 
-def service_endpoint_is_initialized(name: str, ns: str= "default",
-                                    label_selector: str="name in ({name})",
+def service_endpoint_is_initialized(name: str, ns: str = "default",
+                                    label_selector: str = "name in ({name})",
                                     secrets: Secrets = None):
     """
     Lookup a service endpoint by its name and raises :exc:`FailedProbe` when
@@ -141,8 +141,8 @@ def service_endpoint_is_initialized(name: str, ns: str= "default",
     return True
 
 
-def deployment_is_not_fully_available(name: str, ns: str= "default",
-                                      label_selector: str="name in ({name})",
+def deployment_is_not_fully_available(name: str, ns: str = "default",
+                                      label_selector: str = "name in ({name})",
                                       timeout: int = 30,
                                       secrets: Secrets = None):
     """
