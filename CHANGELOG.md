@@ -2,7 +2,19 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.15.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.16.0...HEAD
+
+## [0.16.0][] - 2018-04-24
+
+[0.16.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.15.0...0.16.0
+
+### Added
+
+-   Allow to pass the Kubernetes context to authenticate from by setting
+    the `"KUBERNETES_CONTEXT"` key in the environment or the secrets object
+    [#15][15]
+
+[15]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/15
 
 ## [0.15.0][] - 2018-04-13
 

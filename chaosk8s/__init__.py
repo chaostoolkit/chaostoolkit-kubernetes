@@ -14,7 +14,7 @@ from logzero import logger
 
 
 __all__ = ["create_k8s_api_client", "discover", "__version__"]
-__version__ = '0.15.0'
+__version__ = '0.16.0'
 
 
 def has_local_config_file():
@@ -27,7 +27,9 @@ def create_k8s_api_client(secrets: Secrets = None) -> client.ApiClient:
     """
     Create a Kubernetes client from:
 
-    1. From a local configuration file if it exists (`~/.kube/config`)
+    1. From a local configuration file if it exists (`~/.kube/config`). You
+       can specify which context you want to use as well through the
+       `KUBERNETES_CONTEXT` key in the environment or in the `secrets` object.
     2. From the cluster configuration if executed from a Kubernetes pod and
        the CHAOSTOOLKIT_IN_POD is set to `"true"`.
     3. From a mix of the following environment keys:
@@ -62,7 +64,10 @@ def create_k8s_api_client(secrets: Secrets = None) -> client.ApiClient:
         return secrets.get(k, env.get(k, d))
 
     if has_local_config_file():
-        return config.new_client_from_config()
+        context = lookup("KUBERNETES_CONTEXT")
+        logger.debug("Using Kubernetes context: {}".format(
+            context or "default"))
+        return config.new_client_from_config(context=context)
 
     elif env.get("CHAOSTOOLKIT_IN_POD") == "true":
         config.load_incluster_config()

@@ -109,6 +109,31 @@ Then in your probe or action:
 }
 ```
 
+You may specify the Kubernetes context you want to use as follows:
+
+```json
+{
+    "secrets": {
+        "kubernetes": {
+            "KUBERNETES_CONTEXT": "minikube"
+        }
+    }
+}
+```
+
+Or via the environment:
+
+```
+$ export KUBERNETES_CONTEXT=minikube
+```
+
+In the same spirit, you can specify where to find your Kubernetes configuration
+with:
+
+```
+$ export KUBECONFIG=some/path/config
+```
+
 ## Contribute
 
 If you wish to contribute more functions to this package, you are more than

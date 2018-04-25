@@ -48,3 +48,18 @@ def test_client_can_be_created_from_secrets(load_incluster_config, has_conf):
         load_incluster_config.assert_called_once_with()
     finally:
         os.environ.pop("CHAOSTOOLKIT_IN_POD", None)
+
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.config', autospec=True)
+def test_client_can_provide_a_context(cfg, has_conf):
+    has_conf.return_value = True
+    cfg.new_client_from_config = MagicMock()
+    try:
+        os.environ.update({
+            "KUBERNETES_CONTEXT": "minikube"
+        })
+        api = create_k8s_api_client()
+        cfg.new_client_from_config.assert_called_with(context="minikube")
+    finally:
+        os.environ.pop("KUBERNETES_CONTEXT", None)
