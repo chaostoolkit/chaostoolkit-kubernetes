@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.16.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.16.1...HEAD
+
+## [0.16.1][] - 2018-05-14
+
+[0.16.1]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.16.0...0.16.1
+
+### Added
+
+-   Added requirements-dev.txt to MANIFEST.in so it gets packaged and distributed
 
 ## [0.16.0][] - 2018-04-24
 
