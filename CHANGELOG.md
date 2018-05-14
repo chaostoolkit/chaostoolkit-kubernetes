@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.16.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.16.2...HEAD
+
+## [0.16.2][] - 2018-05-14
+
+[0.16.2]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.16.1...0.16.2
+
+### Added
+
+-   Read version from source file without importing
 
 ## [0.16.1][] - 2018-05-14
 
