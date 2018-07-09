@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import io
+import json
 from unittest.mock import MagicMock, patch
 import urllib3
 
@@ -11,6 +12,7 @@ from chaosk8s.probes import all_microservices_healthy, \
     microservice_available_and_healthy, microservice_is_not_available, \
     service_endpoint_is_initialized, deployment_is_not_fully_available, \
     read_microservices_logs
+from chaosk8s.node.probes import get_nodes
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -196,3 +198,20 @@ def test_can_select_by_label(cl, client, has_conf):
     v1.list_namespaced_service.assert_called_with(
         "default", label_selector=label_selector
     )
+
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.node.probes.client', autospec=True)
+@patch('chaosk8s.client')
+def test_can_select_nodes_by_label(cl, client, has_conf):
+    has_conf.return_value = False
+    v1 = MagicMock()
+    v1.list_node.return_value = io.BytesIO(
+        json.dumps({"hey": "there"}).encode('utf-8'))
+    client.CoreV1Api.return_value = v1
+
+    label_selector = 'beta.kubernetes.io/instance-type=m5.large'
+    resp = get_nodes(label_selector=label_selector)
+    v1.list_node.assert_called_with(
+        label_selector=label_selector, _preload_content=False)
+    assert resp == {"hey": "there"}
