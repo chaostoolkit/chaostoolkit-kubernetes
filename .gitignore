@@ -108,5 +108,6 @@ docs/site/
 
 # pytest results
 junit-test-results.xml
+.pytest_cache/
 
 .DS_Store

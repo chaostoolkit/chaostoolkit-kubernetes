@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
-import json
-import os.path
+import math
 import random
 import re
-from typing import Union
 
-from chaoslib.exceptions import FailedActivity
 from chaoslib.types import Secrets
 from kubernetes import client
 from logzero import logger
-
+from chaoslib.exceptions import ActivityFailed
 from chaosk8s import create_k8s_api_client
 
 __all__ = ["terminate_pods"]
@@ -17,6 +14,7 @@ __all__ = ["terminate_pods"]
 
 def terminate_pods(label_selector: str = None, name_pattern: str = None,
                    all: bool = False, rand: bool = False,
+                   mode: str = "fixed", qty: int = 1,
                    ns: str = "default", secrets: Secrets = None):
     """
     Terminate a pod gracefully. Select the appropriate pods by label and/or
@@ -25,12 +23,27 @@ def terminate_pods(label_selector: str = None, name_pattern: str = None,
     pattern.
 
     If neither `label_selector` nor `name_pattern` are provided, all pods
-    in the namespace will be terminated.
+    in the namespace will be selected for termination.
 
     If `all` is set to `True`, all matching pods will be terminated.
-    If `rand` is set to `True`, one random pod will be terminated.
-    Otherwise, the first retrieved pod will be terminated.
+
+    Value of `qty` varies based on `mode`.
+    If `mode` is set to `fixed`, then `qty` refers to number of pods to be
+    terminated. If `mode` is set to `percentage`, then `qty` refers to
+    percentage of pods, from 1 to 100, to be terminated.
+    Default `mode` is `fixed` and default `qty` is `1`.
+
+    If `rand` is set to `True`, n random pods will be terminated
+    Otherwise, the first retrieved n pods will be terminated.
     """
+    # Fail when quantity is less than 0
+    if qty < 0:
+        raise ActivityFailed(
+            "Cannot terminate pods. Quantity '{q}' is negative.".format(q=qty))
+    # Fail when mode is not `fixed` or `percentage`
+    if mode not in ['fixed', 'percentage']:
+        raise ActivityFailed(
+            "Cannot terminate pods. Mode '{m}' is invalid.".format(m=mode))
     api = create_k8s_api_client(secrets)
 
     v1 = client.CoreV1Api(api)
@@ -50,14 +63,20 @@ def terminate_pods(label_selector: str = None, name_pattern: str = None,
     else:
         pods = ret.items
 
-    if rand:
-        pods = [random.choice(pods)]
-        logger.debug("Picked pod '{p}' to be terminated".format(
-            p=pods[0].metadata.name))
-    elif not all:
-        pods = [pods[0]]
-        logger.debug("Picked pod '{p}' to be terminated".format(
-            p=pods[0].metadata.name))
+    if not all:
+        if mode == 'percentage':
+            qty = math.ceil((qty * len(pods)) / 100)
+        # If quantity is greater than number of pods present, cap the
+        # quantity to maximum number of pods
+        qty = min(qty, len(pods))
+
+        if rand:
+            pods = random.sample(pods, qty)
+        else:
+            pods = pods[:qty]
+
+    logger.debug("Picked pods '{p}' to be terminated".format(
+        p=",".join([po.metadata.name for po in pods])))
 
     body = client.V1DeleteOptions()
     for p in pods:
