@@ -3,14 +3,11 @@
 # cluster. While Chaos Engineering is all about disrupting and weaknesses,
 # it is important to take the time to fully appreciate what those actions
 # do and how they do it.
-import json
-import os.path
 import random
-import re
 import time
-from typing import Any, Dict, Union
+from typing import Any, Dict
 
-from chaoslib.exceptions import FailedActivity
+from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
 from kubernetes import client
 from kubernetes.client.rest import ApiException
@@ -51,7 +48,7 @@ def delete_nodes(label_selector: str = None, all: bool = False,
 
     nodes = ret.items
     if not nodes:
-        raise FailedActivity(
+        raise ActivityFailed(
             "failed to find a node that matches selector {}".format(
                 label_selector))
 
@@ -102,7 +99,7 @@ def create_node(meta: Dict[str, Any] = None, spec: Dict[str, Any] = None,
     try:
         res = v1.create_node(body)
     except ApiException as x:
-        raise FailedActivity("Creating new node failed: {}".format(x.body))
+        raise ActivityFailed("Creating new node failed: {}".format(x.body))
 
     logger.debug("Node '{}' created".format(res.metadata.name))
 
@@ -129,7 +126,7 @@ def cordon_node(name: str = None, label_selector: str = None,
 
     nodes = ret.items
     if not nodes:
-        raise FailedActivity(
+        raise ActivityFailed(
             "failed to find a node that matches selector {}".format(
                 label_selector))
 
@@ -145,7 +142,7 @@ def cordon_node(name: str = None, label_selector: str = None,
         except ApiException as x:
             logger.debug("Unscheduling node '{}' failed: {}".format(
                 n.metadata.name, x.body))
-            raise FailedActivity("Failed to unschedule node '{}': {}".format(
+            raise ActivityFailed("Failed to unschedule node '{}': {}".format(
                 n.metadata.name, x.body))
 
 
@@ -172,7 +169,7 @@ def uncordon_node(name: str = None, label_selector: str = None,
 
     nodes = ret.items
     if not nodes:
-        raise FailedActivity(
+        raise ActivityFailed(
             "failed to find a node that matches selector {}".format(
                 label_selector))
 
@@ -188,7 +185,7 @@ def uncordon_node(name: str = None, label_selector: str = None,
         except ApiException as x:
             logger.debug("Scheduling node '{}' failed: {}".format(
                 n.metadata.name, x.body))
-            raise FailedActivity("Failed to schedule node '{}': {}".format(
+            raise ActivityFailed("Failed to schedule node '{}': {}".format(
                 n.metadata.name, x.body))
 
 
@@ -225,7 +222,7 @@ def drain_nodes(name: str = None, label_selector: str = None,
 
     nodes = ret.items
     if not nodes:
-        raise FailedActivity(
+        raise ActivityFailed(
             "failed to find a node that matches selector {}".format(
                 label_selector))
 
@@ -280,7 +277,7 @@ def drain_nodes(name: str = None, label_selector: str = None,
                         "not evict it".format(name, node_name))
                     break
             else:
-                raise FailedActivity(
+                raise ActivityFailed(
                     "Pod '{}' on node '{}' is unmanaged, cannot drain this "
                     "node. Delete it manually first?".format(name, node_name))
 
@@ -301,7 +298,7 @@ def drain_nodes(name: str = None, label_selector: str = None,
                 v1.create_namespaced_pod_eviction(
                     pod.metadata.name, pod.metadata.namespace, body=eviction)
             except ApiException as x:
-                raise FailedActivity(
+                raise ActivityFailed(
                     "Failed to evict pod {}: {}".format(
                         pod.metadata.name, x.body))
 
@@ -312,7 +309,7 @@ def drain_nodes(name: str = None, label_selector: str = None,
 
             if time.time() - started > timeout:
                 remaining_pods = "\n".join([p.metadata.name for p in pods])
-                raise FailedActivity(
+                raise ActivityFailed(
                     "Draining nodes did not completed within {}s. "
                     "Remaining pods are:\n{}".format(timeout, remaining_pods))
 

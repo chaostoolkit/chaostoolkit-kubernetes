@@ -3,10 +3,11 @@ import math
 import random
 import re
 
+from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
 from kubernetes import client
 from logzero import logger
-from chaoslib.exceptions import ActivityFailed
+
 from chaosk8s import create_k8s_api_client
 
 __all__ = ["terminate_pods"]

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+
 from chaoslib.types import Configuration, Secrets
 from kubernetes import client
 

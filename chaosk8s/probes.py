@@ -1,20 +1,14 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
-import json
-import os.path
-from typing import Dict, Union
+from typing import Union
+
 import urllib3
-
-from chaoslib.exceptions import FailedActivity
+from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import MicroservicesStatus, Secrets
-import dateparser
-from logzero import logger
 from kubernetes import client, watch
-import yaml
+from logzero import logger
 
-from chaosk8s import __version__, create_k8s_api_client
+from chaosk8s import create_k8s_api_client
 from chaosk8s.pod.probes import read_pod_logs
-
 
 __all__ = ["all_microservices_healthy", "microservice_available_and_healthy",
            "microservice_is_not_available", "service_endpoint_is_initialized",
@@ -26,7 +20,7 @@ def all_microservices_healthy(ns: str = "default",
     """
     Check all microservices in the system are running and available.
 
-    Raises :exc:`chaoslib.exceptions.FailedActivity` when the state is not
+    Raises :exc:`chaoslib.exceptions.ActivityFailed` when the state is not
     as expected.
     """
     api = create_k8s_api_client(secrets)
@@ -47,7 +41,7 @@ def all_microservices_healthy(ns: str = "default",
 
     # we probably should list them in the message
     if failed or not_ready:
-        raise FailedActivity("the system is unhealthy")
+        raise ActivityFailed("the system is unhealthy")
 
     return True
 
@@ -61,7 +55,7 @@ def microservice_available_and_healthy(
 
     The selected resources are matched by the given `label_selector`.
 
-    Raises :exc:`chaoslib.exceptions.FailedActivity` when the state is not
+    Raises :exc:`chaoslib.exceptions.ActivityFailed` when the state is not
     as expected.
     """
     label_selector = label_selector.format(name=name)
@@ -74,7 +68,7 @@ def microservice_available_and_healthy(
         d=len(ret.items), n=name))
 
     if not ret.items:
-        raise FailedActivity(
+        raise ActivityFailed(
             "microservice '{name}' was not found".format(name=name))
 
     for d in ret.items:
@@ -82,7 +76,7 @@ def microservice_available_and_healthy(
             s=d.status.available_replicas))
 
         if d.status.available_replicas != d.spec.replicas:
-            raise FailedActivity(
+            raise ActivityFailed(
                 "microservice '{name}' is not healthy".format(name=name))
 
     return True
@@ -95,7 +89,7 @@ def microservice_is_not_available(name: str, ns: str = "default",
     Lookup pods with a `name` label set to the given `name` in the specified
     `ns`.
 
-    Raises :exc:`chaoslib.exceptions.FailedActivity` when one of the pods
+    Raises :exc:`chaoslib.exceptions.ActivityFailed` when one of the pods
     with the specified `name` is in the `"Running"` phase.
     """
     label_selector = label_selector.format(name=name)
@@ -112,7 +106,7 @@ def microservice_is_not_available(name: str, ns: str = "default",
         logger.debug("Pod '{p}' has status '{s}'".format(
             p=p.metadata.name, s=phase))
         if phase == "Running":
-            raise FailedActivity(
+            raise ActivityFailed(
                 "microservice '{name}' is actually running".format(name=name))
 
     return True
@@ -135,7 +129,7 @@ def service_endpoint_is_initialized(name: str, ns: str = "default",
         d=len(ret.items), n=name))
 
     if not ret.items:
-        raise FailedActivity(
+        raise ActivityFailed(
             "service '{name}' is not initialized".format(name=name))
 
     return True
@@ -149,7 +143,7 @@ def deployment_is_not_fully_available(name: str, ns: str = "default",
     Wait until the deployment gets into an intermediate state where not all
     expected replicas are available. Once this state is reached, return `True`.
     If the state is not reached after `timeout` seconds, a
-    :exc:`chaoslib.exceptions.FailedActivity` exception is raised.
+    :exc:`chaoslib.exceptions.ActivityFailed` exception is raised.
     """
     label_selector = label_selector.format(name=name)
     api = create_k8s_api_client(secrets)
@@ -182,7 +176,7 @@ def deployment_is_not_fully_available(name: str, ns: str = "default",
 
     except urllib3.exceptions.ReadTimeoutError:
         logger.debug("Timed out!")
-        raise FailedActivity(
+        raise ActivityFailed(
             "microservice '{name}' failed to stop running within {t}s".format(
                 name=name, t=timeout))
 

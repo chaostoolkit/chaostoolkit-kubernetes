@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 from unittest.mock import ANY, MagicMock, patch
 
-from chaoslib.exceptions import FailedActivity
-from kubernetes import client, config
-from kubernetes.client.rest import ApiException
 import pytest
+from chaoslib.exceptions import ActivityFailed
+from kubernetes.client.rest import ApiException
 
-from chaosk8s.actions import start_microservice, kill_microservice
+from chaosk8s.actions import start_microservice
 from chaosk8s.node.actions import cordon_node, create_node, delete_nodes, \
     uncordon_node, drain_nodes
 
@@ -15,7 +14,7 @@ from chaosk8s.node.actions import cordon_node, create_node, delete_nodes, \
 def test_cannot_process_other_than_yaml_and_json(has_conf):
     has_conf.return_value = False
     path = "./tests/fixtures/invalid-k8s.txt"
-    with pytest.raises(FailedActivity) as excinfo:
+    with pytest.raises(ActivityFailed) as excinfo:
         start_microservice(spec_path=path)
     assert "cannot process {path}".format(path=path) in str(excinfo)
 
@@ -63,7 +62,7 @@ def test_create_node_may_fail(cl, client, has_conf):
     v1.create_node.side_effect = ApiException()
     client.CoreV1Api.return_value = v1
 
-    with pytest.raises(FailedActivity) as x:
+    with pytest.raises(ActivityFailed) as x:
         create_node(meta, spec)
     assert "Creating new node failed" in str(x)
 
@@ -187,7 +186,7 @@ def test_drain_nodes_by_name(cl, client, has_conf):
     result = MagicMock()
     result.items = [node]
     v1.list_node.return_value = result
-    
+
     owner = MagicMock()
     owner.controller = True
     owner.kind = "ReplicationSet"
@@ -232,7 +231,7 @@ def test_daemonsets_cannot_be_drained(cl, client, has_conf):
     result = MagicMock()
     result.items = [node]
     v1.list_node.return_value = result
-    
+
     owner = MagicMock()
     owner.controller = True
     owner.kind = "DaemonSet"
@@ -268,7 +267,7 @@ def test_pod_with_local_volume_cannot_be_drained(cl, client, has_conf):
     result = MagicMock()
     result.items = [node]
     v1.list_node.return_value = result
-    
+
     owner = MagicMock()
     owner.controller = True
     owner.kind = "ReplicationSet"
@@ -308,7 +307,7 @@ def test_pod_with_local_volume_cannot_be_drained_unless_forced(cl, client,
     result = MagicMock()
     result.items = [node]
     v1.list_node.return_value = result
-    
+
     owner = MagicMock()
     owner.controller = True
     owner.kind = "ReplicationSet"
@@ -353,7 +352,7 @@ def test_mirror_pod_cannot_be_drained(cl, client, has_conf):
     result = MagicMock()
     result.items = [node]
     v1.list_node.return_value = result
-    
+
     owner = MagicMock()
     owner.controller = True
     owner.kind = "ReplicationSet"

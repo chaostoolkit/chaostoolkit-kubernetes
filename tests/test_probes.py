@@ -2,17 +2,16 @@
 import io
 import json
 from unittest.mock import MagicMock, patch
-import urllib3
 
-from chaoslib.exceptions import FailedActivity
-from kubernetes import client, config
 import pytest
+import urllib3
+from chaoslib.exceptions import ActivityFailed
 
+from chaosk8s.node.probes import get_nodes
 from chaosk8s.probes import all_microservices_healthy, \
     microservice_available_and_healthy, microservice_is_not_available, \
     service_endpoint_is_initialized, deployment_is_not_fully_available, \
     read_microservices_logs
-from chaosk8s.node.probes import get_nodes
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -30,7 +29,7 @@ def test_unhealthy_system_should_be_reported(cl, client, has_conf):
     v1.list_namespaced_pod.return_value = result
     client.CoreV1Api.return_value = v1
 
-    with pytest.raises(FailedActivity) as excinfo:
+    with pytest.raises(ActivityFailed) as excinfo:
         all_microservices_healthy()
     assert "the system is unhealthy" in str(excinfo)
 
@@ -49,7 +48,7 @@ def test_expecting_a_healthy_microservice_should_be_reported_when_not(cl,
     v1.list_namespaced_deployment.return_value = result
     client.AppsV1beta1Api.return_value = v1
 
-    with pytest.raises(FailedActivity) as excinfo:
+    with pytest.raises(ActivityFailed) as excinfo:
         microservice_available_and_healthy("mysvc")
     assert "microservice 'mysvc' was not found" in str(excinfo)
 
@@ -58,7 +57,7 @@ def test_expecting_a_healthy_microservice_should_be_reported_when_not(cl,
     deployment.status.available_replicas = 1
     result.items.append(deployment)
 
-    with pytest.raises(FailedActivity) as excinfo:
+    with pytest.raises(ActivityFailed) as excinfo:
         microservice_available_and_healthy("mysvc")
     assert "microservice 'mysvc' is not healthy" in str(excinfo)
 
@@ -66,7 +65,7 @@ def test_expecting_a_healthy_microservice_should_be_reported_when_not(cl,
 @patch('chaosk8s.has_local_config_file', autospec=True)
 @patch('chaosk8s.probes.client', autospec=True)
 @patch('chaosk8s.client')
-def test_expecting_microservice_is_there_when_it_should_not(cl, client, 
+def test_expecting_microservice_is_there_when_it_should_not(cl, client,
                                                             has_conf):
     has_conf.return_value = False
     pod = MagicMock()
@@ -78,7 +77,7 @@ def test_expecting_microservice_is_there_when_it_should_not(cl, client,
     v1.list_namespaced_pod.return_value = result
     client.CoreV1Api.return_value = v1
 
-    with pytest.raises(FailedActivity) as excinfo:
+    with pytest.raises(ActivityFailed) as excinfo:
         microservice_is_not_available("mysvc")
     assert "microservice 'mysvc' is actually running" in str(excinfo)
 
@@ -104,7 +103,7 @@ def test_expecting_service_endpoint_should_be_initialized(cl, client,
 @patch('chaosk8s.probes.client', autospec=True)
 @patch('chaosk8s.client')
 def test_unitialized_or_not_existing_service_endpoint_should_not_be_considered_available(
-    cl, client, has_conf):
+        cl, client, has_conf):
     has_conf.return_value = False
     service = MagicMock()
     result = MagicMock()
@@ -114,7 +113,7 @@ def test_unitialized_or_not_existing_service_endpoint_should_not_be_considered_a
     v1.list_namespaced_service.return_value = result
     client.CoreV1Api.return_value = v1
 
-    with pytest.raises(FailedActivity) as excinfo:
+    with pytest.raises(ActivityFailed) as excinfo:
         service_endpoint_is_initialized("mysvc")
     assert "service 'mysvc' is not initialized" in str(excinfo)
 
@@ -154,7 +153,7 @@ def test_deployment_is_fully_available_when_it_should_not(cl, client,
         None, None, None)
     watch.Watch.return_value = watcher
 
-    with pytest.raises(FailedActivity) as excinfo:
+    with pytest.raises(ActivityFailed) as excinfo:
         deployment_is_not_fully_available("mysvc")
     assert "microservice 'mysvc' failed to stop running within" in str(excinfo)
 

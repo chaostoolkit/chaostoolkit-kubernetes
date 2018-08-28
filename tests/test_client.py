@@ -2,9 +2,6 @@
 import os
 from unittest.mock import MagicMock, patch
 
-from kubernetes import client, config
-import pytest
-
 from chaosk8s import create_k8s_api_client
 
 
