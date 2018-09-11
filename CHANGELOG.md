@@ -7,8 +7,13 @@
 ### Added
 
 -  [Codecov][codecov] integration
+-  Renamed `FailedActivity` to `ActivityFailed` as per [chaostoolkit 0.20.0][0.20.0]. See [PR#20][20]
+-  Add Ability to specify a maximum percentage of pods to be killed [PR#19][19]
 
 [codecov]: https://codecov.io/gh/chaostoolkit/chaostoolkit-kubernetes
+[0.20.0]: https://github.com/chaostoolkit/chaostoolkit-lib/blob/master/CHANGELOG.md#0200---2018-08-09
+[20]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/20
+[19]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/19
 
 ## [0.17.0][] - 2018-09-07
 
