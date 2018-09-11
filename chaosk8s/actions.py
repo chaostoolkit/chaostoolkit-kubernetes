@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 import json
 import os.path
-from typing import Union
 
-from chaoslib.exceptions import FailedActivity
-from chaoslib.types import MicroservicesStatus, Secrets
-from logzero import logger
+import yaml
+from chaoslib.exceptions import ActivityFailed
+from chaoslib.types import Secrets
 from kubernetes import client
 from kubernetes.client.rest import ApiException
-import yaml
+from logzero import logger
 
 from chaosk8s import create_k8s_api_client
-
 
 __all__ = ["start_microservice", "kill_microservice", "scale_microservice",
            "remove_service_endpoint"]
@@ -32,7 +30,7 @@ def start_microservice(spec_path: str, ns: str = "default",
         elif ext in ['.yml', '.yaml']:
             deployment = yaml.load(f.read())
         else:
-            raise FailedActivity(
+            raise ActivityFailed(
                 "cannot process {path}".format(path=spec_path))
 
     v1 = client.AppsV1beta1Api(api)
@@ -111,6 +109,6 @@ def scale_microservice(name: str, replicas: int, ns: str = "default",
     try:
         v1.patch_namespaced_deployment_scale(name, namespace=ns, body=body)
     except ApiException as e:
-        raise FailedActivity(
+        raise ActivityFailed(
             "failed to scale '{s}' to {r} replicas: {e}".format(
                 s=name, r=replicas, e=str(e)))

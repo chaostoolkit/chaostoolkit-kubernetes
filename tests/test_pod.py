@@ -2,7 +2,7 @@
 from unittest.mock import MagicMock, patch, ANY, call
 
 import pytest
-from chaoslib.exceptions import FailedActivity, ActivityFailed
+from chaoslib.exceptions import ActivityFailed
 
 from chaosk8s.pod.actions import terminate_pods
 from chaosk8s.pod.probes import pods_in_phase, pods_not_in_phase
@@ -349,7 +349,7 @@ def test_pods_should_have_been_phase(cl, client, has_conf):
     v1.list_namespaced_pod.return_value = result
     client.CoreV1Api.return_value = v1
 
-    with pytest.raises(FailedActivity) as x:
+    with pytest.raises(ActivityFailed) as x:
         assert pods_in_phase(
             label_selector="app=mysvc", phase="Running") is True
     assert "pod 'app=mysvc' is in phase 'Pending' but should be " \

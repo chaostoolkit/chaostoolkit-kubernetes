@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import pytest
 
 from chaosk8s import __version__, discover
 
