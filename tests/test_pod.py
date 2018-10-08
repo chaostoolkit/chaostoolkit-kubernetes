@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from unittest.mock import MagicMock, patch, ANY, call
 
+from kubernetes import client
+
 import pytest
 from chaoslib.exceptions import ActivityFailed
 
@@ -171,6 +173,28 @@ def test_terminate_pods_when_no_params_given(cl, client, has_conf):
     assert v1.delete_namespaced_pod.call_count == 1
     v1.delete_namespaced_pod.assert_called_with(
         pod1.metadata.name, "default", ANY)
+
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.pod.actions.client', autospec=True)
+@patch('chaosk8s.client')
+def test_terminate_pods_when_grace_period_is_set(cl, client, has_conf):
+    has_conf.return_value = False
+    pod1 = MagicMock()
+    pod1.metadata.name = "some-app"
+
+    result = MagicMock()
+    result.items = [pod1]
+
+    v1 = MagicMock()
+    v1.list_namespaced_pod.return_value = result
+    client.CoreV1Api.return_value = v1
+
+    terminate_pods(grace_period = 5)
+
+    assert v1.delete_namespaced_pod.call_count == 1
+    v1.delete_namespaced_pod.assert_called_with(
+        pod1.metadata.name, "default", client.V1DeleteOptions(grace_period_seconds = 5))
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)

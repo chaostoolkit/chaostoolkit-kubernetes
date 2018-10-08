@@ -16,6 +16,7 @@ __all__ = ["terminate_pods"]
 def terminate_pods(label_selector: str = None, name_pattern: str = None,
                    all: bool = False, rand: bool = False,
                    mode: str = "fixed", qty: int = 1,
+                   grace_period: int = -1,
                    ns: str = "default", secrets: Secrets = None):
     """
     Terminate a pod gracefully. Select the appropriate pods by label and/or
@@ -36,6 +37,10 @@ def terminate_pods(label_selector: str = None, name_pattern: str = None,
 
     If `rand` is set to `True`, n random pods will be terminated
     Otherwise, the first retrieved n pods will be terminated.
+
+    If `grace_period` is greater than or equal to 0, it will
+    be used as the grace period (in seconds) to terminate the pods.
+    Otherwise, the default pod's grace period will be used.
     """
     # Fail when quantity is less than 0
     if qty < 0:
@@ -80,6 +85,8 @@ def terminate_pods(label_selector: str = None, name_pattern: str = None,
         p=",".join([po.metadata.name for po in pods])))
 
     body = client.V1DeleteOptions()
+    if grace_period >= 0:
+        body = client.V1DeleteOptions(grace_period_seconds=grace_period)
+
     for p in pods:
-        res = v1.delete_namespaced_pod(
-            p.metadata.name, ns, body)
+        res = v1.delete_namespaced_pod(p.metadata.name, ns, body)
