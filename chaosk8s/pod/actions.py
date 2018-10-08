@@ -84,10 +84,9 @@ def terminate_pods(label_selector: str = None, name_pattern: str = None,
     logger.debug("Picked pods '{p}' to be terminated".format(
         p=",".join([po.metadata.name for po in pods])))
 
+    body = client.V1DeleteOptions()
     if grace_period >= 0:
         body = client.V1DeleteOptions(grace_period_seconds=grace_period)
-    else:
-        body = client.V1DeleteOptions()
 
     for p in pods:
         res = v1.delete_namespaced_pod(p.metadata.name, ns, body)
