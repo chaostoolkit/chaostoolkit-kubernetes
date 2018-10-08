@@ -9,6 +9,7 @@
 -  [Codecov][codecov] integration
 -  Renamed `FailedActivity` to `ActivityFailed` as per [chaostoolkit 0.20.0][0.20.0]. See [PR#20][20]
 -  Add Ability to specify a maximum percentage of pods to be killed [PR#19][19]
+-  Consider `Completed` pods as healthy in the `all_microservices_healthy` probe. See [PR#23][23]
 
 [codecov]: https://codecov.io/gh/chaostoolkit/chaostoolkit-kubernetes
 [0.20.0]: https://github.com/chaostoolkit/chaostoolkit-lib/blob/master/CHANGELOG.md#0200---2018-08-09
@@ -89,7 +90,7 @@
 
 ### Changed
 
--   Moved the `chaosk8s.probes.read_microservice_logs` to 
+-   Moved the `chaosk8s.probes.read_microservice_logs` to
     `chaosk8s.pod.probes.read_pod_logs` for clarity
 -   Make name optional for `chaosk8s.pod.probes.read_pod_logs` as it usually
     more preferred to use a label for that probe
