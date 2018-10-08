@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.18.0...HEAD
 
+### Added
+
+-  Fix: use `Succeeded` instead of `Completed` to filter successful pods created by a cronjob in the `all_microservices_healthy` probe.
+
 ## [0.18.0][] - 2018-10-08
 
 [0.18.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.17.0...0.18.0
