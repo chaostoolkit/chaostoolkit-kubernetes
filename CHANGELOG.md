@@ -2,7 +2,20 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.18.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.19.1...HEAD
+
+## [0.19.1][] - 2018-10-08
+
+[0.19.1]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.18.1...0.19.1
+
+### Changed
+
+-  As part of [#21][21], we realized that passing `None` to some parameters of the
+   Kubernetes client API was not the right move because, in that case, the client
+   turns that into a `"None"` string which is not what we want. So I had to
+   resort to many conditionals that make the code not as clean I'd want. Sigh!
+
+[21]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/21
 
 ## [0.18.1][] - 2018-10-08
 
