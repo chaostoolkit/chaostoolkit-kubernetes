@@ -41,10 +41,13 @@ def delete_nodes(label_selector: str = None, all: bool = False,
     api = create_k8s_api_client(secrets)
 
     v1 = client.CoreV1Api(api)
-    ret = v1.list_node(label_selector=label_selector)
-
-    logger.debug("Found {d} nodes labelled '{s}'".format(
-        d=len(ret.items), s=label_selector))
+    if label_selector:
+        ret = v1.list_node(label_selector=label_selector)
+        logger.debug("Found {d} nodes labelled '{s}'".format(
+            d=len(ret.items), s=label_selector))
+    else:
+        ret = v1.list_node()
+        logger.debug("Found {d} nodes".format(d=len(ret.items)))
 
     nodes = ret.items
     if not nodes:
@@ -119,10 +122,13 @@ def cordon_node(name: str = None, label_selector: str = None,
         ret = v1.list_node(field_selector="metadata.name={}".format(name))
         logger.debug("Found {d} node named '{s}'".format(
             d=len(ret.items), s=name))
-    else:
+    elif label_selector:
         ret = v1.list_node(label_selector=label_selector)
         logger.debug("Found {d} node(s) labelled '{s}'".format(
             d=len(ret.items), s=label_selector))
+    else:
+        ret = v1.list_node()
+        logger.debug("Found {d} node(s)".format(d=len(ret.items)))
 
     nodes = ret.items
     if not nodes:
@@ -159,13 +165,13 @@ def uncordon_node(name: str = None, label_selector: str = None,
         ret = v1.list_node(field_selector="metadata.name={}".format(name))
         logger.debug("Found {d} node named '{s}'".format(
             d=len(ret.items), s=name))
-    else:
+    elif label_selector:
         ret = v1.list_node(label_selector=label_selector)
         logger.debug("Found {d} node(s) labelled '{s}'".format(
             d=len(ret.items), s=label_selector))
-
-    logger.debug("Found {d} nodes labelled '{s}'".format(
-        d=len(ret.items), s=label_selector))
+    else:
+        ret = v1.list_node()
+        logger.debug("Found {d} node(s)".format(d=len(ret.items)))
 
     nodes = ret.items
     if not nodes:
@@ -211,14 +217,15 @@ def drain_nodes(name: str = None, label_selector: str = None,
     v1 = client.CoreV1Api(api)
     if name:
         ret = v1.list_node(field_selector="metadata.name={}".format(name))
-
         logger.debug("Found {d} node named '{s}'".format(
             d=len(ret.items), s=name))
-    else:
+    elif label_selector:
         ret = v1.list_node(label_selector=label_selector)
-
         logger.debug("Found {d} node(s) labelled '{s}'".format(
             d=len(ret.items), s=label_selector))
+    else:
+        ret = v1.list_node()
+        logger.debug("Found {d} node(s)".format(d=len(ret.items)))
 
     nodes = ret.items
     if not nodes:

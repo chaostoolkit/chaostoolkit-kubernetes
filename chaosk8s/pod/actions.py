@@ -53,10 +53,14 @@ def terminate_pods(label_selector: str = None, name_pattern: str = None,
     api = create_k8s_api_client(secrets)
 
     v1 = client.CoreV1Api(api)
-    ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
-
-    logger.debug("Found {d} pods labelled '{s}'".format(
-        d=len(ret.items), s=label_selector))
+    if label_selector:
+        ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
+        logger.debug("Found {d} pods labelled '{s}' in ns {n}".format(
+            d=len(ret.items), s=label_selector, n=ns))
+    else:
+        ret = v1.list_namespaced_pod(ns)
+        logger.debug("Found {d} pods in ns '{n}'".format(
+            d=len(ret.items), n=ns))
 
     pods = []
     if name_pattern:

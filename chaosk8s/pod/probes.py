@@ -36,10 +36,16 @@ def read_pod_logs(name: str = None, last: Union[str, None] = None,
     label_selector = label_selector.format(name=name)
     api = create_k8s_api_client(secrets)
     v1 = client.CoreV1Api(api)
-    ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
 
-    logger.debug("Found {d} pods: [{p}]".format(
-        d=len(ret.items), p=', '.join([p.metadata.name for p in ret.items])))
+    if label_selector:
+        ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
+
+    else:
+        ret = v1.list_namespaced_pod(ns)
+
+    logger.debug("Found {d} pods: [{p}] in ns '{n}'".format(
+        d=len(ret.items), n=ns,
+        p=', '.join([p.metadata.name for p in ret.items])))
 
     since = None
     if last:
@@ -79,10 +85,14 @@ def pods_in_phase(label_selector: str, phase: str = "Running",
     api = create_k8s_api_client(secrets)
 
     v1 = client.CoreV1Api(api)
-    ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
-
-    logger.debug("Found {d} pods matching label '{n}'".format(
-        d=len(ret.items), n=label_selector))
+    if label_selector:
+        ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
+        logger.debug("Found {d} pods matching label '{n}' in ns '{s}'".format(
+            d=len(ret.items), n=label_selector, s=ns))
+    else:
+        ret = v1.list_namespaced_pod(ns)
+        logger.debug("Found {d} pods in ns '{n}'".format(
+            d=len(ret.items), n=ns))
 
     if not ret.items:
         raise ActivityFailed(
@@ -108,10 +118,14 @@ def pods_not_in_phase(label_selector: str, phase: str = "Running",
     api = create_k8s_api_client(secrets)
 
     v1 = client.CoreV1Api(api)
-    ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
-
-    logger.debug("Found {d} pods matching label '{n}'".format(
-        d=len(ret.items), n=label_selector))
+    if label_selector:
+        ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
+        logger.debug("Found {d} pods matching label '{n}' in ns '{s}'".format(
+            d=len(ret.items), n=label_selector, s=ns))
+    else:
+        ret = v1.list_namespaced_pod(ns)
+        logger.debug("Found {d} pods in ns '{n}'".format(
+            d=len(ret.items), n=ns))
 
     if not ret.items:
         raise ActivityFailed(
@@ -135,10 +149,14 @@ def count_pods(label_selector: str, phase: str = None,
     api = create_k8s_api_client(secrets)
 
     v1 = client.CoreV1Api(api)
-    ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
-
-    logger.debug("Found {d} pods matching label '{n}'".format(
-        d=len(ret.items), n=label_selector))
+    if label_selector:
+        ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
+        logger.debug("Found {d} pods matching label '{n}' in ns '{s}'".format(
+            d=len(ret.items), n=label_selector, s=ns))
+    else:
+        ret = v1.list_namespaced_pod(ns)
+        logger.debug("Found {d} pods in ns '{n}'".format(
+            d=len(ret.items), n=ns))
 
     if not ret.items:
         return 0

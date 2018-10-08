@@ -62,10 +62,13 @@ def microservice_available_and_healthy(
     api = create_k8s_api_client(secrets)
 
     v1 = client.AppsV1beta1Api(api)
-    ret = v1.list_namespaced_deployment(ns, label_selector=label_selector)
+    if label_selector:
+        ret = v1.list_namespaced_deployment(ns, label_selector=label_selector)
+    else:
+        ret = v1.list_namespaced_deployment(ns)
 
-    logger.debug("Found {d} deployments named '{n}'".format(
-        d=len(ret.items), n=name))
+    logger.debug("Found {d} deployment(s) named '{n}' in ns '{s}'".format(
+        d=len(ret.items), n=name, s=ns))
 
     if not ret.items:
         raise ActivityFailed(
@@ -96,10 +99,13 @@ def microservice_is_not_available(name: str, ns: str = "default",
     api = create_k8s_api_client(secrets)
 
     v1 = client.CoreV1Api(api)
-    ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
+    if label_selector:
+        ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
+    else:
+        ret = v1.list_namespaced_pod(ns)
 
-    logger.debug("Found {d} pod named '{n}'".format(
-        d=len(ret.items), n=name))
+    logger.debug("Found {d} pod(s) named '{n}' in ns '{s}".format(
+        d=len(ret.items), n=name, s=ns))
 
     for p in ret.items:
         phase = p.status.phase
@@ -123,10 +129,13 @@ def service_endpoint_is_initialized(name: str, ns: str = "default",
     api = create_k8s_api_client(secrets)
 
     v1 = client.CoreV1Api(api)
-    ret = v1.list_namespaced_service(ns, label_selector=label_selector)
+    if label_selector:
+        ret = v1.list_namespaced_service(ns, label_selector=label_selector)
+    else:
+        ret = v1.list_namespaced_service(ns)
 
-    logger.debug("Found {d} services named '{n}'".format(
-        d=len(ret.items), n=name))
+    logger.debug("Found {d} service(s) named '{n}' ins ns '{s}'".format(
+        d=len(ret.items), n=name, s=ns))
 
     if not ret.items:
         raise ActivityFailed(

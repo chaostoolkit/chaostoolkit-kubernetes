@@ -53,7 +53,10 @@ def kill_microservice(name: str, ns: str = "default",
     api = create_k8s_api_client(secrets)
 
     v1 = client.AppsV1beta1Api(api)
-    ret = v1.list_namespaced_deployment(ns, label_selector=label_selector)
+    if label_selector:
+        ret = v1.list_namespaced_deployment(ns, label_selector=label_selector)
+    else:
+        ret = v1.list_namespaced_deployment(ns)
 
     logger.debug("Found {d} deployments named '{n}'".format(
         d=len(ret.items), n=name))
@@ -64,7 +67,10 @@ def kill_microservice(name: str, ns: str = "default",
             d.metadata.name, ns, body)
 
     v1 = client.ExtensionsV1beta1Api(api)
-    ret = v1.list_namespaced_replica_set(ns, label_selector=label_selector)
+    if label_selector:
+        ret = v1.list_namespaced_replica_set(ns, label_selector=label_selector)
+    else:
+        ret = v1.list_namespaced_replica_set(ns)
 
     logger.debug("Found {d} replica sets named '{n}'".format(
         d=len(ret.items), n=name))
@@ -75,7 +81,10 @@ def kill_microservice(name: str, ns: str = "default",
             r.metadata.name, ns, body)
 
     v1 = client.CoreV1Api(api)
-    ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
+    if label_selector:
+        ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
+    else:
+        ret = v1.list_namespaced_pod(ns)
 
     logger.debug("Found {d} pods named '{n}'".format(
         d=len(ret.items), n=name))
