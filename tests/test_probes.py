@@ -34,6 +34,30 @@ def test_unhealthy_system_should_be_reported(cl, client, has_conf):
     assert "the system is unhealthy" in str(excinfo)
 
 
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.probes.client', autospec=True)
+@patch('chaosk8s.client')
+def test_completed_and_running_pods_should_be_considered_healthy(cl, client, has_conf):
+    has_conf.return_value = False
+
+    podCompleted = MagicMock()
+    podCompleted.status.phase = "Completed"
+
+    podRunning = MagicMock()
+    podRunning.status.phase = "Running"
+
+    result = MagicMock()
+    result.items = [podCompleted, podRunning]
+
+    v1 = MagicMock()
+    v1.list_namespaced_pod.return_value = result
+    client.CoreV1Api.return_value = v1
+
+    health = all_microservices_healthy()
+    assert health == True
+
+
 @patch('chaosk8s.has_local_config_file', autospec=True)
 @patch('chaosk8s.probes.client', autospec=True)
 @patch('chaosk8s.client')
