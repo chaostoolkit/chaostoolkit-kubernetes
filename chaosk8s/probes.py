@@ -33,7 +33,7 @@ def all_microservices_healthy(ns: str = "default",
         phase = p.status.phase
         if phase == "Failed":
             failed.append(p)
-        elif phase != "Running" and phase != "Completed":
+        elif phase not in ("Running", "Completed"):
             not_ready.append(p)
 
     logger.debug("Found {d} failed and {n} not ready pods".format(
