@@ -4,6 +4,7 @@
 [![codecov](https://codecov.io/gh/chaostoolkit/chaostoolkit-kubernetes/branch/master/graph/badge.svg)](https://codecov.io/gh/chaostoolkit/chaostoolkit-kubernetes)
 [![Python versions](https://img.shields.io/pypi/pyversions/chaostoolkit-kubernetes.svg)](https://www.python.org/)
 [![Downloads](https://pepy.tech/badge/chaostoolkit-kubernetes)](https://pepy.tech/project/chaostoolkit-kubernetes)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fchaostoolkit%2Fchaostoolkit-kubernetes.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fchaostoolkit%2Fchaostoolkit-kubernetes?ref=badge_shield)
 
 This project contains activities, such as probes and actions, you can call from
 your experiment through the Chaos Toolkit.
@@ -151,3 +152,6 @@ into the master branch of the repository. Please, make sure you can abide by
 the rules of the DCO before submitting a PR.
 
 [dco]: https://github.com/probot/dco#how-it-works
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fchaostoolkit%2Fchaostoolkit-kubernetes.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fchaostoolkit%2Fchaostoolkit-kubernetes?ref=badge_large)
