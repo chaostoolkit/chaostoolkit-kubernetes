@@ -27,6 +27,8 @@ experiment file:
 ```json
 {
     "name": "all-our-microservices-should-be-healthy",
+    "type": "probe",
+    "tolerance": "true",
     "provider": {
         "type": "python",
         "module": "chaosk8s.probes",
