@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-from typing import Dict, Union
+from typing import Dict, Union, List
 
 import dateparser
 from chaoslib.exceptions import ActivityFailed
@@ -10,7 +10,13 @@ from logzero import logger
 
 from chaosk8s import create_k8s_api_client
 
-__all__ = ["pods_in_phase", "pods_not_in_phase", "read_pod_logs", "count_pods"]
+__all__ = [
+    "pods_in_phase",
+    "pods_in_conditions",
+    "pods_not_in_phase",
+    "read_pod_logs",
+    "count_pods"
+]
 
 
 def read_pod_logs(name: str = None, last: Union[str, None] = None,
@@ -103,6 +109,47 @@ def pods_in_phase(label_selector: str, phase: str = "Running",
             raise ActivityFailed(
                 "pod '{name}' is in phase '{s}' but should be '{p}'".format(
                     name=label_selector, s=d.status.phase, p=phase))
+
+    return True
+
+
+def pods_in_conditions(label_selector: str, conditions: List[Dict[str, str]],
+                       ns: str = "default", secrets: Secrets = None) -> bool:
+    """
+    Lookup a pod by `label_selector` in the namespace `ns`.
+
+    Raises :exc:`chaoslib.exceptions.ActivityFailed` if one of the given
+    conditions type/status is not as expected
+    """
+    api = create_k8s_api_client(secrets)
+
+    v1 = client.CoreV1Api(api)
+    if label_selector:
+        ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
+        logger.debug("Found {d} pods matching label '{n}' in ns '{s}'".format(
+            d=len(ret.items), n=label_selector, s=ns))
+    else:
+        ret = v1.list_namespaced_pod(ns)
+        logger.debug("Found {d} pods in ns '{n}'".format(
+            d=len(ret.items), n=ns))
+
+    if not ret.items:
+        raise ActivityFailed(
+            "no pods '{name}' were found".format(name=label_selector))
+
+    for d in ret.items:
+        # create a list of hash to compare with the given conditions
+        pod_conditions = [
+            {"type": pc.type, "status": pc.status}
+            for pc in d.status.conditions
+        ]
+        for condition in conditions:
+            if condition not in pod_conditions:
+                raise ActivityFailed("pod {name} does not match the following "
+                                     "given condition: {condition}".format(
+                                         name=d.metadata.name,
+                                         condition=condition
+                                     ))
 
     return True
 
