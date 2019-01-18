@@ -7,7 +7,7 @@ import pytest
 from chaoslib.exceptions import ActivityFailed
 
 from chaosk8s.pod.actions import terminate_pods
-from chaosk8s.pod.probes import pods_in_phase, pods_not_in_phase
+from chaosk8s.pod.probes import pods_in_phase, pods_not_in_phase, pods_in_conditions
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -397,3 +397,70 @@ def test_pods_not_in_phase(cl, client, has_conf):
 
     assert pods_not_in_phase(
         label_selector="app=mysvc", phase="Running") is True
+
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.pod.probes.client', autospec=True)
+@patch('chaosk8s.client')
+def test_pods_in_conditions(cl, client, has_conf):
+    has_conf.return_value = False
+    pod = MagicMock()
+    pod.status = MagicMock()
+    pod.status.conditions = [MagicMock()]
+    pod.status.conditions[0].type = "Ready"
+    pod.status.conditions[0].status = "True"
+    result = MagicMock()
+    result.items = [pod]
+
+    v1 = MagicMock()
+    v1.list_namespaced_pod.return_value = result
+    client.CoreV1Api.return_value = v1
+
+    # assert it works in the nominal case
+    assert pods_in_conditions(
+        label_selector="app=mysvc",
+        conditions=[
+            {
+                "type": "Ready",
+                "status": "True"
+            }
+        ]
+    ) is True
+
+    # assert it works even if the hash is not in the same order
+    # (just in case we add an ordered dict for some reason)
+    assert pods_in_conditions(
+        label_selector="app=mysvc",
+        conditions=[
+            {
+                "status": "True",
+                "type": "Ready"
+            }
+        ]
+    ) is True
+
+    # assert it does not work when the condition is present but does not match
+    with pytest.raises(ActivityFailed) as excinfo:
+        pods_in_conditions(
+            label_selector="app=mysvc",
+            conditions=[
+                {
+                    "status": "False",
+                    "type": "Ready"
+                }
+            ]
+        )
+    assert str(excinfo)
+
+    # assert it does not work when the condition is absent
+    with pytest.raises(ActivityFailed) as excinfo:
+        pods_in_conditions(
+            label_selector="app=mysvc",
+            conditions=[
+                {
+                    "status": "True",
+                    "type": "PodScheduled"
+                }
+            ]
+        )
+    assert str(excinfo)

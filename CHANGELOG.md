@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.19.1...HEAD
 
+- Add a probe to check pods conditions [PR#31][31]
+
+[31]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/31
+
 ## [0.19.1][] - 2018-10-08
 
 [0.19.1]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.18.1...0.19.1
