@@ -4,9 +4,19 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.19.1...HEAD
 
+### Added
+
 - Add a probe to check pods conditions [PR#31][31]
 
 [31]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/31
+
+### Changed
+
+- Fix call to `delete_namespaced_pod` so that the `body` argument is passed
+  a named argument [#34][34]
+
+[34]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/34
+
 
 ## [0.19.1][] - 2018-10-08
 

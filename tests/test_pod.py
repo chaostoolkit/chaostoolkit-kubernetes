@@ -32,7 +32,7 @@ def test_terminate_pods_by_name_pattern(cl, client, has_conf):
 
     assert v1.delete_namespaced_pod.call_count == 1
     v1.delete_namespaced_pod.assert_called_with(
-        pod.metadata.name, "default", ANY)
+        pod.metadata.name, "default", body=ANY)
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -59,8 +59,8 @@ def test_terminate_pods_by_name_pattern_all(cl, client, has_conf):
     terminate_pods(name_pattern="my-app-[0-9]$", all=True)
 
     assert v1.delete_namespaced_pod.call_count == 2
-    calls = [call(pod1.metadata.name, "default", ANY),
-             call(pod2.metadata.name, "default", ANY)]
+    calls = [call(pod1.metadata.name, "default", body=ANY),
+             call(pod2.metadata.name, "default", body=ANY)]
     v1.delete_namespaced_pod.assert_has_calls(calls, any_order=True)
 
 
@@ -94,7 +94,7 @@ def test_terminate_pods_by_name_pattern_rand(cl, client, has_conf):
 
         assert v1.delete_namespaced_pod.call_count == 1
         v1.delete_namespaced_pod.assert_called_with(
-            pod3.metadata.name, "default", ANY)
+            pod3.metadata.name, "default", body=ANY)
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -118,8 +118,8 @@ def test_terminate_pods_all(cl, client, has_conf):
     terminate_pods(all=True)
 
     assert v1.delete_namespaced_pod.call_count == 2
-    calls = [call(pod1.metadata.name, "default", ANY),
-             call(pod2.metadata.name, "default", ANY)]
+    calls = [call(pod1.metadata.name, "default", body=ANY),
+             call(pod2.metadata.name, "default", body=ANY)]
     v1.delete_namespaced_pod.assert_has_calls(calls, any_order=True)
 
 
@@ -147,7 +147,7 @@ def test_terminate_pods_rand(cl, client, has_conf):
 
         assert v1.delete_namespaced_pod.call_count == 1
         v1.delete_namespaced_pod.assert_called_with(
-            pod2.metadata.name, "default", ANY)
+            pod2.metadata.name, "default", body=ANY)
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -172,7 +172,7 @@ def test_terminate_pods_when_no_params_given(cl, client, has_conf):
 
     assert v1.delete_namespaced_pod.call_count == 1
     v1.delete_namespaced_pod.assert_called_with(
-        pod1.metadata.name, "default", ANY)
+        pod1.metadata.name, "default", body=ANY)
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -194,7 +194,8 @@ def test_terminate_pods_when_grace_period_is_set(cl, client, has_conf):
 
     assert v1.delete_namespaced_pod.call_count == 1
     v1.delete_namespaced_pod.assert_called_with(
-        pod1.metadata.name, "default", client.V1DeleteOptions(grace_period_seconds = 5))
+        pod1.metadata.name, "default",
+        body=client.V1DeleteOptions(grace_period_seconds = 5))
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -224,8 +225,8 @@ def test_terminate_pods_by_given_percentage(cl, client, has_conf):
     terminate_pods(mode='percentage', qty=40)
 
     assert v1.delete_namespaced_pod.call_count == 2
-    calls = [call(pod1.metadata.name, "default", ANY),
-             call(pod2.metadata.name, "default", ANY)]
+    calls = [call(pod1.metadata.name, "default", body=ANY),
+             call(pod2.metadata.name, "default", body=ANY)]
     v1.delete_namespaced_pod.assert_has_calls(calls, any_order=True)
 
 
@@ -258,8 +259,8 @@ def test_terminate_pods_by_given_percentage_rand(cl, client, has_conf):
         terminate_pods(mode='percentage', qty=40, rand=True)
 
         assert v1.delete_namespaced_pod.call_count == 2
-        calls = [call(pod3.metadata.name, "default", ANY),
-                 call(pod4.metadata.name, "default", ANY)]
+        calls = [call(pod3.metadata.name, "default", body=ANY),
+                 call(pod4.metadata.name, "default", body=ANY)]
         v1.delete_namespaced_pod.assert_has_calls(calls, any_order=True)
 
 
@@ -284,8 +285,8 @@ def test_terminate_pods_when_qty_grt_than_pods_selected(cl, client, has_conf):
     terminate_pods(qty=40)
 
     assert v1.delete_namespaced_pod.call_count == 2
-    calls = [call(pod1.metadata.name, "default", ANY),
-             call(pod2.metadata.name, "default", ANY)]
+    calls = [call(pod1.metadata.name, "default", body=ANY),
+             call(pod2.metadata.name, "default", body=ANY)]
     v1.delete_namespaced_pod.assert_has_calls(calls, any_order=True)
 
 

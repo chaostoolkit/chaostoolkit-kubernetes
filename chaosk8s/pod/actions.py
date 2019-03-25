@@ -93,4 +93,4 @@ def terminate_pods(label_selector: str = None, name_pattern: str = None,
         body = client.V1DeleteOptions(grace_period_seconds=grace_period)
 
     for p in pods:
-        res = v1.delete_namespaced_pod(p.metadata.name, ns, body)
+        res = v1.delete_namespaced_pod(p.metadata.name, ns, body=body)
