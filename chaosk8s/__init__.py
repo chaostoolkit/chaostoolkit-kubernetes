@@ -67,10 +67,22 @@ def create_k8s_api_client(secrets: Secrets = None) -> client.ApiClient:
         context = lookup("KUBERNETES_CONTEXT")
         logger.debug("Using Kubernetes context: {}".format(
             context or "default"))
-        return config.new_client_from_config(context=context)
+
+        config.load_kube_config(context=context)
+
+        proxy_url = os.getenv('HTTP_PROXY', None)
+        if proxy_url:
+            client.Configuration._default.proxy = proxy_url
+
+        return client.ApiClient()
 
     elif env.get("CHAOSTOOLKIT_IN_POD") == "true":
         config.load_incluster_config()
+
+        proxy_url = os.getenv('HTTP_PROXY', None)
+        if proxy_url:
+            client.Configuration._default.proxy = proxy_url
+
         return client.ApiClient()
 
     else:
@@ -93,6 +105,10 @@ def create_k8s_api_client(secrets: Secrets = None) -> client.ApiClient:
         elif "KUBERNETES_USERNAME" in env or "KUBERNETES_USERNAME" in secrets:
             configuration.username = lookup("KUBERNETES_USERNAME")
             configuration.password = lookup("KUBERNETES_PASSWORD", "")
+
+        proxy_url = os.getenv('HTTP_PROXY', None)
+        if proxy_url:
+            configuration.proxy = proxy_url
 
     return client.ApiClient(configuration)
 
