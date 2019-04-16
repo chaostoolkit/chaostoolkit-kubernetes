@@ -12,7 +12,8 @@ from chaosk8s.pod.probes import read_pod_logs
 
 __all__ = ["all_microservices_healthy", "microservice_available_and_healthy",
            "microservice_is_not_available", "service_endpoint_is_initialized",
-           "deployment_is_not_fully_available", "read_microservices_logs"]
+           "deployment_is_not_fully_available",
+           "deployment_is_fully_available", "read_microservices_logs"]
 
 
 def all_microservices_healthy(ns: str = "default",
@@ -144,13 +145,14 @@ def service_endpoint_is_initialized(name: str, ns: str = "default",
     return True
 
 
-def deployment_is_not_fully_available(name: str, ns: str = "default",
-                                      label_selector: str = "name in ({name})",
-                                      timeout: int = 30,
-                                      secrets: Secrets = None):
+def _deployment_readiness_has_state(name: str, ready: bool,
+                                    ns: str = "default",
+                                    label_selector: str = "name in ({name})",
+                                    timeout: int = 30,
+                                    secrets: Secrets = None):
     """
-    Wait until the deployment gets into an intermediate state where not all
-    expected replicas are available. Once this state is reached, return `True`.
+    Check wether if the given deployment state is ready or not
+    according to the ready paramter.
     If the state is not reached after `timeout` seconds, a
     :exc:`chaoslib.exceptions.ActivityFailed` exception is raised.
     """
@@ -179,14 +181,63 @@ def deployment_is_not_fully_available(name: str, ns: str = "default",
                     a=spec.replicas,
                     u=status.unavailable_replicas))
 
-            if status.ready_replicas != spec.replicas:
+            readiness = status.ready_replicas == spec.replicas
+            if ready == readiness:
                 w.stop()
                 return True
 
     except urllib3.exceptions.ReadTimeoutError:
         logger.debug("Timed out!")
+        return False
+
+
+def deployment_is_not_fully_available(name: str, ns: str = "default",
+                                      label_selector: str = "name in ({name})",
+                                      timeout: int = 30,
+                                      secrets: Secrets = None):
+    """
+    Wait until the deployment gets into an intermediate state where not all
+    expected replicas are available. Once this state is reached, return `True`.
+    If the state is not reached after `timeout` seconds, a
+    :exc:`chaoslib.exceptions.ActivityFailed` exception is raised.
+    """
+    if _deployment_readiness_has_state(
+        name,
+        False,
+        ns,
+        label_selector,
+        timeout,
+        secrets,
+    ):
+        return True
+    else:
         raise ActivityFailed(
             "microservice '{name}' failed to stop running within {t}s".format(
+                name=name, t=timeout))
+
+
+def deployment_is_fully_available(name: str, ns: str = "default",
+                                  label_selector: str = "name in ({name})",
+                                  timeout: int = 30,
+                                  secrets: Secrets = None):
+    """
+    Wait until all the deployment expected replicas are available.
+    Once this state is reached, return `True`.
+    If the state is not reached after `timeout` seconds, a
+    :exc:`chaoslib.exceptions.ActivityFailed` exception is raised.
+    """
+    if _deployment_readiness_has_state(
+        name,
+        True,
+        ns,
+        label_selector,
+        timeout,
+        secrets,
+    ):
+        return True
+    else:
+        raise ActivityFailed(
+            "microservice '{name}' failed to recover within {t}s".format(
                 name=name, t=timeout))
 
 

@@ -4,6 +4,9 @@
 
 - Try to read proxy from environment variable "HTTP_PROXY" and set it
   appropriately if it exists
+- Add the `deployment_is_fully_available` probe to wait for a deployment to be fully available [#38][38]
+
+[38]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/38
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.20.0...HEAD
 
