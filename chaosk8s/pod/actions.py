@@ -10,7 +10,7 @@ from logzero import logger
 
 from chaosk8s import create_k8s_api_client
 
-__all__ = ["terminate_pods"]
+__all__ = ["terminate_pods", "delete_pods"]
 
 
 def terminate_pods(label_selector: str = None, name_pattern: str = None,
@@ -93,4 +93,30 @@ def terminate_pods(label_selector: str = None, name_pattern: str = None,
         body = client.V1DeleteOptions(grace_period_seconds=grace_period)
 
     for p in pods:
-        res = v1.delete_namespaced_pod(p.metadata.name, ns, body=body)
+        v1.delete_namespaced_pod(p.metadata.name, ns, body=body)
+
+
+def delete_pods(name: str, ns: str = "default",
+                label_selector: str = "name in ({name})",
+                secrets: Secrets = None):
+    """
+    Delete pods by `name` in the namespace `ns`.
+
+    The pods are deleted without a graceful period to trigger an abrupt termination.
+
+    The selected resources are matched by the given `label_selector`.
+    """
+    label_selector = label_selector.format(name=name)
+    api = create_k8s_api_client(secrets)
+    v1 = client.CoreV1Api(api)
+    if label_selector:
+        ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
+    else:
+        ret = v1.list_namespaced_pod(ns)
+
+    logger.debug("Found {d} pods named '{n}'".format(
+        d=len(ret.items), n=name))
+
+    body = client.V1DeleteOptions()
+    for p in ret.items:
+        v1.delete_namespaced_pod(p.metadata.name, ns, body)
