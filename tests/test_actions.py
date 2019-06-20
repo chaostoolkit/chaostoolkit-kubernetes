@@ -5,7 +5,7 @@ import pytest
 from chaoslib.exceptions import ActivityFailed
 from kubernetes.client.rest import ApiException
 
-from chaosk8s.actions import start_microservice
+from chaosk8s.actions import start_microservice, kill_microservice
 from chaosk8s.node.actions import cordon_node, create_node, delete_nodes, \
     uncordon_node, drain_nodes
 
@@ -374,3 +374,72 @@ def test_mirror_pod_cannot_be_drained(cl, client, has_conf):
 
     v1.read_namespaced_pod.assert_not_called()
     v1.create_namespaced_pod_eviction.assert_not_called()
+
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.actions.client', autospec=True)
+@patch('chaosk8s.client')
+def test_killing_microservice_deletes_deployment(cl, client, has_conf):
+    has_conf.return_value = False
+
+    v1 = MagicMock()
+    client.AppsV1beta1Api.return_value = v1
+
+    body = MagicMock()
+    client.V1DeleteOptions.return_value = body
+
+    result = MagicMock()
+    result.items = [MagicMock()]
+    result.items[0].metadata.name = "mydeployment"
+    v1.list_namespaced_deployment.return_value = result
+
+    kill_microservice("mydeployment")
+
+    v1.delete_namespaced_deployment.assert_called_with(
+        "mydeployment", "default", body=body)
+
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.actions.client', autospec=True)
+@patch('chaosk8s.client')
+def test_killing_microservice_deletes_rs(cl, client, has_conf):
+    has_conf.return_value = False
+
+    v1 = MagicMock()
+    client.ExtensionsV1beta1Api.return_value = v1
+
+    body = MagicMock()
+    client.V1DeleteOptions.return_value = body
+
+    result = MagicMock()
+    result.items = [MagicMock()]
+    result.items[0].metadata.name = "mydeployment"
+    v1.list_namespaced_replica_set.return_value = result
+
+    kill_microservice("mydeployment")
+
+    v1.delete_namespaced_replica_set.assert_called_with(
+        "mydeployment", "default", body=body)
+
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.actions.client', autospec=True)
+@patch('chaosk8s.client')
+def test_killing_microservice_deletes_pod(cl, client, has_conf):
+    has_conf.return_value = False
+
+    v1 = MagicMock()
+    client.CoreV1Api.return_value = v1
+
+    body = MagicMock()
+    client.V1DeleteOptions.return_value = body
+
+    result = MagicMock()
+    result.items = [MagicMock()]
+    result.items[0].metadata.name = "mydeployment"
+    v1.list_namespaced_pod.return_value = result
+
+    kill_microservice("mydeployment")
+
+    v1.delete_namespaced_pod.assert_called_with(
+        "mydeployment", "default", body=body)

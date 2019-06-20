@@ -64,7 +64,7 @@ def kill_microservice(name: str, ns: str = "default",
     body = client.V1DeleteOptions()
     for d in ret.items:
         res = v1.delete_namespaced_deployment(
-            d.metadata.name, ns, body)
+            d.metadata.name, ns, body=body)
 
     v1 = client.ExtensionsV1beta1Api(api)
     if label_selector:
@@ -78,7 +78,7 @@ def kill_microservice(name: str, ns: str = "default",
     body = client.V1DeleteOptions()
     for r in ret.items:
         res = v1.delete_namespaced_replica_set(
-            r.metadata.name, ns, body)
+            r.metadata.name, ns, body=body)
 
     v1 = client.CoreV1Api(api)
     if label_selector:
@@ -92,7 +92,7 @@ def kill_microservice(name: str, ns: str = "default",
     body = client.V1DeleteOptions()
     for p in ret.items:
         res = v1.delete_namespaced_pod(
-            p.metadata.name, ns, body)
+            p.metadata.name, ns, body=body)
 
 
 def remove_service_endpoint(name: str, ns: str = "default",
