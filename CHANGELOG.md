@@ -9,9 +9,12 @@
 - Add the `deployment_is_fully_available` probe to wait for a deployment to be fully available [#38][38]
 - Fix calls to `delete_namespaced_*` so that the `body` argument is passed
   a named argument [#42][42]. A follow up to [#34][34]
+- Fix calls to `delete_nodes` so that the `body` argument is passed
+  a named argument [#44][44].
 
 [38]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/38
 [42]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/42
+[44]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/44
 
 ## [0.20.0][] - 2018-03-25
 

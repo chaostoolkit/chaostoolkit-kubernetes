@@ -89,7 +89,8 @@ def test_delete_nodes(cl, client, has_conf):
 
     delete_nodes(label_selector="k=mynode")
 
-    v1.delete_node.assert_called_with("mynode", ANY, grace_period_seconds=None)
+    v1.delete_node.assert_called_with(
+        "mynode", body=ANY, grace_period_seconds=None)
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -114,7 +115,8 @@ def test_delete_nodes(cl, client, has_conf):
 
     delete_nodes(label_selector="k=mynode")
 
-    v1.delete_node.assert_called_with("mynode", ANY, grace_period_seconds=None)
+    v1.delete_node.assert_called_with(
+        "mynode", body=ANY, grace_period_seconds=None)
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
