@@ -238,7 +238,6 @@ def drain_nodes(name: str = None, label_selector: str = None,
     for node in nodes:
         node_name = node.metadata.name
         ret = v1.list_pod_for_all_namespaces(
-            include_uninitialized=True,
             field_selector="spec.nodeName={}".format(node_name))
 
         logger.debug("Found {d} pods on node '{n}'".format(

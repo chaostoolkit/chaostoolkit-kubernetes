@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 from unittest.mock import MagicMock, patch, ANY, call
 
-from kubernetes import client
-
 import pytest
 from chaoslib.exceptions import ActivityFailed
 
 from chaosk8s.pod.actions import terminate_pods
-from chaosk8s.pod.probes import pods_in_phase, pods_not_in_phase, pods_in_conditions
+from chaosk8s.pod.probes import pods_in_phase, pods_not_in_phase, \
+    pods_in_conditions
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -190,12 +189,12 @@ def test_terminate_pods_when_grace_period_is_set(cl, client, has_conf):
     v1.list_namespaced_pod.return_value = result
     client.CoreV1Api.return_value = v1
 
-    terminate_pods(grace_period = 5)
+    terminate_pods(grace_period=5)
 
     assert v1.delete_namespaced_pod.call_count == 1
     v1.delete_namespaced_pod.assert_called_with(
         pod1.metadata.name, "default",
-        body=client.V1DeleteOptions(grace_period_seconds = 5))
+        body=client.V1DeleteOptions(grace_period_seconds=5))
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -311,7 +310,8 @@ def test_terminate_pods_should_fail_when_qty_less_than_pods_selected(
 
     with pytest.raises(ActivityFailed) as excinfo:
         terminate_pods(qty=-4)
-    assert "Cannot terminate pods. Quantity '-4' is negative." in str(excinfo)
+    assert "Cannot terminate pods. Quantity '-4' is negative." in \
+        str(excinfo.value)
     assert v1.delete_namespaced_pod.call_count == 0
 
 
@@ -337,7 +337,7 @@ def test_terminate_pods_should_fail_when_mode_not_present(
     with pytest.raises(ActivityFailed) as expinfo:
         terminate_pods(mode="some_mode")
     assert "Cannot terminate pods. " \
-           "Mode 'some_mode' is invalid." in str(expinfo)
+           "Mode 'some_mode' is invalid." in str(expinfo.value)
     assert v1.delete_namespaced_pod.call_count == 0
 
 
@@ -378,7 +378,7 @@ def test_pods_should_have_been_phase(cl, client, has_conf):
         assert pods_in_phase(
             label_selector="app=mysvc", phase="Running") is True
     assert "pod 'app=mysvc' is in phase 'Pending' but should be " \
-           "'Running'" in str(x)
+           "'Running'" in str(x.value)
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
