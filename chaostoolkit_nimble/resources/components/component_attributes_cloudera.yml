@@ -1,0 +1,38 @@
+defaults:
+  linux_user: root
+components:
+  HDFS:
+    ui_port: 50070
+  HIVE:
+    application_port: 10000
+  HBASE:
+  PSQL:
+    application_port: 5432
+    db_username: postgres
+    db_password: postgres
+  AZKABAN:
+    ui_port: 8507
+    ui_username: azkaban
+    ui_password: "!4zk4b4n$"
+  ZOOKEEPER:
+    ui_port: 2181
+  KAFKA_CONNECT:
+    ui_port: 8083
+  ELASTICSEARCH:
+    ui_port: 6775
+  HAPROXY:
+    ui_port: 5070
+    ui_username: haproxy
+    ui_password: "!H4pr0xy$"
+  SPARK:
+    ui_port: 18080
+  SCHEMA_REGISTRY:
+    ui_port: 8081
+  REDIS:
+    ui_port: 6379,6380
+  IMPALA:
+    linux_user: impala
+    db_username: impala
+    application_port: 21050
+  KAFKA:
+    application_port: 9092

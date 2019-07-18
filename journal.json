@@ -1,0 +1,104 @@
+{
+  "chaoslib-version": "1.5.0",
+  "platform": "Darwin-18.0.0-x86_64-i386-64bit",
+  "node": "kritika-Saxena.local",
+  "experiment": {
+    "version": "1.0.0",
+    "title": "Experiment running shell commands on local and remote",
+    "description": "Shell command should get successfully executed on remote using python provider through fabric and on local it should run through process provider",
+    "tags": [
+      "kubernetes"
+    ],
+    "controls": [
+      {
+        "name": "shell-app-controls",
+        "provider": {
+          "type": "python",
+          "module": "chaostoolkit_nimble.controllers.extensions.shell_app.control"
+        }
+      }
+    ],
+    "steady-state-hypothesis": {
+      "title": "Shell application is up and running",
+      "probes": [
+        {
+          "type": "probe",
+          "name": "Fetch-shell-app-process-id",
+          "tolerance": true,
+          "provider": {
+            "module": "chaostoolkit_nimble.core.utils.ha_utils",
+            "type": "python",
+            "func": "check_process_running",
+            "arguments": {
+              "component": "NAMENODE",
+              "process_name": "sleep 5m"
+            }
+          }
+        }
+      ]
+    },
+    "method": [
+      {
+        "type": "action",
+        "name": "Kill-shell-app",
+        "provider": {
+          "module": "chaostoolkit_nimble.core.utils.ha_utils",
+          "type": "python",
+          "func": "kill_process",
+          "arguments": {
+            "component": "NAMENODE",
+            "process_name": "sleep 5m",
+            "num_of_nodes": "1"
+          }
+        }
+      }
+    ],
+    "dry": false
+  },
+  "start": "2019-07-18T10:50:51.666552",
+  "status": "failed",
+  "deviated": false,
+  "steady_states": {
+    "before": {
+      "steady_state_met": false,
+      "probes": [
+        {
+          "activity": {
+            "type": "probe",
+            "name": "Fetch-shell-app-process-id",
+            "tolerance": true,
+            "provider": {
+              "module": "chaostoolkit_nimble.core.utils.ha_utils",
+              "type": "python",
+              "func": "check_process_running",
+              "arguments": {
+                "component": "NAMENODE",
+                "process_name": "sleep 5m"
+              }
+            }
+          },
+          "output": null,
+          "status": "failed",
+          "exception": [
+            "Traceback (most recent call last):\n",
+            "  File \"/Users/kritika.saxena/KR_VIRENV_CHAOS_NIMBLE_PY3/venv/lib/python3.7/site-packages/chaoslib/provider/python.py\", line 55, in run_python_activity\n    return func(**arguments)\n",
+            "  File \"/Users/kritika.saxena/chaos_folder_3/chaos_eng_automation/chaostoolkit_nimble/core/utils/ha_utils.py\", line 42, in check_process_running\n    consolidated_success_flag=True)\n",
+            "  File \"/Users/kritika.saxena/KR_VIRENV_CHAOS_NIMBLE_PY3/venv/lib/python3.7/site-packages/nimble/core/entity/nodes.py\", line 109, in execute_command_on_component\n    for node_attributes in self.nodes_by_type[component]:\n",
+            "KeyError: 'NAMENODE'\n",
+            "\nDuring handling of the above exception, another exception occurred:\n\n",
+            "chaoslib.exceptions.ActivityFailed: KeyError: 'NAMENODE'\n"
+          ],
+          "start": "2019-07-18T10:50:51.668208",
+          "end": "2019-07-18T10:50:51.670135",
+          "duration": 0.001927,
+          "tolerance_met": false
+        }
+      ]
+    },
+    "after": null
+  },
+  "run": [],
+  "rollbacks": [],
+  "end": "2019-07-18T10:50:51.671344",
+  "duration": 0.025391817092895508
+}

@@ -1,0 +1,43 @@
+{
+	"version": "1.0.0",
+	"title": "Experiment running shell commands on local and remote",
+	"description": "Shell command should get successfully executed on remote using python provider through fabric and on local it should run through process provider",
+	"tags": ["kubernetes"],
+  	"controls": [{
+        "name": "shell-app-controls",
+        "provider": {
+            "type": "python",
+            "module": "chaostoolkit_nimble.controllers.extensions.shell_application.control"
+        }
+  }],
+	"steady-state-hypothesis": {
+		"title": "Shell application is up and running",
+		"probes": [{
+      "type": "probe",
+      "name": "Fetch-application-process-id",
+      "tolerance": true,
+          "provider": {
+            "module": "chaostoolkit_nimble.core.utils.ha_utils",
+        "type": "python",
+        "func": "check_process_running",
+        "arguments": {
+          "component": "{{component}}",
+          "process_name": "{{process_name}}"
+        }
+      }
+		}]
+	},
+  "method": [{
+    "type": "action",
+    "name": "Kill-application-process",
+    "provider": {
+      "module": "chaostoolkit_nimble.core.utils.ha_utils",
+      "type": "python",
+      "func": "kill_process",
+      "arguments": {
+        "component": "{{component}}",
+        "process_name": "{{process_name}}"
+        }
+      }
+  }]
+}

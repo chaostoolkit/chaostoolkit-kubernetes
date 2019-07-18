@@ -1,0 +1,44 @@
+{
+	"version": "1.0.0",
+	"title": "What is the impact on an ES service when the ES running pod goes down?",
+	"description": "If ES running pod goes down, the ES service should still be functioning properly.",
+	"tags": ["kubernetes"],
+  	"controls": [{
+        "name": "my-controls",
+        "provider": {
+            "type": "python",
+            "module": "custom.controllers.control"
+        }
+  }],
+	"steady-state-hypothesis": {
+		"title": "Application responds",
+		"probes": [{
+      "type": "probe",
+      "name": "test_run_remote_python_cmd",
+      "tolerance": "hi\n",
+          "provider": {
+        "module": "custom.fabric_utils",
+        "type": "python",
+        "func": "run_command_on_remote",
+        "arguments": {
+          "command": "{{my_var}}",
+          "ip": "192.168.135.35",
+          "username":"root",
+          "password":"guavus@123",
+          "command_timeout":120,
+          "connection_timeout": 120
+        }
+      }
+		}]
+	},
+	"method": [{
+    "type": "action",
+    "name": "test_method",
+    "provider": {
+      "module": "chaosk8s.pod.actions",
+      "type": "process",
+      "path": "ls",
+      "arguments": "/tmp"
+    }
+  }]
+}

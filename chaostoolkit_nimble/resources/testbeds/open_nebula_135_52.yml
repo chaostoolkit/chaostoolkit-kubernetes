@@ -1,0 +1,52 @@
+# You can choose to skip some attributes that are given in default tag if the value for that VM is same as that in the
+# default tag.
+
+defaults:
+  username: root
+  password: guavus@123
+  dynamic_vm_ips: True
+  vip_hostname_domain: testautomation002-lb-vip.cloud.in.guavus.com
+  vip: 192.168.134.191
+  nameservice: testautomation-reflex-platform
+  stage: dev
+  inventory_name: testautomation
+  customer_name: guavus
+  platform: ambari
+  kerberized: True
+  kerberos_client_user: ambari-qa
+  vm_netmask: 255.255.252.0
+  vm_gateway: 192.168.132.1
+  type: DATANODE,ETCD,HREGION,HBASE,ZOOKEEPER,REDIS,REDIS_MASTER,REDIS_SLAVE,HADOOP_HDFS,HADOOP_YARN,KAFKA,KAFKA_BROKER,FLANNEL,DOCKER,HYPERKUBE_PROXY,HYPERKUBE_KUBELET,NIFI,NODE_MANAGER,HIVE,HIVE_SERVER,CORE_DNS,KAFKA_MM,SNMP
+bare_metals:
+  BM1:
+    ip: dummy
+    vm:
+      testautomation002-mgt-01:
+        vm_ip: 192.168.135.59
+        type: MANAGEMENT,PSQL,DOCKER,HYPERKUBE_PROXY,HYPERKUBE_KUBELET,JOURNALNODE,ATLAS,RANGER,RANGER_ADMIN,RANGER_USERSYNC,RANGER_TAGSYNC,HISTORY_SERVER,SPARK2_HISTORY_SERVER,ELASTICSEARCH,JANUSGRAPH,AMBARI,GRAFANA,SNMP
+        hostname_domain: testautomation002-mgt-01.cloud.in.guavus.com
+      testautomation002-lb-01:
+        vm_ip: 192.168.135.186
+        type: LB,HAPROXY,FLANNEL,DOCKER,HYPERKUBE_PROXY,HYPERKUBE_KUBELET,COROSYNC,PACEMAKER,SNMP
+        hostname_domain: testautomation002-lb-01.cloud.in.guavus.com
+      testautomation002-lb-02:
+        vm_ip: 192.168.135.187
+        type: LB,HAPROXY,FLANNEL,DOCKER,HYPERKUBE_PROXY,HYPERKUBE_KUBELET,COROSYNC,PACEMAKER,SNMP
+        hostname_domain: testautomation002-lb-02.cloud.in.guavus.com
+      testautomation002-slv-01:
+        vm_ip: 192.168.135.183
+        hostname_domain: testautomation002-slv-01.cloud.in.guavus.com
+      testautomation002-mst-01:
+        vm_ip: 192.168.135.60
+        type: NAMENODE,KUBERNETES,HYPERKUBE_SCHEDULER,HYPERKUBE_APISERVER,HYPERKUBE_CONTROLLER_MANAGER,FLANNEL,DOCKER,HYPERKUBE_PROXY,HYPERKUBE_KUBELET,HMASTER,HIVE,HADOOP_HDFS,HADOOP_YARN,ZKFC,HBASE,SPARK,SCHEMA_REGISTRY,PGHA_WHATCHDOG,RESOURCE_MANAGER,JOURNALNODE,KUBERNETES_DASHBOARD,HIVE_METASTORE,CDAP,CDAP_AUTH_SERVER,CDAP_MASTER,CDAP_ROUTER,CDAP_UI
+        hostname_domain: testautomation002-mst-01.cloud.in.guavus.com
+      testautomation002-slv-02:
+        vm_ip: 192.168.135.184
+        hostname_domain: testautomation002-slv-02.cloud.in.guavus.com
+      testautomation002-mst-02:
+        vm_ip: 192.168.135.64
+        type: NAMENODE,KUBERNETES,HYPERKUBE_SCHEDULER,HYPERKUBE_APISERVER,HYPERKUBE_CONTROLLER_MANAGER,FLANNEL,DOCKER,HYPERKUBE_PROXY,HYPERKUBE_KUBELET,HMASTER,HIVE,HADOOP_HDFS,HADOOP_YARN,ZKFC,HBASE,SPARK,PGHA_WHATCHDOG,RESOURCE_MANAGER,JOURNALNODE,KUBERNETES_DASHBOARD,HIVE_METASTORE,CDAP,CDAP_AUTH_SERVER,CDAP_MASTER,CDAP_ROUTER,CDAP_UI
+        hostname_domain: testautomation002-mst-02.cloud.in.guavus.com
+      testautomation002-slv-03:
+        vm_ip: 192.168.135.185
+        hostname_domain: testautomation002-slv-03.cloud.in.guavus.com

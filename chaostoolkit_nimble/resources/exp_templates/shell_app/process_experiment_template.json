@@ -1,0 +1,43 @@
+{
+	"version": "1.0.0",
+	"title": "Experiment running shell commands on local and remote",
+	"description": "Shell command should get successfully executed on remote using python provider through fabric and on local it should run through process provider",
+	"tags": ["kubernetes"],
+  	"controls": [{
+        "name": "my-controls",
+        "provider": {
+            "type": "python",
+            "module": "mypackage.custom.controllers.control"
+        }
+  }],
+	"steady-state-hypothesis": {
+		"title": "Shell command runs on remote server",
+		"probes": [{
+      "type": "probe",
+      "name": "run_shell_cmd_on_remote",
+      "tolerance": "{{expected_remote_command_output}}",
+          "provider": {
+        "module": "chaostoolkit_nimble.custom.fabric_utils",
+        "type": "python",
+        "func": "run_command_on_remote",
+        "arguments": {
+          "command": "{{remote_command_var}}",
+          "ip": "{{remote_ip_var}}",
+          "username":"{{remote_username_var}}",
+          "password":"{{remote_password_var}}",
+          "command_timeout": 120,
+          "connection_timeout": 120
+        }
+      }
+		}]
+	},
+	"method": [{
+    "type": "action",
+    "name": "run_shell_cmd_on_local",
+    "provider": {
+      "type": "process",
+      "path": "{{local_command_var}}",
+      "arguments": "{{local_command_arguments}}"
+    }
+  }]
+}

@@ -1,0 +1,64 @@
+defaults:
+  ui_username: admin
+  ui_password: Sbe7UGkRBMF8
+  keytab_file_path: /etc/security/keytabs/smokeuser.headless.keytab
+components:
+  HDFS:
+    linux_user: hdfs
+    ui_port: 50070
+  AMBARI:
+    ui_port: 8080
+  ATLAS:
+    ui_port: 21000
+  CDAP:
+    ui_port: 11011
+    application_port: 11015
+  ELASTICSEARCH:
+    mode: vip
+    ui_port: 9201
+    ui_username: elasticsearch
+    ui_password: elasticsearch@123
+  HAPROXY:
+    ui_port: 5070
+    ui_username: haproxy
+    ui_password: "!H4pr0xy$"
+  HBASE:
+    linux_user: hbase
+  HIVE:
+    linux_user: hive
+    application_port: 10000
+  SPARK:
+    linux_user: hdfs
+    ui_port: 18081
+  ZOOKEEPER:
+    linux_user: zookeeper
+    application_port: 2181
+  SCHEMA_REGISTRY:
+    ui_port: 7788
+  REDIS:
+    ui_port: 6379,6380
+  NIFI:
+    ui_port: 9090
+  OOZIE:
+    linux_user: oozie
+    ui_port: 11000
+  PSQL:
+    linux_user: postgres
+    db_username: postgres
+    db_password: postgres
+    application_port: 5432
+  KAFKA:
+    linux_user: kafka
+    application_port: 6667
+  RANGER:
+    ui_port: 6080
+  JANUSGRAPH:
+    linux_user: janusgraph
+    application_port: 8182
+  PROMETHEUS:
+    ui_port: 9095
+  GRAFANA:
+    ui_port: 3000
+  HADOOP_YARN:
+    ui_port: 8088
+
