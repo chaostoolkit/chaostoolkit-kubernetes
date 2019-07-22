@@ -6,6 +6,7 @@ import io
 
 import setuptools
 
+
 def get_version_from_package() -> str:
     """
     Read the package version from the source without importing it.
@@ -19,6 +20,7 @@ def get_version_from_package() -> str:
                 version = version.replace("'", "").strip()
                 return version
 
+
 name = 'chaostoolkit-kubernetes'
 desc = 'Chaos Toolkit Kubernetes support'
 
@@ -26,7 +28,7 @@ with io.open('README.md', encoding='utf-8') as strm:
     long_desc = strm.read()
 
 classifiers = [
-    'Development Status :: 5 - Production/Stable',  
+    'Development Status :: 5 - Production/Stable',
     'Intended Audience :: Developers',
     'License :: Freely Distributable',
     'Operating System :: OS Independent',

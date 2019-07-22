@@ -51,7 +51,7 @@ def test_client_can_be_created_from_secrets(load_incluster_config, has_conf):
 @patch('chaosk8s.config', autospec=True)
 def test_client_can_provide_a_context(cfg, has_conf):
     has_conf.return_value = True
-    cfg.load_kube_config= MagicMock()
+    cfg.load_kube_config = MagicMock()
     try:
         os.environ.update({
             "KUBERNETES_CONTEXT": "minikube"

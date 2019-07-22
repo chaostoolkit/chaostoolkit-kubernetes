@@ -16,7 +16,7 @@ def test_cannot_process_other_than_yaml_and_json(has_conf):
     path = "./tests/fixtures/invalid-k8s.txt"
     with pytest.raises(ActivityFailed) as excinfo:
         start_microservice(spec_path=path)
-    assert "cannot process {path}".format(path=path) in str(excinfo)
+    assert "cannot process {path}".format(path=path) in str(excinfo.value)
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -64,33 +64,7 @@ def test_create_node_may_fail(cl, client, has_conf):
 
     with pytest.raises(ActivityFailed) as x:
         create_node(meta, spec)
-    assert "Creating new node failed" in str(x)
-
-
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.node.actions.client', autospec=True)
-@patch('chaosk8s.client')
-def test_delete_nodes(cl, client, has_conf):
-    has_conf.return_value = False
-
-    v1 = MagicMock()
-    client.CoreV1Api.return_value = v1
-
-    node = MagicMock()
-    node.metadata.name = "mynode"
-
-    result = MagicMock()
-    result.items = [node]
-    v1.list_node.return_value = result
-
-    res = MagicMock()
-    res.status = "Success"
-    v1.delete_node.return_value = res
-
-    delete_nodes(label_selector="k=mynode")
-
-    v1.delete_node.assert_called_with(
-        "mynode", body=ANY, grace_period_seconds=None)
+    assert "Creating new node failed" in str(x.value)
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
