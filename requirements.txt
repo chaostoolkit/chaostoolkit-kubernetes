@@ -1,5 +1,7 @@
+nimble
 dateparser
 kubernetes
 logzero
-chaostoolkit-lib>=0.20.0
+chaostoolkit-lib
 pyyaml
+pytest-html

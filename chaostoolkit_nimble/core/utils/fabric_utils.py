@@ -8,7 +8,7 @@ from fabric.context_managers import hide
 
 _LOGGER = logging.getLogger(__name__)
 
-
+b = 56
 
 def run_command_on_remote(command, ip, username, password, command_timeout=None,
                           connection_timeout=120):
