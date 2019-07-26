@@ -5,3 +5,4 @@ logzero
 chaostoolkit-lib
 pyyaml
 pytest-html
+chaostoolkit-reporting
