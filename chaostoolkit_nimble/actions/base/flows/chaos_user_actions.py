@@ -17,7 +17,7 @@ from nimble.core.utils.shell_utils import ShellUtils
 from nimble.tests.conftest import OPTIONS_DICT
 
 
-def run_experiment(experiments_template_path=None):
+def run_experiment(experiments_template_path=None, variables_dict=None):
     experiments_base_path = "%s/tmp/experiments" % global_constants.DEFAULT_LOCAL_ARTIFACTS_PATH
     ShellUtils.execute_shell_command(ShellUtils.remove_and_create_directory(experiments_base_path))
     if not experiments_template_path:
@@ -29,5 +29,6 @@ def run_experiment(experiments_template_path=None):
     experiment_file_response = ShellUtils.execute_shell_command(
         ShellUtils.find_files_in_directory(experiments_base_path))
     for experiment_file in experiment_file_response.stdout.strip().split("\n"):
+        DynamicSubstitutionUtils.add(variables_dict)
         DynamicSubstitutionUtils.update_file(experiment_file)
         ShellUtils.execute_shell_command("chaos run %s" % experiment_file)

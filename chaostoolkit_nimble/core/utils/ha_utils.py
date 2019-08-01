@@ -45,16 +45,13 @@ logger.info("Helooooooooo")
 
 
 def check_process_running(component, process_name=None):
-    # if not process_name
-    #     process_name = Components.get_process_name(component)
-    # logger.info("Checking if process '%s' is running by fetching its process id" % process_name)
-    # testbed_file = "chaostoolkit_nimble/resources/testbeds/open_nebula_135_52.yml"
-    # component_arttributes_file = "chaostoolkit_nimble/resources/components/component_attributes_kerberos.yml"
-    # NodeManager.initialize(testbed_file, component_arttributes_file)
-    logger.debug("NODE_OBJ----------------:  %s" % NodeManager.node_obj.vip)
-    logger.debug("b = ----------------:  %s" % fabric_utils.b )
-    # return NodeManager.node_obj.execute_command_on_component(component, ShellUtils.fetch_process_id(process_name),
-    #                                                          consolidated_success_flag=True)
+    if not process_name:
+        process_name = Components.get_process_name(component)
+    logger.info("Checking if process '%s' is running by fetching its process id." % process_name)
+    logger.debug("NODE_OBJ FROM ha_utils: ----------------:  %s" % NodeManager.node_obj.vip)
+    # logger.debug("b = ----------------:  %s" % fabric_utils.b )
+    return NodeManager.node_obj.execute_command_on_component(component, ShellUtils.fetch_process_id(process_name),
+                                                             consolidated_success_flag=True)
 
 
 
@@ -70,12 +67,13 @@ def kill_process(process_name, component, num_of_nodes=None):
     for node in NodeManager.node_obj.nodes_by_type[component]:
         node_aliases.append(node.name)
     if num_of_nodes:
-        node_aliases = random.sample(node_aliases, num_of_nodes)
+        node_aliases = random.sample(node_aliases, int(num_of_nodes))
     command = ShellUtils.kill_process_by_name(process_name)
     response_list = []
     for node_alias in node_aliases:
+        logger.debug("Killing process '%s' on node '%s'" % (process_name, node_alias))
         response_list.append(
-            NodeManager.node_obj.execute_command_on_node(node_alias, command, consolidated_success_flag=False))
+            NodeManager.node_obj.execute_command_on_node(node_alias, command))
     return response_list
 
 

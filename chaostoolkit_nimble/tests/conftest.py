@@ -5,6 +5,7 @@ import os
 
 import pytest
 from nimble.core import global_constants
+from nimble.core.utils.shell_utils import ShellUtils
 
 try:
     os.makedirs(global_constants.DEFAULT_LOCAL_ARTIFACTS_PATH)
@@ -43,8 +44,19 @@ def initialize_node_obj(request):
     component_arttributes_file = request.config.getoption("--componentAttributesConfig")
     if not component_arttributes_file:
         component_arttributes_file = "nimble/resources/components/component_attributes.yml"
+    setup_files_base_path = "%s/setup" % global_constants.DEFAULT_LOCAL_TMP_PATH
     if testbed_file:
         NodeManager.initialize(testbed_file, component_arttributes_file)
+        ShellUtils.execute_shell_command(
+            ShellUtils.remove_and_create_directory(setup_files_base_path))
+        testbed_file_tmp_path = "%s/%s" % (setup_files_base_path, testbed_file.rsplit("/", 1)[1])
+        component_arttributes_file_tmp_path = "%s/%s" % (
+            setup_files_base_path, component_arttributes_file.rsplit("/", 1)[1])
+        ShellUtils.execute_shell_command(ShellUtils.copy(testbed_file, testbed_file_tmp_path))
+        ShellUtils.execute_shell_command(
+            ShellUtils.copy(component_arttributes_file, component_arttributes_file_tmp_path))
+    yield
+    ShellUtils.execute_shell_command(ShellUtils.remove(setup_files_base_path, recursive=True))
 
 
 @pytest.fixture(scope="session", autouse=True)

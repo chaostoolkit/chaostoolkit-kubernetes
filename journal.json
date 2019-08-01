@@ -14,7 +14,7 @@
         "name": "shell-app-controls",
         "provider": {
           "type": "python",
-          "module": "chaostoolkit_nimble.controllers.extensions.shell_app.control"
+          "module": "chaostoolkit_nimble.controllers.jio.control"
         }
       }
     ],
@@ -30,8 +30,8 @@
             "type": "python",
             "func": "check_process_running",
             "arguments": {
-              "component": "NAMENODE",
-              "process_name": "sleep 5m"
+              "component": "MANAGEMENT",
+              "process_name": "media_plane_microapp1"
             }
           }
         }
@@ -46,8 +46,8 @@
           "type": "python",
           "func": "kill_process",
           "arguments": {
-            "component": "NAMENODE",
-            "process_name": "sleep 5m",
+            "component": "MANAGEMENT",
+            "process_name": "media_plane_microapp1",
             "num_of_nodes": "1"
           }
         }
@@ -55,12 +55,12 @@
     ],
     "dry": false
   },
-  "start": "2019-07-18T10:50:51.666552",
-  "status": "failed",
+  "start": "2019-08-01T12:32:31.708887",
+  "status": "completed",
   "deviated": false,
   "steady_states": {
     "before": {
-      "steady_state_met": false,
+      "steady_state_met": true,
       "probes": [
         {
           "activity": {
@@ -72,33 +72,63 @@
               "type": "python",
               "func": "check_process_running",
               "arguments": {
-                "component": "NAMENODE",
-                "process_name": "sleep 5m"
+                "component": "MANAGEMENT",
+                "process_name": "media_plane_microapp1"
               }
             }
           },
-          "output": null,
-          "status": "failed",
-          "exception": [
-            "Traceback (most recent call last):\n",
-            "  File \"/Users/kritika.saxena/KR_VIRENV_CHAOS_NIMBLE_PY3/venv/lib/python3.7/site-packages/chaoslib/provider/python.py\", line 55, in run_python_activity\n    return func(**arguments)\n",
-            "  File \"/Users/kritika.saxena/chaos_folder_3/chaos_eng_automation/chaostoolkit_nimble/core/utils/ha_utils.py\", line 42, in check_process_running\n    consolidated_success_flag=True)\n",
-            "  File \"/Users/kritika.saxena/KR_VIRENV_CHAOS_NIMBLE_PY3/venv/lib/python3.7/site-packages/nimble/core/entity/nodes.py\", line 109, in execute_command_on_component\n    for node_attributes in self.nodes_by_type[component]:\n",
-            "KeyError: 'NAMENODE'\n",
-            "\nDuring handling of the above exception, another exception occurred:\n\n",
-            "chaoslib.exceptions.ActivityFailed: KeyError: 'NAMENODE'\n"
-          ],
-          "start": "2019-07-18T10:50:51.668208",
-          "end": "2019-07-18T10:50:51.670135",
-          "duration": 0.001927,
-          "tolerance_met": false
+          "output": true,
+          "status": "succeeded",
+          "start": "2019-08-01T12:32:31.710821",
+          "end": "2019-08-01T12:32:31.977866",
+          "duration": 0.267045,
+          "tolerance_met": true
         }
       ]
     },
-    "after": null
+    "after": {
+      "steady_state_met": true,
+      "probes": [
+        {
+          "activity": {
+            "type": "probe",
+            "name": "Fetch-shell-app-process-id",
+            "tolerance": true,
+            "provider": {
+              "module": "chaostoolkit_nimble.core.utils.ha_utils",
+              "type": "python",
+              "func": "check_process_running",
+              "arguments": {
+                "component": "MANAGEMENT",
+                "process_name": "media_plane_microapp1"
+              }
+            }
+          },
+          "output": true,
+          "status": "succeeded",
+          "start": "2019-08-01T12:36:32.104985",
+          "end": "2019-08-01T12:36:32.237630",
+          "duration": 0.132645,
+          "tolerance_met": true
+        }
+      ]
+    }
   },
-  "run": [],
-  "rollbacks": [],
-  "end": "2019-07-18T10:50:51.671344",
-  "duration": 0.025391817092895508
-}
+  "run": [
+    {
+      "activity": {
+        "type": "action",
+        "name": "Kill-shell-app",
+        "provider": {
+          "module": "chaostoolkit_nimble.core.utils.ha_utils",
+          "type": "python",
+          "func": "kill_process",
+          "arguments": {
+            "component": "MANAGEMENT",
+            "process_name": "media_plane_microapp1",
+            "num_of_nodes": "1"
+          }
+        }
+      },
+      "output": [
+        

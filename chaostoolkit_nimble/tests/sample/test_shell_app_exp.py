@@ -5,7 +5,7 @@ from nimble.core.entity.components import Components
 from nimble.core.utils.dynamic_substitution_utils import DynamicSubstitutionUtils
 from nimble.core.utils.multiprocessing_utils import MultiprocessingUtils
 
-from chaostoolkit_nimble.actions.base.flows import user_actions
+from chaostoolkit_nimble.actions.base.flows import chaos_user_actions
 from chaostoolkit_nimble.actions.sample import sample_application_actions
 
 _LOGGER = logging.getLogger(__name__)
@@ -60,7 +60,7 @@ class TestShellAppExp():
                      "rand_dynamic_process_name": "sleep 5m",
                      }
         DynamicSubstitutionUtils.add(variables)
-        user_actions.run_experiment(experiments_template_path)
+        chaos_user_actions.run_experiment(experiments_template_path)
 
 ##########################################################################################################
 #         env = Environment(loader=PackageLoader("chaostoolkit_nimble", "resources/templates/shell_application"))
