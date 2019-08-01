@@ -54,11 +54,14 @@ class TestJio():
     def test_validation_on_15min_job_ha(self, config_actions, user_actions, media_plane_actions, clean_table):
         with allure.step('Schedule 15 min job'):
             job_base_directory = "/data/jio_copy/microapp1/"
-            database_name = "network360_volte"
+            job_config_file = "%s/conf/MediaPlaneJob.json" % job_base_directory
+            job_script_file = "%s/scripts/media_plane_microapp1.sh" % job_base_directory
+
+            ######## Update job config file
             kwargs = collections.OrderedDict()
             kwargs["config_separator"] = "="
             kwargs["location"] = "local"
-            kwargs["base_path"] = "%s/conf/MediaPlaneJob.json" % job_base_directory
+            kwargs["base_path"] = job_config_file
             kwargs["file_format"] = "json"
             kwargs["components"] = [Components.MANAGEMENT.name]
             kwargs["properties"] = {"mediaPlaneRawInput.type": "csv", "mediaPlaneRawInput.header": "true",
@@ -66,13 +69,35 @@ class TestJio():
                                     "mediaPlaneRawInput.tableName": "%s.%s" % (self.database_name, self.table_name)}
             config_actions.update_configs(**kwargs)
 
+            ######## Update job script file
+            NodeManager.node_obj.execute_command_on_node(
+                NodeManager.node_obj.get_node_aliases_by_component(Components.MANAGEMENT.name)[0],
+                ShellUtils.find_and_replace_whole_line_in_file("basedirectory=",
+                                                               "basedirectory=/data/jio_copy/microapp1/",
+                                                               job_script_file))
+            NodeManager.node_obj.execute_command_on_node(
+                NodeManager.node_obj.get_node_aliases_by_component(Components.MANAGEMENT.name)[0],
+                ShellUtils.find_and_replace_whole_line_in_file("lastdayepoch=",
+                                                               """lastdayepoch=`date -d "2019-07-20 05:30:00" +%s`""",
+                                                               job_script_file))
+            NodeManager.node_obj.execute_command_on_node(
+                NodeManager.node_obj.get_node_aliases_by_component(Components.MANAGEMENT.name)[0],
+                ShellUtils.find_and_replace_in_file("--timeIncrementInFilesInMin=15",
+                                                    "--timeIncrementInFilesInMin=15",
+                                                    job_script_file))
+            NodeManager.node_obj.execute_command_on_node(
+                NodeManager.node_obj.get_node_aliases_by_component(Components.MANAGEMENT.name)[0],
+                ShellUtils.find_and_replace_in_file("--durationOfDataToProcessInMin=15",
+                                                    "--durationOfDataToProcessInMin=15",
+                                                    job_script_file))
+            ####### Run job script on managemnet node
             job_run_command = "export SPARK_HOME=/usr/hdp/2.6.5.0-292/spark2 && cd %s && nohup sh scripts/media_plane_microapp1.sh &" % (
                 job_base_directory)
             # guavus_response = NodeManager.node_obj.execute_command_on_node(
             #     NodeManager.node_obj.get_node_aliases_by_component(Components.MANAGEMENT.name)[0],
             #     ShellUtils.su(self.job_user, job_run_command), pty=False)
-            FabricUtils.run_command_on_remote_in_bg(job_run_command, "192.168.134.170", "root",
-                                                    "guavus@123")
+            FabricUtils.run_command_on_remote_in_bg(ShellUtils.su(self.job_user, job_run_command), "192.168.134.170",
+                                                    "root", "guavus@123")
         with allure.step('Perform Job HA via chaostoolkit'):
             ####### To be decided where to keep all templates -- fileserver could be an option
             template_path = "chaostoolkit_nimble/resources/exp_templates/jio/shell_app_exp.json"

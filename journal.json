@@ -11,7 +11,7 @@
     ],
     "controls": [
       {
-        "name": "shell-app-controls",
+        "name": "jio-15min-job-controls",
         "provider": {
           "type": "python",
           "module": "chaostoolkit_nimble.controllers.jio.control"
@@ -55,7 +55,7 @@
     ],
     "dry": false
   },
-  "start": "2019-08-01T12:32:31.708887",
+  "start": "2019-08-01T13:00:58.814917",
   "status": "completed",
   "deviated": false,
   "steady_states": {
@@ -79,9 +79,9 @@
           },
           "output": true,
           "status": "succeeded",
-          "start": "2019-08-01T12:32:31.710821",
-          "end": "2019-08-01T12:32:31.977866",
-          "duration": 0.267045,
+          "start": "2019-08-01T13:00:58.816403",
+          "end": "2019-08-01T13:00:59.044517",
+          "duration": 0.228114,
           "tolerance_met": true
         }
       ]
@@ -106,9 +106,9 @@
           },
           "output": true,
           "status": "succeeded",
-          "start": "2019-08-01T12:36:32.104985",
-          "end": "2019-08-01T12:36:32.237630",
-          "duration": 0.132645,
+          "start": "2019-08-01T13:03:14.180425",
+          "end": "2019-08-01T13:03:14.306980",
+          "duration": 0.126555,
           "tolerance_met": true
         }
       ]
