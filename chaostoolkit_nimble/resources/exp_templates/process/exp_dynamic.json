@@ -1,20 +1,20 @@
 {
 	"version": "1.0.0",
-	"title": "Experiment running shell commands on local and remote",
-	"description": "Shell command should get successfully executed on remote using python provider through fabric and on local it should run through process provider",
-	"tags": ["kubernetes"],
+	"title": "Experiment with killing a process on system",
+	"description": "The process should auto-respawn after being killed.",
+	"tags": ["process"],
   	"controls": [{
-        "name": "jio-15min-job-controls",
+        "name": "process-related-controls",
         "provider": {
             "type": "python",
-            "module": "chaostoolkit_nimble.controllers.jio.control"
+            "module": "chaostoolkit_nimble.controllers.process.control"
         }
   }],
 	"steady-state-hypothesis": {
-		"title": "Shell application is up and running",
+		"title": "Process is up and running",
 		"probes": [{
       "type": "probe",
-      "name": "Fetch-shell-app-process-id",
+      "name": "Fetch-process-id",
       "tolerance": true,
           "provider": {
             "module": "chaostoolkit_nimble.core.utils.ha_utils",
@@ -29,7 +29,7 @@
 	},
   "method": [{
     "type": "action",
-    "name": "Kill-shell-app",
+    "name": "Kill-process",
     "provider": {
       "module": "chaostoolkit_nimble.core.utils.ha_utils",
       "type": "python",

@@ -6,16 +6,13 @@ from nimble.core.entity.components import Components
 from nimble.core.entity.node_manager import NodeManager
 from nimble.core.utils.shell_utils import ShellUtils
 
-from chaostoolkit_nimble.core.utils import fabric_utils
-
-
-
 _LOGGER = logging.getLogger(__name__)
-
 
 # node_obj = __import__('nimble.core.entity.node_manager').NodeManager.node_obj
 # import __builtin__
 logger.info("Helooooooooo")
+
+
 # node_obj = NodeManager.node_obj
 
 #
@@ -48,11 +45,9 @@ def check_process_running(component, process_name=None):
     if not process_name:
         process_name = Components.get_process_name(component)
     logger.info("Checking if process '%s' is running by fetching its process id." % process_name)
-    logger.debug("NODE_OBJ FROM ha_utils: ----------------:  %s" % NodeManager.node_obj.vip)
-    # logger.debug("b = ----------------:  %s" % fabric_utils.b )
+    # logger.debug("NODE_OBJ FROM ha_utils: ----------------:  %s" % NodeManager.node_obj.vip)
     return NodeManager.node_obj.execute_command_on_component(component, ShellUtils.fetch_process_id(process_name),
                                                              consolidated_success_flag=True)
-
 
 
 def kill_process(process_name, component, num_of_nodes=None):
@@ -72,10 +67,8 @@ def kill_process(process_name, component, num_of_nodes=None):
     response_list = []
     for node_alias in node_aliases:
         logger.debug("Killing process '%s' on node '%s'" % (process_name, node_alias))
-        response_list.append(
-            NodeManager.node_obj.execute_command_on_node(node_alias, command))
-    return response_list
-
+        response_list.append(NodeManager.node_obj.execute_command_on_node(node_alias, command))
+    return str(response_list)
 
 # # def process_ha(component, process_name=None):
 # #     """This function is used to do the process HA of the components at the remote server.

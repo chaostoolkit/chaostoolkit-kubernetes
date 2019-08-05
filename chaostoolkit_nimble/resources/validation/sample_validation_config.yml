@@ -166,4 +166,4 @@ jobs:
         actual:
           source: hive
           db_name: network360_volte
-          table_name: media_plane_table
+          table_name: media_plane_table_chaos

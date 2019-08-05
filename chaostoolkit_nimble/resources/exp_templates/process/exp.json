@@ -1,0 +1,44 @@
+{
+	"version": "1.0.0",
+	"title": "Experiment with killing a process on system",
+	"description": "The process should auto-respawn after being killed.",
+	"tags": ["process"],
+  	"controls": [{
+        "name": "process-related-controls",
+        "provider": {
+            "type": "python",
+            "module": "chaostoolkit_nimble.controllers.process.control"
+        }
+  }],
+	"steady-state-hypothesis": {
+		"title": "Process {{rand_dynamic_process_name}} is up and running",
+		"probes": [{
+      "type": "probe",
+      "name": "Fetch-process-id",
+      "tolerance": true,
+          "provider": {
+            "module": "chaostoolkit_nimble.core.utils.ha_utils",
+        "type": "python",
+        "func": "check_process_running",
+        "arguments": {
+          "component": "{{rand_dynamic_component}}",
+          "process_name": "{{rand_dynamic_process_name}}"
+        }
+      }
+		}]
+	},
+  "method": [{
+    "type": "action",
+    "name": "Kill-process",
+    "provider": {
+      "module": "chaostoolkit_nimble.core.utils.ha_utils",
+      "type": "python",
+      "func": "kill_process",
+      "arguments": {
+        "component": "{{rand_dynamic_component}}",
+        "process_name": "{{rand_dynamic_process_name}}",
+        "num_of_nodes": "1"
+        }
+      }
+  }]
+}

@@ -31,7 +31,7 @@ def before_method_control(context: Experiment,
     applied.
     """
     logger.debug("----------------CONFIGURATION BEFORE METHOD:  %s" % configuration)
-    sleep(15)
+    sleep(3)
 
 
 def after_method_control(context: Experiment,

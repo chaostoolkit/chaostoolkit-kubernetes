@@ -4,26 +4,26 @@
   "node": "kritika-Saxena.local",
   "experiment": {
     "version": "1.0.0",
-    "title": "Experiment running shell commands on local and remote",
-    "description": "Shell command should get successfully executed on remote using python provider through fabric and on local it should run through process provider",
+    "title": "Experiment with killing a process on system",
+    "description": "The process should auto-respawn after being killed.",
     "tags": [
-      "kubernetes"
+      "process"
     ],
     "controls": [
       {
-        "name": "jio-15min-job-controls",
+        "name": "process-related-controls",
         "provider": {
           "type": "python",
-          "module": "chaostoolkit_nimble.controllers.jio.control"
+          "module": "chaostoolkit_nimble.controllers.process.control"
         }
       }
     ],
     "steady-state-hypothesis": {
-      "title": "Shell application is up and running",
+      "title": "Process is up and running",
       "probes": [
         {
           "type": "probe",
-          "name": "Fetch-shell-app-process-id",
+          "name": "Fetch-process-id",
           "tolerance": true,
           "provider": {
             "module": "chaostoolkit_nimble.core.utils.ha_utils",
@@ -40,7 +40,7 @@
     "method": [
       {
         "type": "action",
-        "name": "Kill-shell-app",
+        "name": "Kill-process",
         "provider": {
           "module": "chaostoolkit_nimble.core.utils.ha_utils",
           "type": "python",
@@ -55,7 +55,7 @@
     ],
     "dry": false
   },
-  "start": "2019-08-01T13:00:58.814917",
+  "start": "2019-08-05T13:42:10.450632",
   "status": "completed",
   "deviated": false,
   "steady_states": {
@@ -65,7 +65,7 @@
         {
           "activity": {
             "type": "probe",
-            "name": "Fetch-shell-app-process-id",
+            "name": "Fetch-process-id",
             "tolerance": true,
             "provider": {
               "module": "chaostoolkit_nimble.core.utils.ha_utils",
@@ -79,9 +79,9 @@
           },
           "output": true,
           "status": "succeeded",
-          "start": "2019-08-01T13:00:58.816403",
-          "end": "2019-08-01T13:00:59.044517",
-          "duration": 0.228114,
+          "start": "2019-08-05T13:42:10.452512",
+          "end": "2019-08-05T13:42:10.742304",
+          "duration": 0.289792,
           "tolerance_met": true
         }
       ]
@@ -92,7 +92,7 @@
         {
           "activity": {
             "type": "probe",
-            "name": "Fetch-shell-app-process-id",
+            "name": "Fetch-process-id",
             "tolerance": true,
             "provider": {
               "module": "chaostoolkit_nimble.core.utils.ha_utils",
@@ -106,9 +106,9 @@
           },
           "output": true,
           "status": "succeeded",
-          "start": "2019-08-01T13:03:14.180425",
-          "end": "2019-08-01T13:03:14.306980",
-          "duration": 0.126555,
+          "start": "2019-08-05T13:44:13.856913",
+          "end": "2019-08-05T13:44:13.991240",
+          "duration": 0.134327,
           "tolerance_met": true
         }
       ]
@@ -118,7 +118,7 @@
     {
       "activity": {
         "type": "action",
-        "name": "Kill-shell-app",
+        "name": "Kill-process",
         "provider": {
           "module": "chaostoolkit_nimble.core.utils.ha_utils",
           "type": "python",
@@ -130,5 +130,14 @@
           }
         }
       },
-      "output": [
-        
+      "output": "[{'stdout': 'kill -9 6112 6113', 'stderr': '', 'status_code': 0, 'node': '192.168.134.170', 'linux_user': None, 'kerberos_client_user': None, 'comments': None, 'object_diff_response': {'intersection_count': None, 'intersection': None, 'union_count': None, 'union': None, 'lhs_diff_count': None, 'lhs_diff': None, 'rhs_diff_count': None, 'rhs_diff': None, 'lhs_extra_count': None, 'lhs_extra': None, 'rhs_extra_count': None, 'rhs_extra': None, 'mismatches_count': None, 'mismatches': None, 'column_diff_count': None, 'column_diff': None, 'actual_file': None, 'expected_file': None}, 'healthcheck_response': {'test_case_id': None, 'test_description': None, 'failure_reason': [], 'resolution': []}, 'container_id': None}]",
+      "status": "succeeded",
+      "start": "2019-08-05T13:42:13.751279",
+      "end": "2019-08-05T13:42:13.853999",
+      "duration": 0.10272
+    }
+  ],
+  "rollbacks": [],
+  "end": "2019-08-05T13:44:13.992637",
+  "duration": 123.55752611160278
+}

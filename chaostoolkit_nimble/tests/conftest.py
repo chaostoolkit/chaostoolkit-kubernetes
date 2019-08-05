@@ -32,8 +32,6 @@ def pytest_addoption(parser):
                      help="Relative path (to the project root) of the file containing component attributes configs. E.g. python -m pytest --componentAttributesConfig=resources/components/component_attributes_ambari.yml")
     parser.addoption("--validationConfig",
                      help="Relative path (to the project root) of the file containing validation configs. E.g. python -m pytest --validationConfig=resources/validation/sample_validation_config.yml")
-    parser.addoption("--chaosExpConfig",
-                     help="Relative path (to the project root) of the file containing chaos experiment configs. E.g. python -m pytest --validationConfig=resources/validation/chaos_exp_config.yml")
     parser.addoption("--experimentsPath",
                      help="Relative path (to the project root) of the file containing chaos experiment json files. E.g. python -m pytest --validationConfig=resources/validation/chaos_exp_config.yml")
 
