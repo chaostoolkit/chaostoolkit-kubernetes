@@ -7,6 +7,7 @@ from logzero import logger
 
 control.configure_control()
 
+
 def after_activity_control(context: Activity, state: Run,
                            configuration: Configuration = None,
                            secrets: Secrets = None, **kwargs):

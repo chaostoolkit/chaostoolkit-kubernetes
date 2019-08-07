@@ -42,7 +42,7 @@ class MediaPlaneActions(object):
         kwargs["components"] = [Components.MANAGEMENT.name]
         kwargs["properties"] = {"mediaPlaneRawInput.type": "csv", "mediaPlaneRawInput.header": "true",
                                 "mediaPlaneRawInput.pathPrefix": "/tmp/partition_date=",
-                                "mediaPlaneRawInput.tableName": "%s.%s" % (self.database_name, self.table_name)}
+                                "mediaPlaneProcessedOutput.tableName": "%s.%s" % (self.database_name, self.table_name)}
         self.config_actions.update_configs(**kwargs)
 
         ######## Update job script file
