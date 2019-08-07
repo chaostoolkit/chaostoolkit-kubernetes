@@ -12,7 +12,7 @@ from nimble.core.utils.shell_utils import ShellUtils
 
 class MediaPlaneActions(object):
 
-    def __init__(self, job_alias, config_parser, job_user="ambari-qa"):
+    def __init__(self, job_alias, config_parser, job_user="ambari-qa", component=Components.MANAGEMENT.name):
 
         self._logger = logging.getLogger(__name__)
         self.job_alias = job_alias
@@ -26,7 +26,7 @@ class MediaPlaneActions(object):
         actual_output_configs = config_parser.get_job_actual_output_source_configs(self.job_alias, "output1")
         self.database_name = actual_output_configs["db_name"]
         self.table_name = actual_output_configs["table_name"]
-        self.node_alias = NodeManager.node_obj.get_node_aliases_by_component(Components.MANAGEMENT.name)[0]
+        self.node_alias = NodeManager.node_obj.get_node_aliases_by_component(component)[0]
 
     def schedule_15_min_job(self):
         job_base_directory = "/data/jio_copy/microapp1/"
@@ -62,6 +62,8 @@ class MediaPlaneActions(object):
         job_run_command = "export SPARK_HOME=/usr/hdp/2.6.5.0-292/spark2 && cd %s && nohup scripts/media_plane_microapp1.sh >> a.out 2>>a.out &" % (
             job_base_directory)
         NodeManager.node_obj.execute_remote_command_in_bg(self.node_alias, job_run_command)
+        return NodeManager.node_obj.execute_command_on_node(self.node_alias,
+                                                            ShellUtils.fetch_process_id(self.job_alias)).stdout != ""
 
     def none_or_value(self, value):
         if str(value) == "":

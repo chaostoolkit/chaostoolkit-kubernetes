@@ -153,7 +153,7 @@ jobs:
           source: hbase
           table_name: aut_squad_hbase_table
           scan_filter: FirstKeyOnlyFilter()
-  media_plane:
+  media_plane_microapp1:
     input:
       input1:
         source: hdfs
