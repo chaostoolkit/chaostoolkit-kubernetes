@@ -3,6 +3,7 @@ import re
 
 import allure
 import jinja2
+
 from nimble.core import global_constants
 from nimble.core.utils.shell_utils import ShellUtils
 
@@ -21,6 +22,7 @@ def run_experiment(exp_file=None, exp_template_file=None, context=None):
     experiment_file_response = ShellUtils.execute_shell_command(
         ShellUtils.find_files_in_directory(EXPERIMENTS_BASE_PATH))
     for experiment_file in experiment_file_response.stdout.strip().split("\n"):
+        experiment_file = "/Users/kritika.saxena/chaos_folder_3/chaos_eng_automation/chaostoolkit_nimble/resources/exp_templates/spark/executor_kill_exp_direct.json"
         response = ShellUtils.execute_shell_command("chaos run %s" % experiment_file)
         status = re.search(r'.*Experiment\sended\swith\sstatus:\s(.*)', response.stderr).group(1)
     html_report_path = generate_html()

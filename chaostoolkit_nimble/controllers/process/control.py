@@ -8,9 +8,6 @@ from logzero import logger
 control.configure_control()
 
 
-# EXPERIMENT_STATUS = None
-
-
 def after_activity_control(context: Activity, state: Run,
                            configuration: Configuration = None,
                            secrets: Secrets = None, **kwargs):
@@ -49,22 +46,3 @@ def after_method_control(context: Experiment,
     """
     logger.debug("----------------CONFIGURATION AFTER METHOD:  %s" % configuration)
     sleep(120)
-
-# def after_experiment_control(context: Experiment, state: Journal,
-#                              configuration: Configuration = None,
-#                              secrets: Secrets = None, **kwargs):
-#     """
-#     after-control of the experiment's execution
-#
-#     Called by the Chaos Toolkit after the experiment's completed. It passes the
-#     journal of the execution. At that stage, the after control has no influence
-#     over the execution however. Please see
-#     https://docs.chaostoolkit.org/reference/api/journal/#journal-elements
-#     for more information about the journal.
-#     """
-#     logger.debug("Experiment State----------: %s" % state)
-#     logger.debug("Experiment context--------------------: %s" % context)
-#     global EXPERIMENT_STATUS
-#     EXPERIMENT_STATUS = state["status"]
-#     logger.debug("EXPERIMENT_STATUS %s" % EXPERIMENT_STATUS)
-#     assert state["status"] == "completed"

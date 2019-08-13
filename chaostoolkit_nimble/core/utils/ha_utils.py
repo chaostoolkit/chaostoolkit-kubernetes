@@ -11,6 +11,8 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def check_process_running(component, process_name=None):
+    ############# To do
+    ### make this process in shell utils and here call this method only
     if not process_name:
         process_name = Components.get_process_name(component)
     logger.info("Checking if process '%s' is running by fetching its process id." % process_name)

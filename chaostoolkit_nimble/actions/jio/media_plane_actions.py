@@ -27,11 +27,12 @@ class MediaPlaneActions(object):
         self.database_name = actual_output_configs["db_name"]
         self.table_name = actual_output_configs["table_name"]
         self.node_alias = NodeManager.node_obj.get_node_aliases_by_component(component)[0]
+        self.job_base_directory = "/data/jio_copy/microapp1/"
+        self.job_stdout_file = "a.out"
 
     def schedule_15_min_job(self):
-        job_base_directory = "/data/jio_copy/microapp1/"
-        job_config_file = "%s/conf/MediaPlaneJob.json" % job_base_directory
-        job_script_file = "%s/scripts/media_plane_microapp1.sh" % job_base_directory
+        job_config_file = "%s/conf/MediaPlaneJob.json" % self.job_base_directory
+        job_script_file = "%s/scripts/media_plane_microapp1.sh" % self.job_base_directory
 
         ######## Update job config file
         kwargs = collections.OrderedDict()
@@ -59,9 +60,10 @@ class MediaPlaneActions(object):
         NodeManager.node_obj.execute_command_on_node(self.node_alias, ShellUtils.find_and_replace_in_file(
             "--durationOfDataToProcessInMin=15", "--durationOfDataToProcessInMin=15", job_script_file))
         ############# Run job on management node
-        job_run_command = "export SPARK_HOME=/usr/hdp/2.6.5.0-292/spark2 && cd %s && nohup scripts/media_plane_microapp1.sh >> a.out 2>>a.out &" % (
-            job_base_directory)
-        NodeManager.node_obj.execute_remote_command_in_bg(self.node_alias, job_run_command)
+        job_run_command = "export SPARK_HOME=/usr/hdp/2.6.5.0-292/spark2 && cd %s && nohup scripts/media_plane_microapp1.sh >> %s 2>>%s &" % (
+            self.job_base_directory, self.job_stdout_file, self.job_stdout_file)
+        NodeManager.node_obj.execute_remote_command_in_bg(self.node_alias,
+                                                          ShellUtils.su(self.job_user, job_run_command))
         return NodeManager.node_obj.execute_command_on_node(self.node_alias,
                                                             ShellUtils.fetch_process_id(self.job_alias)).stdout != ""
 

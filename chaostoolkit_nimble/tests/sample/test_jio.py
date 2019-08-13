@@ -8,7 +8,7 @@ from nimble.core.utils.shell_utils import ShellUtils
 
 @pytest.mark.incremental
 class TestJio():
-    job_alias = "media_plane_microapp1"
+    job_alias = "Media_Plane"
     job_user = "ambari-qa"
     job_running_component = Components.MANAGEMENT.name
 
@@ -29,8 +29,8 @@ class TestJio():
     def test_perform_15min_job_ha(self):
         exp_template_file = "process/exp.json"
         context = {"rand_dynamic_component": self.job_running_component,
-                   # "rand_dynamic_process_name": self.job_alias,
-                   "rand_dynamic_process_name": "sleep 1h",
+                   "rand_dynamic_process_name": self.job_alias,
+                   # "rand_dynamic_process_name": "sleep 1h",
                    }
         chaos_user_actions.run_experiment(exp_template_file=exp_template_file, context=context)
         # chaos_user_actions.run_experiment(exp_file=OPTIONS_DICT["experimentsPath"])
