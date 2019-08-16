@@ -1,6 +1,6 @@
 {
 	"version": "1.0.0",
-	"title": "Experiment upon killing spark executor process/es on slave hosts",
+	"title": "Experiment with killing n number of spark executors for a spark job.",
 	"description": "The spark executor process/es should get auto-respawned after being killed.",
 	"tags": ["spark"],
 	"controls": [{
@@ -11,30 +11,30 @@
 		}
 	}],
 	"steady-state-hypothesis": {
-		"title": "Job {{yarn_job_name}} is up and running on yarn",
+		"title": "Job {{job_name}} is up and running on yarn",
 		"probes": [{
 			"type": "probe",
-			"name": "Check-job-{{yarn_job_name}}-running-on-yarn",
+			"name": "Check-job-{{job_name}}-running-on-yarn",
 			"tolerance": true,
 			"provider": {
 				"module": "chaostoolkit_nimble.core.utils.yarn_apps_ha_utils",
 				"type": "python",
 				"func": "is_job_running_on_yarn",
 				"arguments": {
-					"job_name": "{{yarn_job_name}}"
+					"job_name": "{{job_name}}"
 				}
 			}
 		}]
 	},
 	"method": [{
 		"type": "action",
-		"name": "Kill-active-spark-executors-for-job-{{spark_job_name}}",
+		"name": "Kill-active-spark-executors-for-job-{{job_name}}",
 		"provider": {
 			"module": "chaostoolkit_nimble.core.utils.spark_apps_ha_utils",
 			"type": "python",
 			"func": "kill_active_executors",
 			"arguments": {
-				"job_name": "{{spark_job_name}}",
+				"job_name": "{{job_name}}",
 				"num_of_exec": "{{num_of_exec_to_kill}}"
 			}
 		}
