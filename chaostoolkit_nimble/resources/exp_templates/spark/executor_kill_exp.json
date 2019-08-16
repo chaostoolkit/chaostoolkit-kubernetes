@@ -4,10 +4,10 @@
 	"description": "The spark executor process/es should get auto-respawned after being killed.",
 	"tags": ["spark"],
 	"controls": [{
-		"name": "process-related-controls",
+		"name": "spark-related-controls",
 		"provider": {
 			"type": "python",
-			"module": "chaostoolkit_nimble.controllers.process.control"
+			"module": "chaostoolkit_nimble.controllers.spark.control"
 		}
 	}],
 	"steady-state-hypothesis": {

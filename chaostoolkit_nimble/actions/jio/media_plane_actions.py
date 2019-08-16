@@ -1,8 +1,8 @@
 import collections
 import logging
+import mmh3
 import re
 
-import mmh3
 from chaostoolkit_nimble.actions.jio.common_actions import CommonActions
 from nimble.actions.base.regression.config_actions import ConfigActions
 from nimble.core.entity.components import Components
@@ -64,7 +64,7 @@ class MediaPlaneActions(object):
             self.job_base_directory, self.job_stdout_file, self.job_stdout_file)
         NodeManager.node_obj.execute_remote_command_in_bg(self.node_alias,
                                                           ShellUtils.su(self.job_user, job_run_command))
-        return NodeManager.node_obj.execute_command_on_node(self.node_alias,
+        return NodeManager.node_obj.execute_command_on_node(self.node_alias, "sleep 5s ; %s" %
                                                             ShellUtils.fetch_process_id(self.job_alias)).stdout != ""
 
     def none_or_value(self, value):

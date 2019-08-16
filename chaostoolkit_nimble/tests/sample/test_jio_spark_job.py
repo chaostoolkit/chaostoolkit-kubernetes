@@ -1,15 +1,14 @@
+import logging
+
 import pytest
+
 from chaostoolkit_nimble.actions.base.flows import chaos_user_actions
 from chaostoolkit_nimble.actions.jio.media_plane_actions import MediaPlaneActions
 from nimble.core.entity.components import Components
-
 from nimble.core.entity.node_manager import NodeManager
-
 from nimble.core.utils.shell_utils import ShellUtils
 
-from nimble.core.utils.components.hadoop_utils import HadoopRestClientUtils
-
-from nimble.core.utils.components.spark_utils import SparkRestClientUtils
+_LOGGER = logging.getLogger(__name__)
 
 
 @pytest.mark.incremental
@@ -32,8 +31,61 @@ class TestJioSparkJob():
     @pytest.fixture(scope="session")
     def clean_job_stdout_files(self, media_plane_actions):
         command = "cd %s && rm -rf %s" % (media_plane_actions.job_base_directory, media_plane_actions.job_stdout_file)
-        assert NodeManager.node_obj.execute_command_on_node(media_plane_actions.node_alias,
-                                                            ShellUtils.su(self.job_user, command)).status
+        NodeManager.node_obj.execute_command_on_node(media_plane_actions.node_alias,
+                                                     ShellUtils.su(self.job_user, command))
+
+    def test_schedule_15min_job(self, media_plane_actions, clean_table, clean_job_stdout_files):
+        assert media_plane_actions.schedule_15_min_job()
+
+    # def test_is_job_running_on_yarn(self):
+    #     hadoop_rest_client_utils = HadoopRestClientUtils()
+    #     try:
+    #         a = hadoop_rest_client_utils.is_yarn_job_running(self.job_alias)
+    #     except RetryError:
+    #         _LOGGER.exception("Not able to fetch CDAP query status")
+    #
+    # def test_kill_active_executors(self):
+    #     yarn_job_name = "Media_Plane"
+    #     spark_job_name = "Media Plane"
+    #     num_of_exec = 1
+    #     hadoop_rest_client_utils = HadoopRestClientUtils()
+    #     spark_client_utils = SparkRestClientUtils()
+    #     try:
+    #         application_id = hadoop_rest_client_utils.get_yarn_most_recent_application_id_by_job_name(yarn_job_name,
+    #                                                                                                   state=ApplicationState.RUNNING.value)
+    #     except RetryError:
+    #         raise ChaosActionFailedError("Could not fetch yarn application id for job %s in state %s:" % (
+    #             yarn_job_name, ApplicationState.RUNNING.value))
+    #     executors = spark_client_utils.get_application_active_executors(application_id)
+    #     for i in range(len(executors)):
+    #         if executors[i]["id"] == "driver":
+    #             executors.pop(i)
+    #             break
+    #     executors = random.sample(executors, int(num_of_exec))
+    #     response_list = []
+    #     for executor in executors:
+    #         executor_id = executor["id"]
+    #         node_hostname_domain = executor["hostPort"].split(":")[0]
+    #         logger.debug("Killing executor id %s on node %s" % (executor_id, node_hostname_domain))
+    #         response = NodeManager.node_obj.execute_command_on_hostname_domain(node_hostname_domain,
+    #                                                                            ShellUtils.kill_process_by_name("spark",
+    #                                                                                                            pipe_command='grep -i "executor-id %s"' % executor_id))
+    #         if "kill -9 " not in response.stdout:
+    #             raise ChaosActionFailedError(
+    #                 "Could not kill process with executor id %s on node %s" % (executor_id, node_hostname_domain))
+    #         response_list.append(response)
+    #     return str(response_list)
+
+    def test_perform_15min_spark_job_ha(self):
+        exp_template_file = "spark/executor_kill_exp.json"
+        context = {"yarn_job_name": self.job_alias,
+                   "num_of_exec_to_kill": "1",
+                   }
+        chaos_user_actions.run_experiment(exp_template_file=exp_template_file, context=context)
+        # chaos_user_actions.run_experiment(exp_file=OPTIONS_DICT["experimentsPath"])
+
+    def test_validation_on_15min_job_ha(self, user_actions, media_plane_actions):
+        user_actions.validate(media_plane_actions.validate_media_plane, self.job_alias)
 
     ############################################# YARN APIs
 
@@ -160,18 +212,3 @@ class TestJioSparkJob():
     #     spark_client_utils = SparkRestClientUtils()
     #     c = spark_client_utils.is_job_running("Media Plane")
     #     d = 5
-
-    def test_schedule_15min_job(self, media_plane_actions, clean_table, clean_job_stdout_files):
-        assert media_plane_actions.schedule_15_min_job()
-
-    def test_perform_15min_spark_job_ha(self, ):
-        exp_template_file = "spark/executor_kill_exp.json"
-        context = {"yarn_job_name": self.job_alias,
-                   "spark_job_name": "Media_Plane",
-                   "num_of_exec_to_kill": "1",
-                   }
-        chaos_user_actions.run_experiment(exp_template_file=exp_template_file, context=context)
-        # chaos_user_actions.run_experiment(exp_file=OPTIONS_DICT["experimentsPath"])
-
-    def test_validation_on_15min_job_ha(self, user_actions, media_plane_actions):
-        user_actions.validate(media_plane_actions.validate_media_plane, self.job_alias)
