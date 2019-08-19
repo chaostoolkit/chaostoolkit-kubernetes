@@ -21,7 +21,8 @@ def kill_active_executors(job_name, num_of_exec=1):
                                                                                                           state=ApplicationState.RUNNING.value)
     except RetryError:
         raise ChaosActionFailedError(
-            "Could not fetch yarn application id for job %s. Job not found in '%s' state" % (job_name, ApplicationState.RUNNING.value))
+            "Could not fetch yarn application id for job %s. Job not found in '%s' state" % (
+                job_name, ApplicationState.RUNNING.value))
     try:
         logger.info("Fetching spark active executors for application id : %s" % control.APPLICATION_ID)
         executors = spark_client_utils.get_application_active_executors(control.APPLICATION_ID)
@@ -67,12 +68,11 @@ def kill_driver(job_name):
     response = None
     for executor in executors:
         if executor["id"] == "driver":
-            executor_id = executor["id"]
             node_hostname_domain = executor["hostPort"].split(":")[0]
             logger.debug("Killing spark driver on node %s" % node_hostname_domain)
             response = NodeManager.node_obj.execute_command_on_hostname_domain(node_hostname_domain,
                                                                                ShellUtils.kill_process_by_name("spark",
-                                                                                                               pipe_command='grep -i "executor-id %s"' % executor_id))
+                                                                                                               pipe_command='grep -i %s' % control.APPLICATION_ID))
             if "kill -9 " not in response.stdout:
                 raise ChaosActionFailedError(
                     "Could not kill spark driver process on node %s" % node_hostname_domain)
