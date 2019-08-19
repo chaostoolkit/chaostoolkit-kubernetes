@@ -1,5 +1,6 @@
 from chaoslib.types import Experiment, Configuration, Secrets, Activity, Run, Journal
 from logzero import logger
+from retrying import RetryError
 
 from chaostoolkit_nimble.controllers.base import control
 from nimble.core.utils.components.hadoop_utils import HadoopRestClientUtils
@@ -62,12 +63,11 @@ def after_experiment_control(context: Experiment, state: Journal,
     date_utils = DateUtils(Timezone.UTC.value)
     logger.debug("AFTER EXPERIMENT CONTROL: %s" % state)
     hadoop_rest_client_utils = HadoopRestClientUtils()
-    if hadoop_rest_client_utils.is_yarn_job_finished(APPLICATION_ID):
+    try:
+        hadoop_rest_client_utils.is_yarn_job_finished(APPLICATION_ID)
         job_stats = hadoop_rest_client_utils.get_yarn_job_details(APPLICATION_ID)
         logger.info("Total execution time for yarn job with application id %s: %s ms (i.e %s minutes) " % (
             APPLICATION_ID, job_stats["app"]["elapsedTime"],
             date_utils.get_minutes_from_milliseconds(job_stats["app"]["elapsedTime"])))
-    else:
-        logger.info("Yarn job with application id %s is not in FINISHED state. Please check." % APPLICATION_ID)
-    logger.info("Stats for application id %s: %s" % (
-        APPLICATION_ID, hadoop_rest_client_utils.get_yarn_job_details(APPLICATION_ID)))
+    except RetryError:
+        logger.info("Yarn job with application id %s is not in 'FINISHED' state. Please check." % APPLICATION_ID)

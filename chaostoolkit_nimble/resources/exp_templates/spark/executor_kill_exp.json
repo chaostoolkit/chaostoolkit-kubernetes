@@ -38,5 +38,7 @@
 				"num_of_exec": "{{num_of_exec_to_kill}}"
 			}
 		}
-	}]
+	}],
+	"rollbacks": [
+    ]
 }
