@@ -40,6 +40,7 @@ class TestJioSparkJob():
     def test_perform_15min_spark_job_ha(self):
         exp_template_file = "spark/executor_kill_exp.json"
         # exp_template_file = "spark/driver_kill_exp.json"
+        # exp_template_file = "spark/driver_and_executor_kill_exp.json"
         context = {"job_name": self.job_alias,
                    "num_of_exec_to_kill": "1",
                    }

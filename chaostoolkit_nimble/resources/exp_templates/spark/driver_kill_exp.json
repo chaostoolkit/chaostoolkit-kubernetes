@@ -1,43 +1,51 @@
 {
-	"version": "1.0.0",
-	"title": "Experiment with killing the spark driver for the spark job.",
-	"description": "The spark driver should get auto-respawned after being killed.",
-	"tags": ["spark"],
-	"controls": [{
-		"name": "spark-related-controls",
-		"provider": {
-			"type": "python",
-			"module": "chaostoolkit_nimble.controllers.spark.control"
-		}
-	}],
-	"steady-state-hypothesis": {
-		"title": "Job {{job_name}} is up and running on yarn",
-		"probes": [{
-			"type": "probe",
-			"name": "Check-job-{{job_name}}-running-on-yarn",
-			"tolerance": true,
-			"provider": {
-				"module": "chaostoolkit_nimble.core.utils.yarn_apps_ha_utils",
-				"type": "python",
-				"func": "is_job_running_on_yarn",
-				"arguments": {
-					"job_name": "{{job_name}}"
-				}
-			}
-		}]
-	},
-	"method": [{
-		"type": "action",
-		"name": "Kill-spark-driver-for-job-{{job_name}}",
-		"provider": {
-			"module": "chaostoolkit_nimble.core.utils.spark_apps_ha_utils",
-			"type": "python",
-			"func": "kill_driver",
-			"arguments": {
-				"job_name": "{{job_name}}"
-			}
-		}
-	}],
-	"rollbacks": [
+  "version": "1.0.0",
+  "title": "Experiment with killing the spark driver for the spark job {{job_name}}.",
+  "description": "The spark driver should get auto-respawned after being killed.",
+  "tags": [
+    "spark"
+  ],
+  "controls": [
+    {
+      "name": "spark-related-controls",
+      "provider": {
+        "type": "python",
+        "module": "chaostoolkit_nimble.controllers.spark.control"
+      }
+    }
+  ],
+  "steady-state-hypothesis": {
+    "title": "Job {{job_name}} is up and running on yarn.",
+    "probes": [
+      {
+        "type": "probe",
+        "name": "Check job {{job_name}} running on yarn.  ",
+        "tolerance": true,
+        "provider": {
+          "module": "chaostoolkit_nimble.core.utils.yarn_apps_ha_utils",
+          "type": "python",
+          "func": "is_job_running_on_yarn",
+          "arguments": {
+            "job_name": "{{job_name}}"
+          }
+        }
+      }
     ]
+  },
+  "method": [
+    {
+      "type": "action",
+      "name": "Kill spark driver for job {{job_name}}.  ",
+      "provider": {
+        "module": "chaostoolkit_nimble.core.utils.spark_apps_ha_utils",
+        "type": "python",
+        "func": "kill_driver",
+        "arguments": {
+          "job_name": "{{job_name}}"
+        }
+      }
+    }
+  ],
+  "rollbacks": [
+  ]
 }

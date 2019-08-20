@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "title": "Experiment with killing n number of spark executors for a spark job {{job_name}}.",
-  "description": "The spark executor process/es should get auto-respawned after being killed.",
+  "title": "Experiment with killing the spark driver and n number of executors for the spark job {{job_name}}.",
+  "description": "The spark driver and executor process should get auto-respawned after being killed.",
   "tags": [
     "spark"
   ],
@@ -19,7 +19,7 @@
     "probes": [
       {
         "type": "probe",
-        "name": "Check job {{job_name}} running on yarn.  ",
+        "name": "Check job {{job_name}} is running on yarn  ",
         "tolerance": true,
         "provider": {
           "module": "chaostoolkit_nimble.core.utils.yarn_apps_ha_utils",
@@ -35,7 +35,19 @@
   "method": [
     {
       "type": "action",
-      "name": "Kill active spark executors for job {{job_name}}.  ",
+      "name": "Kill spark driver for the job {{job_name}}  ",
+      "provider": {
+        "module": "chaostoolkit_nimble.core.utils.spark_apps_ha_utils",
+        "type": "python",
+        "func": "kill_driver",
+        "arguments": {
+          "job_name": "{{job_name}}"
+        }
+      }
+    },
+    {
+      "type": "action",
+      "name": "Kill spark executors for job {{job_name}}  ",
       "provider": {
         "module": "chaostoolkit_nimble.core.utils.spark_apps_ha_utils",
         "type": "python",
