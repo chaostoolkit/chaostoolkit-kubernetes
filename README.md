@@ -153,34 +153,41 @@ into the master branch of the repository. Please, make sure you can abide by
 the rules of the DCO before submitting a PR.
 
 [dco]: https://github.com/probot/dco#how-it-works
-##ChaosToolkit Overview
+## ChaosToolkit Overview
+
 *The end goal of using chaostoolkit is to practice chaos engineering, and discover how your system reacts when certain anomalies are injected in it. 
+
 *By doing this in a controlled fashion, you may learn how to change the system accordingly and make it more resilient on multiple levels like application, network and platform.
 
 
-###The Various Sections of an Experiment
+### The Various Sections of an Experiment
 ##### `Controls`
 ```
 *Here you declare the the control module, which is simply a set of functions that are called by the Chaos Toolkit when executing the experiment. 
+
 *The Controls are applied per experiment.
 https://docs.chaostoolkit.org/reference/extending/create-control-extension/
 ```
 ##### `The steady state hypothesis`
 ```
 *The steady state hypothesis declares the various probes that will be applied as part of the hypothesis check.
+
 *The hypothesis is played twice. The first time before we do anything else to ensure the system is indeed in a normal state,
 The second time the hypothesis is applied is after the conditions were changed in the system, to validate it is still in a normal state.
+
 *Hypothesis probes expect a tolerance property which tells the Chaos Toolkit how to validate a certain aspect of the state
 ```
 
 ##### `Method`
 ```
 *The method is the anomaly injection block which changes the conditions of our system/application.
+
 * This section is executed only if Hypothesis (above) is successfully met, else this section would be skipped.
 ```
 ##### `Rollbacks`
 ```
 *Finally, the rollback section (which is optional) tries to remediate to the changes we made on/off the system during the anomaly injection.
+
 *This block will be executed always irrespective of the fact that Hypothesis was met or not in the first time. 
 ```
 
@@ -326,10 +333,10 @@ Wait for the job to complete on yarn and then fetch the job total execution time
 
 
 User inputs required: 
-Testbed config yaml
-Validation config yaml
-Chaos Experiment Template path:
-Num of executors to kill. Default is 1.
+* Testbed config yaml
+* Validation config yaml
+* Chaos Experiment Template path:
+* Num of executors to kill. Default is 1.
 
 Pytest command:
 python -m pytest -k "test_chaos_on_executor_kill  or test_validation_post_chaos" --testbed=chaostoolkit_nimble/resources/testbeds/open_nebula_135_35.yml  --componentAttributesConfig=chaostoolkit_nimble/resources/components/component_attributes_kerberos.yml --validationConfig=chaostoolkit_nimble/resources/validation/sample_validation_config.yml chaostoolkit_nimble/tests/sample/test_jio_spark_job.py
@@ -353,9 +360,9 @@ Wait for the job to complete on yarn and then fetch the job total execution time
 
 
 User inputs required: 
-Testbed config yaml
-Validation config yaml
-Chaos Experiment Template path:
+* Testbed config yaml
+* Validation config yaml
+* Chaos Experiment Template path:
 
 Pytest command:
 python -m pytest -k "not(test_chaos_on_executor_kill  or test_chaos_on_driver_and_executor_kill)" --testbed=chaostoolkit_nimble/resources/testbeds/open_nebula_135_35.yml  --componentAttributesConfig=chaostoolkit_nimble/resources/components/component_attributes_kerberos.yml --validationConfig=chaostoolkit_nimble/resources/validation/sample_validation_config.yml chaostoolkit_nimble/tests/sample/test_jio_spark_job.py
@@ -380,10 +387,10 @@ Wait for the job to complete on yarn and then fetch the job total execution time
 
 
 User inputs required: 
-Testbed config yaml
-Validation config yaml
-Chaos Experiment Template path:
-Num of executors to kill. Default is 1.
+* Testbed config yaml
+* Validation config yaml
+* Chaos Experiment Template path:
+* Num of executors to kill. Default is 1.
 
 Pytest command:
 python -m pytest -k "not(test_chaos_on_executor_kill or test_chaos_on_driver_kill)" --testbed=chaostoolkit_nimble/resources/testbeds/open_nebula_135_35.yml  --componentAttributesConfig=chaostoolkit_nimble/resources/components/component_attributes_kerberos.yml --validationConfig=chaostoolkit_nimble/resources/validation/sample_validation_config.yml chaostoolkit_nimble/tests/sample/test_jio_spark_job.py
@@ -393,9 +400,9 @@ python -m pytest -k "not(test_chaos_on_executor_kill or test_chaos_on_driver_kil
 ## Setting up chaostoolkit-nimble on local system
 
 Assumptions : 
-Python 3 is already installed on the system
-Test automation code is already checked out on the system
+Python 3 is already installed on the system.
 
+Automation code from your own solution repo is already checked out on the system.
 
 
 ##### Checkout 'chaos_eng_automation' repo code (i.e chaostoolkit-nimble)
@@ -411,7 +418,6 @@ Test automation code is already checked out on the system
 4) cd ../ ; git clone https://github.com/Guavus/st-automation.git
 5) cd st-automation ; git checkout AUT-439-my-copy
 ```
-
 
 ##### Add dependencies for projects 'chaos_eng_automation' and 'st-automation' in a virtual env
 ```
