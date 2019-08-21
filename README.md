@@ -301,10 +301,12 @@ The second time the hypothesis is applied is after the conditions were changed i
 
 ## Jio Use Cases Solved 
 Job Name : Media Plane
+
 Job frequency : 15min
+
 Number of job instances: 1
 
-Assumption : Job is running already 
+Assumption : Job is already running on the cluster.
 
 ### Use case 1: Kill n number of spark executors for a spark job running on yarn and validate data for that job instance.
 ```
