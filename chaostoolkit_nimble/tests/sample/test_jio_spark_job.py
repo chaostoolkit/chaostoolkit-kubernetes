@@ -61,5 +61,5 @@ class TestJioSparkJob():
         chaos_user_actions.run_experiment(exp_template_file=exp_template_file, context=context)
         # chaos_user_actions.run_experiment(exp_file=OPTIONS_DICT["experimentsPath"])
 
-    def test_validation_post_chaos(self, user_actions, media_plane_actions):
+    def test_data_validation_post_chaos(self, user_actions, media_plane_actions):
         user_actions.validate(media_plane_actions.validate_media_plane, self.job_alias)
