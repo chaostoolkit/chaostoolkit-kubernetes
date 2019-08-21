@@ -153,3 +153,284 @@ into the master branch of the repository. Please, make sure you can abide by
 the rules of the DCO before submitting a PR.
 
 [dco]: https://github.com/probot/dco#how-it-works
+##ChaosToolkit Overview
+*The end goal of using chaostoolkit is to practice chaos engineering, and discover how your system reacts when certain anomalies are injected in it. 
+*By doing this in a controlled fashion, you may learn how to change the system accordingly and make it more resilient on multiple levels like application, network and platform.
+
+
+###The Various Sections of an Experiment
+##### `Controls`
+```
+*Here you declare the the control module, which is simply a set of functions that are called by the Chaos Toolkit when executing the experiment. 
+*The Controls are applied per experiment.
+https://docs.chaostoolkit.org/reference/extending/create-control-extension/
+```
+##### `The steady state hypothesis`
+```
+*The steady state hypothesis declares the various probes that will be applied as part of the hypothesis check.
+*The hypothesis is played twice. The first time before we do anything else to ensure the system is indeed in a normal state,
+The second time the hypothesis is applied is after the conditions were changed in the system, to validate it is still in a normal state.
+*Hypothesis probes expect a tolerance property which tells the Chaos Toolkit how to validate a certain aspect of the state
+```
+
+##### `Method`
+```
+*The method is the anomaly injection block which changes the conditions of our system/application.
+* This section is executed only if Hypothesis (above) is successfully met, else this section would be skipped.
+```
+##### `Rollbacks`
+```
+*Finally, the rollback section (which is optional) tries to remediate to the changes we made on/off the system during the anomaly injection.
+*This block will be executed always irrespective of the fact that Hypothesis was met or not in the first time. 
+```
+
+#### `Sample Experimnet json file` 
+```
+{
+	"version": "1.0.0",
+	"title": "What is the impact of an expired certificate on our application chain?",
+	"description": "If a certificate expires, we should gracefully deal with the issue.",
+	"tags": ["tls"],
+	"controls": [{
+		"name": "spark-related-controls",
+		"provider": {
+			"type": "python",
+			"module": "chaostoolkit_nimble.controllers.spark.control"
+		}
+	}],
+	"steady-state-hypothesis": {
+		"title": "Application responds",
+		"probes": [{
+				"type": "probe",
+				"name": "the-astre-service-must-be-running",
+				"tolerance": true,
+				"provider": {
+					"type": "python",
+					"module": "os.path",
+					"func": "exists",
+					"arguments": {
+						"path": "astre.pid"
+					}
+				}
+			},
+			{
+				"type": "probe",
+				"name": "the-sunset-service-must-be-running",
+				"tolerance": true,
+				"provider": {
+					"type": "python",
+					"module": "os.path",
+					"func": "exists",
+					"arguments": {
+						"path": "sunset.pid"
+					}
+				}
+			},
+			{
+				"type": "probe",
+				"name": "we-can-request-sunset",
+				"tolerance": 200,
+				"provider": {
+					"type": "http",
+					"timeout": 3,
+					"verify_tls": false,
+					"url": "https://localhost:8443/city/Paris"
+				}
+			}
+		]
+	},
+	"method": [{
+			"type": "action",
+			"name": "swap-to-expired-cert",
+			"provider": {
+				"type": "process",
+				"path": "cp",
+				"arguments": "expired-cert.pem cert.pem"
+			}
+		},
+		{
+			"type": "probe",
+			"name": "read-tls-cert-expiry-date",
+			"provider": {
+				"type": "process",
+				"path": "openssl",
+				"arguments": "x509 -enddate -noout -in cert.pem"
+			}
+		},
+		{
+			"type": "action",
+			"name": "restart-astre-service-to-pick-up-certificate",
+			"provider": {
+				"type": "process",
+				"path": "pkill",
+				"arguments": "--echo -HUP -F astre.pid"
+			}
+		},
+		{
+			"type": "action",
+			"name": "restart-sunset-service-to-pick-up-certificate",
+			"provider": {
+				"type": "process",
+				"path": "pkill",
+				"arguments": "--echo -HUP -F sunset.pid"
+			},
+			"pauses": {
+				"after": 1
+			}
+		}
+	],
+	"rollbacks": [{
+			"type": "action",
+			"name": "swap-to-vald-cert",
+			"provider": {
+				"type": "process",
+				"path": "cp",
+				"arguments": "valid-cert.pem cert.pem"
+			}
+		},
+		{
+			"ref": "restart-astre-service-to-pick-up-certificate"
+		},
+		{
+			"ref": "restart-sunset-service-to-pick-up-certificate"
+		}
+	]
+}
+```
+
+
+## Jio Use Cases Solved 
+Job Name : Media Plane
+Job frequency : 15min
+Number of job instances: 1
+
+Assumption : Job is running already 
+
+### Use case 1: Kill n number of spark executors for a spark job running on yarn and validate data for that job instance.
+```
+Chaos Experiment Template path - chaostoolkit_nimble/resources/exp_templates/spark/executor_kill_exp.json
+
+------Before experiment control:
+Read the user given testbed and initialize nimble `node_obj` object.
+
+------Hypothesis section:
+Check job is running on yarn
+
+------Method section (Anomaly injection):
+Kill spark job any active executors for the last spark driver attempt.
+
+------After experiment control:
+Wait for the job to complete on yarn and then fetch the job total execution time from yarn. (Time fetched: 1.33 minutes)
+
+
+User inputs required: 
+Testbed config yaml
+Validation config yaml
+Chaos Experiment Template path:
+Num of executors to kill. Default is 1.
+
+Pytest command:
+python -m pytest -k "test_chaos_on_executor_kill  or test_validation_post_chaos" --testbed=chaostoolkit_nimble/resources/testbeds/open_nebula_135_35.yml  --componentAttributesConfig=chaostoolkit_nimble/resources/components/component_attributes_kerberos.yml --validationConfig=chaostoolkit_nimble/resources/validation/sample_validation_config.yml chaostoolkit_nimble/tests/sample/test_jio_spark_job.py
+```
+
+### Use case 2: Kill the spark driver for a spark job running on yarn and validate data for that job instance.
+```
+Chaos Experiment Template - chaostoolkit_nimble/resources/exp_templates/spark/driver_kill_exp.json
+
+------Before experiment control:
+Read the user given testbed and initialize nimble `node_obj` object.
+
+------Hypothesis section:
+Check job is running on yarn
+
+------Method section (Anomaly injection):
+Kill the spark driver for this spark job.
+
+------After experiment control:
+Wait for the job to complete on yarn and then fetch the job total execution time from yarn. (Time fetched: 1.74 minutes)
+
+
+User inputs required: 
+Testbed config yaml
+Validation config yaml
+Chaos Experiment Template path:
+
+Pytest command:
+python -m pytest -k "not(test_chaos_on_executor_kill  or test_chaos_on_driver_and_executor_kill)" --testbed=chaostoolkit_nimble/resources/testbeds/open_nebula_135_35.yml  --componentAttributesConfig=chaostoolkit_nimble/resources/components/component_attributes_kerberos.yml --validationConfig=chaostoolkit_nimble/resources/validation/sample_validation_config.yml chaostoolkit_nimble/tests/sample/test_jio_spark_job.py
+
+```
+
+### Use case 3: Kill the driver and n number of executors for a spark job running on yarn and validate data for that job instance.
+```
+Chaos Experiment Template used : chaostoolkit_nimble/resources/exp_templates/spark/driver_and_executor_kill_exp.json
+
+------Before experiment control:
+Read the user given testbed and initialize nimble `node_obj` object.
+
+------Hypothesis section:
+Check job is running on yarn
+
+------Method section (Anomaly injection):
+Kill the spark driver for this spark job and then kill any active executors for the new spark attempt.
+
+------After experiment control:
+Wait for the job to complete on yarn and then fetch the job total execution time from yarn. (Time fetched 1.76 minutes: )
+
+
+User inputs required: 
+Testbed config yaml
+Validation config yaml
+Chaos Experiment Template path:
+Num of executors to kill. Default is 1.
+
+Pytest command:
+python -m pytest -k "not(test_chaos_on_executor_kill or test_chaos_on_driver_kill)" --testbed=chaostoolkit_nimble/resources/testbeds/open_nebula_135_35.yml  --componentAttributesConfig=chaostoolkit_nimble/resources/components/component_attributes_kerberos.yml --validationConfig=chaostoolkit_nimble/resources/validation/sample_validation_config.yml chaostoolkit_nimble/tests/sample/test_jio_spark_job.py
+
+```
+
+## Setting up chaostoolkit-nimble on local system
+
+Assumptions : 
+Python 3 is already installed on the system
+Test automation code is already checked out on the system
+
+
+
+##### Checkout 'chaos_eng_automation' repo code (i.e chaostoolkit-nimble)
+
+```
+1) mkdir chaos_automation ; cd chaos_automation
+2) git clone https://github.com/kritika-saxena-guavus/chaos_eng_automation.git
+3) cd chaos_eng_automation ; git checkout AUT-563
+```
+
+##### Checkout 'st-automation' repo code (i.e nimble migrated on python 3)
+```
+4) cd ../ ; git clone https://github.com/Guavus/st-automation.git
+5) cd st-automation ; git checkout AUT-439-my-copy
+```
+
+
+##### Add dependencies for projects 'chaos_eng_automation' and 'st-automation' in a virtual env
+```
+1) cd ../ ; mkdir chaos_virenv ; cd chaos_virenv
+2) virtualenv --python=python3 venv
+3) source venv/bin/activate
+4) pip install -r st-automation/requirements.txt 
+5) pip install -r chaos_eng_automation/requirements.txt 
+```
+
+##### Add this virtual env in pycharm
+```
+Pycharm --> Preferences --> Project interpreter --> settings --> show all --> add the chaos_virenv
+```
+
+##### Add the project 'chaos_eng_automation' and  'st-automation' as your main automation project dependencies
+```
+1) Open the projects 'chaos_eng_automation' and 'st-automation' in the same pycharm window as that of your current project.
+2) Pycharm --> Preferences --> Project dependencies --> Check chaos_eng_automation and 'st-automation'
+3) Pycharm --> Preferences --> Project interpreter --> select the virtual env 'chaos_virenv' on both these projects
+```
+
+
+
