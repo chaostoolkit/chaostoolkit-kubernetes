@@ -36,7 +36,7 @@ The second time the hypothesis is applied is after the conditions were changed i
 *This block will be executed always irrespective of the fact that Hypothesis was met or not in the first time. 
 ```
 
-#### `Sample Experimnet json file` 
+#### `Sample Experiment json file` 
 ```
 {
 	"version": "1.0.0",
