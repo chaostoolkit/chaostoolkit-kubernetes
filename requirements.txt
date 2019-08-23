@@ -1,4 +1,4 @@
-nimble>4.0.0
+nimble>=4.0.0
 dateparser
 kubernetes
 logzero
