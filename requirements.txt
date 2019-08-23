@@ -1,3 +1,4 @@
+nimble
 dateparser
 kubernetes
 logzero
