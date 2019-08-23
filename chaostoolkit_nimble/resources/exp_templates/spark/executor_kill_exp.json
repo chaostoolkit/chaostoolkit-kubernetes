@@ -42,7 +42,7 @@
         "func": "kill_active_executors",
         "arguments": {
           "job_name": "{{job_name}}",
-          "num_of_exec": "{{num_of_exec_to_kill}}"
+          "num_of_exec": "{{ num_of_exec_to_kill|default('1') }}"
         }
       }
     }

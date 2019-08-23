@@ -39,27 +39,19 @@ class TestJioSparkJob():
         assert media_plane_actions.schedule_15_min_job()
 
     def test_chaos_on_executor_kill(self, schedule_job):
-        exp_template_file = "spark/executor_kill_exp.json"
-        context = {"job_name": self.job_alias,
-                   "num_of_exec_to_kill": "1",
-                   }
+        exp_template_file = "automation/chaos/exp_templates/spark/executor_kill_exp.json"
+        context = {"job_name": self.job_alias}
         chaos_user_actions.run_experiment(exp_template_file=exp_template_file, context=context)
-        # chaos_user_actions.run_experiment(exp_file=OPTIONS_DICT["experimentsPath"])
 
     def test_chaos_on_driver(self, schedule_job):
-        exp_template_file = "spark/driver_kill_exp.json"
-        context = {"job_name": self.job_alias,
-                   }
+        exp_template_file = "automation/chaos/exp_templates/spark/driver_kill_exp.json"
+        context = {"job_name": self.job_alias}
         chaos_user_actions.run_experiment(exp_template_file=exp_template_file, context=context)
-        # chaos_user_actions.run_experiment(exp_file=OPTIONS_DICT["experimentsPath"])
 
     def test_chaos_on_driver_and_executor_kill(self, schedule_job):
-        exp_template_file = "spark/driver_and_executor_kill_exp.json"
-        context = {"job_name": self.job_alias,
-                   "num_of_exec_to_kill": "1",
-                   }
+        exp_template_file = "automation/chaos/exp_templates/spark/driver_and_executor_kill_exp.json"
+        context = {"job_name": self.job_alias}
         chaos_user_actions.run_experiment(exp_template_file=exp_template_file, context=context)
-        # chaos_user_actions.run_experiment(exp_file=OPTIONS_DICT["experimentsPath"])
 
     def test_data_validation_post_chaos(self, user_actions, media_plane_actions):
         user_actions.validate(media_plane_actions.validate_media_plane, self.job_alias)

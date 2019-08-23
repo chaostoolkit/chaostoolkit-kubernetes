@@ -1,4 +1,3 @@
-nimble
 dateparser
 kubernetes
 logzero
@@ -7,3 +6,4 @@ pyyaml
 pytest-html
 chaostoolkit
 chaostoolkit-reporting
+twine
