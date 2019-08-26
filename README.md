@@ -28,7 +28,7 @@ experiment file:
 {
     "name": "all-our-microservices-should-be-healthy",
     "type": "probe",
-    "tolerance": "true",
+    "tolerance": true,
     "provider": {
         "type": "python",
         "module": "chaosk8s.probes",
