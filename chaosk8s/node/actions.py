@@ -5,7 +5,7 @@
 # do and how they do it.
 import random
 import time
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
@@ -19,9 +19,80 @@ __all__ = ["create_node", "delete_nodes", "cordon_node", "drain_nodes",
            "uncordon_node"]
 
 
+def _select_nodes(name: str = None, label_selector: str = None,
+                  count: int = None, secrets: Secrets = None,
+                  pod_label_selector: str = None,
+                  pod_namespace: str = None, first: bool =
+                  False) -> List[client.V1Node]:
+    """
+    Selects nodes of the kubernetes cluster based on the input parameters and
+     returns them.
+    If no input parameter is given, all nodes are returned.
+    In case that no node can be found or matches the filter paramter an
+     exception is thrown.
+
+    Nodes can be filtered by their name through the `name` paramteter.
+    Nodes can be filtered by their label through the `label_selector`
+    parameter.
+    Nodes can further be filtered by the pods that they are accommodating using
+    the pod's label through the `pod_label_selector` parameter and
+    `pod_namespace` parameter.
+    The amount of nodes to return can be capped through the `count` paramteter.
+    In this case `count` random nodes will be returned.
+    If first is set to true only the first node is returned.
+    """
+    nodes = []
+    api = create_k8s_api_client(secrets)
+    v1 = client.CoreV1Api(api)
+
+    if name and not label_selector:
+        logger.debug("Filtering nodes by name %s" % (name,))
+        ret = v1.list_node(field_selector="metadata.name={}".format(name))
+        logger.debug("Found {d} nodes".format(d=len(ret.items)))
+    elif label_selector and not name:
+        logger.debug("Filtering nodes by label %s" % (label_selector,))
+        ret = v1.list_node(label_selector=label_selector)
+        logger.debug("Found {d} nodes".format(d=len(ret.items)))
+    elif name and label_selector:
+        logger.debug("Filtering nodes by name %s and \
+                      label %s" % (name, label_selector))
+        ret = v1.list_node(field_selector="metadata.name={}".format(name),
+                           label_selector=label_selector)
+        logger.debug("Found {d} nodes".format(d=len(ret.items)))
+    else:
+        ret = v1.list_node()
+
+    if pod_label_selector and pod_namespace:
+        logger.debug("Filtering nodes by pod label %s" % (pod_label_selector,))
+        pods = v1.list_namespaced_pod(pod_namespace,
+                                      label_selector=pod_label_selector)
+        for node in ret.items:
+            for pod in pods.items:
+                if pod.spec.node_name == node.metadata.name:
+                    nodes.append(node)
+                    pass
+        logger.debug("Found {d} nodes".format(d=len(nodes)))
+    else:
+        nodes = ret.items
+
+    if not nodes:
+        raise ActivityFailed(
+            "failed to find a node that matches selector")
+
+    if first:
+        nodes = [nodes[0]]
+    elif count is not None:
+        nodes = random.choices(nodes, k=count)
+    logger.debug("Picked nodes '{p}'".format(
+        p=", ".join([n.metadata.name for n in nodes])))
+
+    return nodes
+
+
 def delete_nodes(label_selector: str = None, all: bool = False,
                  rand: bool = False, count: int = None,
-                 grace_period_seconds: int = None, secrets: Secrets = None):
+                 grace_period_seconds: int = None, secrets: Secrets = None,
+                 pod_label_selector: str = None, pod_namespace: str = None):
     """
     Delete nodes gracefully. Select the appropriate nodes by label.
 
@@ -41,35 +112,22 @@ def delete_nodes(label_selector: str = None, all: bool = False,
     api = create_k8s_api_client(secrets)
 
     v1 = client.CoreV1Api(api)
-    if label_selector:
-        ret = v1.list_node(label_selector=label_selector)
-        logger.debug("Found {d} nodes labelled '{s}'".format(
-            d=len(ret.items), s=label_selector))
-    else:
-        ret = v1.list_node()
-        logger.debug("Found {d} nodes".format(d=len(ret.items)))
 
-    nodes = ret.items
-    if not nodes:
-        raise ActivityFailed(
-            "failed to find a node that matches selector {}".format(
-                label_selector))
+    first = False
+    if (all is None or all is False) and (rand is None or rand is False) and \
+       (count is None or count < 1):
+        first = True
 
     if rand:
-        nodes = [random.choice(nodes)]
-        logger.debug("Picked node '{p}' to be terminated".format(
-            p=nodes[0].metadata.name))
-    elif count is not None:
-        nodes = random.choices(nodes, k=count)
-        logger.debug("Picked {c} nodes '{p}' to be terminated".format(
-            c=len(nodes), p=", ".join([n.metadata.name for n in nodes])))
-    elif not all:
-        nodes = [nodes[0]]
-        logger.debug("Picked node '{p}' to be terminated".format(
-            p=nodes[0].metadata.name))
-    else:
-        logger.debug("Picked all nodes '{p}' to be terminated".format(
-            p=", ".join([n.metadata.name for n in nodes])))
+        count = 1
+
+    if all:
+        count, label_selector, pod_label_selector, pod_namespace = None
+
+    nodes = _select_nodes(secrets=secrets, label_selector=label_selector,
+                          pod_label_selector=pod_label_selector,
+                          pod_namespace=pod_namespace, count=count,
+                          first=first)
 
     body = client.V1DeleteOptions()
     for n in nodes:
@@ -120,23 +178,9 @@ def cordon_node(name: str = None, label_selector: str = None,
     api = create_k8s_api_client(secrets)
 
     v1 = client.CoreV1Api(api)
-    if name:
-        ret = v1.list_node(field_selector="metadata.name={}".format(name))
-        logger.debug("Found {d} node named '{s}'".format(
-            d=len(ret.items), s=name))
-    elif label_selector:
-        ret = v1.list_node(label_selector=label_selector)
-        logger.debug("Found {d} node(s) labelled '{s}'".format(
-            d=len(ret.items), s=label_selector))
-    else:
-        ret = v1.list_node()
-        logger.debug("Found {d} node(s)".format(d=len(ret.items)))
 
-    nodes = ret.items
-    if not nodes:
-        raise ActivityFailed(
-            "failed to find a node that matches selector {}".format(
-                label_selector))
+    nodes = _select_nodes(name=name, label_selector=label_selector,
+                          secrets=secrets)
 
     body = {
         "spec": {
@@ -163,23 +207,9 @@ def uncordon_node(name: str = None, label_selector: str = None,
     api = create_k8s_api_client(secrets)
 
     v1 = client.CoreV1Api(api)
-    if name:
-        ret = v1.list_node(field_selector="metadata.name={}".format(name))
-        logger.debug("Found {d} node named '{s}'".format(
-            d=len(ret.items), s=name))
-    elif label_selector:
-        ret = v1.list_node(label_selector=label_selector)
-        logger.debug("Found {d} node(s) labelled '{s}'".format(
-            d=len(ret.items), s=label_selector))
-    else:
-        ret = v1.list_node()
-        logger.debug("Found {d} node(s)".format(d=len(ret.items)))
 
-    nodes = ret.items
-    if not nodes:
-        raise ActivityFailed(
-            "failed to find a node that matches selector {}".format(
-                label_selector))
+    nodes = _select_nodes(name=name, label_selector=label_selector,
+                          secrets=secrets)
 
     body = {
         "spec": {
@@ -199,7 +229,9 @@ def uncordon_node(name: str = None, label_selector: str = None,
 
 def drain_nodes(name: str = None, label_selector: str = None,
                 delete_pods_with_local_storage: bool = False,
-                timeout: int = 120, secrets: Secrets = None) -> bool:
+                timeout: int = 120, secrets: Secrets = None,
+                count: int = None, pod_label_selector: str = None,
+                pod_namespace: str = None) -> bool:
     """
     Drain nodes matching the given label or name, so that no pods are scheduled
     on them any longer and running pods are evicted.
@@ -212,28 +244,18 @@ def drain_nodes(name: str = None, label_selector: str = None,
     You probably want to call `uncordon` from in your experiment's rollbacks.
     """
     # first let's make the node unschedulable
-    cordon_node(name=name, label_selector=label_selector, secrets=secrets)
-
     api = create_k8s_api_client(secrets)
 
     v1 = client.CoreV1Api(api)
-    if name:
-        ret = v1.list_node(field_selector="metadata.name={}".format(name))
-        logger.debug("Found {d} node named '{s}'".format(
-            d=len(ret.items), s=name))
-    elif label_selector:
-        ret = v1.list_node(label_selector=label_selector)
-        logger.debug("Found {d} node(s) labelled '{s}'".format(
-            d=len(ret.items), s=label_selector))
-    else:
-        ret = v1.list_node()
-        logger.debug("Found {d} node(s)".format(d=len(ret.items)))
 
-    nodes = ret.items
-    if not nodes:
-        raise ActivityFailed(
-            "failed to find a node that matches selector {}".format(
-                label_selector))
+    # select nodes to drain
+    nodes = _select_nodes(name=name, label_selector=label_selector,
+                          count=count, pod_label_selector=pod_label_selector,
+                          pod_namespace=pod_namespace, secrets=secrets)
+
+    # first let's make the nodes unschedulable
+    for node in nodes:
+        cordon_node(name=node.metadata.name, secrets=secrets)
 
     for node in nodes:
         node_name = node.metadata.name

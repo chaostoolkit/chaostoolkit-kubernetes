@@ -17,7 +17,8 @@ def terminate_pods(label_selector: str = None, name_pattern: str = None,
                    all: bool = False, rand: bool = False,
                    mode: str = "fixed", qty: int = 1,
                    grace_period: int = -1,
-                   ns: str = "default", secrets: Secrets = None):
+                   ns: str = "default", order: str = "alphabetic",
+                   secrets: Secrets = None):
     """
     Terminate a pod gracefully. Select the appropriate pods by label and/or
     name patterns. Whenever a pattern is provided for the name, all pods
@@ -35,6 +36,9 @@ def terminate_pods(label_selector: str = None, name_pattern: str = None,
     percentage of pods, from 1 to 100, to be terminated.
     Default `mode` is `fixed` and default `qty` is `1`.
 
+    If `order` is set to `oldest`, the retrieved pods will be ordered
+    by the pods creation_timestamp, with the oldest pod first in list.
+
     If `rand` is set to `True`, n random pods will be terminated
     Otherwise, the first retrieved n pods will be terminated.
 
@@ -50,6 +54,10 @@ def terminate_pods(label_selector: str = None, name_pattern: str = None,
     if mode not in ['fixed', 'percentage']:
         raise ActivityFailed(
             "Cannot terminate pods. Mode '{m}' is invalid.".format(m=mode))
+    # Fail when order not `alphabetic` or `oldest`
+    if order not in ['alphabetic', 'oldest']:
+        raise ActivityFailed(
+            "Cannot terminate pods. Order '{o}' is invalid.".format(o=order))
     api = create_k8s_api_client(secrets)
 
     v1 = client.CoreV1Api(api)
@@ -73,6 +81,8 @@ def terminate_pods(label_selector: str = None, name_pattern: str = None,
     else:
         pods = ret.items
 
+    if order == 'oldest':
+        pods.sort(key=_sort_by_pod_creation_timestamp)
     if not all:
         if mode == 'percentage':
             qty = math.ceil((qty * len(pods)) / 100)
@@ -94,3 +104,7 @@ def terminate_pods(label_selector: str = None, name_pattern: str = None,
 
     for p in pods:
         res = v1.delete_namespaced_pod(p.metadata.name, ns, body=body)
+
+
+def _sort_by_pod_creation_timestamp(pod):
+    return pod.metadata.creation_timestamp
