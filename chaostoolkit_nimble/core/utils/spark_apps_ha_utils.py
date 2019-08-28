@@ -24,11 +24,11 @@ def kill_active_executors(job_name, num_of_exec=1):
             "Could not fetch yarn application id for job %s. Job not found in '%s' state" % (
                 job_name, ApplicationState.RUNNING.value))
     try:
-        logger.info("Fetching spark active executors for application id : %s" % control.APPLICATION_ID)
+        logger.info("Fetching spark active executors for application id: %s" % control.APPLICATION_ID)
         executors = spark_client_utils.get_application_active_executors(control.APPLICATION_ID)
     except RetryError:
         raise ChaosActionFailedError(
-            "Could not fetch spark executors for the application id :" % control.APPLICATION_ID)
+            "Could not fetch spark executors for the application id: %s" % control.APPLICATION_ID)
     for i in range(len(executors)):
         if executors[i]["id"] == "driver":
             executors.pop(i)
@@ -60,11 +60,11 @@ def kill_driver(job_name):
         raise ChaosActionFailedError(
             "Could not fetch yarn application id for job %s in state %s:" % (job_name, ApplicationState.RUNNING.value))
     try:
-        logger.info("Fetching spark driver for application id : %s" % control.APPLICATION_ID)
+        logger.info("Fetching spark driver for application id: %s" % control.APPLICATION_ID)
         executors = spark_client_utils.get_application_active_executors(control.APPLICATION_ID)
     except RetryError:
         raise ChaosActionFailedError(
-            "Could not fetch spark executors for the job:" % job_name)
+            "Could not fetch spark executors for the application id: %s" % control.APPLICATION_ID)
     response = None
     for executor in executors:
         if executor["id"] == "driver":
