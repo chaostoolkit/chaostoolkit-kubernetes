@@ -151,18 +151,23 @@ The second time the hypothesis is applied is after the conditions were changed i
 ```
 
 
-## Jio Use Cases Solved 
+## Jio Use Cases Implemented 
 Job Name : Media Plane
 
 Job frequency : 15min
 
-Number of job instances: 1
+Number of job instances being run: 1
 
 Assumption : Job is already running on the cluster.
 
+** NOTE:  No custom code required here by the user. These three use cases (i.e experiments) have been templatized and these templates have been stored on fileserver at location: 
+`http://192.168.192.201/guavus/automation/chaos/exp_templates/spark/`
+You need to provide this template path as an input to run your chaos experiments.
+
+
 ### Use case 1: Kill n number of spark executors for a spark job running on yarn and validate data for that job instance.
 ```
-Chaos Experiment Template path - chaostoolkit_nimble/resources/exp_templates/spark/executor_kill_exp.json
+Chaos Experiment Template path (exp_template_file) = "automation/chaos/exp_templates/spark/executor_kill_exp.json"
 
 ------Before experiment control:
 Read the user given testbed and initialize nimble `node_obj` object.
@@ -189,7 +194,7 @@ python -m pytest -k "test_chaos_on_executor_kill  or test_data_validation_post_c
 
 ### Use case 2: Kill the spark driver for a spark job running on yarn and validate data for that job instance.
 ```
-Chaos Experiment Template - chaostoolkit_nimble/resources/exp_templates/spark/driver_kill_exp.json
+Chaos Experiment Template path (exp_template_file) = "automation/chaos/exp_templates/spark/driver_kill_exp.json"
 
 ------Before experiment control:
 Read the user given testbed and initialize nimble `node_obj` object.
@@ -216,7 +221,7 @@ python -m pytest -k "not(test_chaos_on_executor_kill  or test_chaos_on_driver_an
 
 ### Use case 3: Kill the driver and n number of executors for a spark job running on yarn and validate data for that job instance.
 ```
-Chaos Experiment Template used : chaostoolkit_nimble/resources/exp_templates/spark/driver_and_executor_kill_exp.json
+Chaos Experiment Template path (exp_template_file) = "automation/chaos/exp_templates/spark/driver_and_executor_kill_exp.json"
 
 ------Before experiment control:
 Read the user given testbed and initialize nimble `node_obj` object.
@@ -250,27 +255,14 @@ Python 3 is already installed on the system.
 Automation code from your own solution repo is already checked out on the system.
 
 
-##### Checkout 'chaos_eng_automation' repo code (i.e chaostoolkit-nimble)
-
-```
-1) mkdir chaos_automation ; cd chaos_automation
-2) git clone https://github.com/kritika-saxena-guavus/chaos_eng_automation.git
-3) cd chaos_eng_automation ; git checkout AUT-563
-```
-
-##### Checkout 'st-automation' repo code (i.e nimble migrated on python 3)
-```
-4) cd ../ ; git clone https://github.com/Guavus/st-automation.git
-5) cd st-automation ; git checkout AUT-439-my-copy
-```
-
-##### Add dependencies for projects 'chaos_eng_automation' and 'st-automation' in a virtual env
+##### Install chaostoolkit-nimble package
 ```
 1) cd ../ ; mkdir chaos_virenv ; cd chaos_virenv
 2) virtualenv --python=python3 venv
 3) source venv/bin/activate
-4) pip install -r st-automation/requirements.txt 
-5) pip install -r chaos_eng_automation/requirements.txt 
+4)Remove nimble and add chaostoolkit-nimble in your requirements.txt
+5)Install chaostoolkit-nimble in their virtualenv using command: 
+6) pip install -r <PATH-TO_REQUIREMENTS.txt> --extra-index-url http://192.168.192.201:5050/simple/ --trusted-host 192.168.192.201
 ```
 
 ##### Add this virtual env in pycharm
@@ -278,13 +270,56 @@ Automation code from your own solution repo is already checked out on the system
 Pycharm --> Preferences --> Project interpreter --> settings --> show all --> add the chaos_virenv
 ```
 
-##### Add the project 'chaos_eng_automation' and  'st-automation' as your main automation project dependencies
+##### Post installation changes
+
+###### `Pre-requisite`
+The testbed file names should follow the nomenclature `open_nebula_*`.
+
+###### `Changes required`
+1)Add the chaos test case in the corresponding job's test file.
+2)Update conftest.py with below piece of code
+
 ```
-1) Open the projects 'chaos_eng_automation' and 'st-automation' in the same pycharm window as that of your current project.
-2) Pycharm --> Preferences --> Project dependencies --> Check chaos_eng_automation and 'st-automation'
-3) Pycharm --> Preferences --> Project interpreter --> select the virtual env 'chaos_virenv' on both these projects
+parser.addoption("--experimentsPath",
+                     help="Relative path (to the project root) of the file containing chaos experiment json files. E.g. python -m pytest --validationConfig=resources/validation/chaos_exp_config.yml")
 ```
 
+```
+@pytest.fixture(scope="session", autouse=True)
+def initialize_node_obj(request):
+    testbed_file = request.config.getoption("--testbed")
+    component_arttributes_file = request.config.getoption("--componentAttributesConfig")
+    if not component_arttributes_file:
+        component_arttributes_file = "nimble/resources/components/component_attributes.yml"
+    setup_files_base_path = "%s/setup" % global_constants.DEFAULT_LOCAL_TMP_PATH
+    if testbed_file:
+        NodeManager.initialize(testbed_file, component_arttributes_file)
+        ShellUtils.execute_shell_command(
+            ShellUtils.remove_and_create_directory(setup_files_base_path))
+        testbed_file_tmp_path = "%s/%s" % (setup_files_base_path, testbed_file.rsplit("/", 1)[1])
+        component_arttributes_file_tmp_path = "%s/%s" % (
+            setup_files_base_path, component_arttributes_file.rsplit("/", 1)[1])
+        ShellUtils.execute_shell_command(ShellUtils.copy(testbed_file, testbed_file_tmp_path))
+        ShellUtils.execute_shell_command(
+            ShellUtils.copy(component_arttributes_file, component_arttributes_file_tmp_path))
+    yield
+    ShellUtils.execute_shell_command(ShellUtils.remove(setup_files_base_path, recursive=True))
+```
+##### Resolving dependency issues on MAC
+* `Install python 3 using below command`
+```
+brew install python3
+```
+* `Chaos html report generation issue`
+```
+pip install cairocffi  --- already satisfied
+brew uninstall py2cairo   --- this will not install properly but one of its dependencies will get installed successfully. 'i.e'  "cairo"
+export PKG_CONFIG_PATH="/usr/local/opt/libffi/lib/pkgconfig"
+pip install pycairo
+brew install pandoc
+```
+
+```
 # Chaos Toolkit Kubernetes Support
 
 [![Build Status](https://travis-ci.org/chaostoolkit/chaostoolkit-kubernetes.svg?branch=master)](https://travis-ci.org/chaostoolkit/chaostoolkit-kubernetes)
