@@ -200,7 +200,7 @@ User inputs required:
 * Num of executors to kill. Default is 1.
 
 Pytest command:
-python -m pytest -k "test_chaos_on_executor_kill  or test_data_validation_post_chaos" --testbed=chaostoolkit_nimble/resources/testbeds/open_nebula_135_35.yml  --componentAttributesConfig=chaostoolkit_nimble/resources/components/component_attributes_kerberos.yml --validationConfig=chaostoolkit_nimble/resources/validation/sample_validation_config.yml chaostoolkit_nimble/tests/sample/test_jio_spark_job.py
+python -m pytest -k "test_chaos_on_executor_kill  or test_data_validation" --testbed=chaostoolkit_nimble/resources/testbeds/open_nebula_135_35.yml  --componentAttributesConfig=chaostoolkit_nimble/resources/components/component_attributes_kerberos.yml --validationConfig=chaostoolkit_nimble/resources/validation/sample_validation_config.yml chaostoolkit_nimble/tests/sample/test_jio_spark_job.py
 ```
 
 ### Use case 2: Kill the spark driver for a spark job running on yarn and validate data for that job instance.
@@ -254,7 +254,7 @@ User inputs required:
 * Num of executors to kill. Default is 1.
 
 Pytest command:
-python -m pytest -k "test_chaos_on_driver_and_executor_kill or test_data_validation_post_chaos" --testbed=chaostoolkit_nimble/resources/testbeds/open_nebula_135_35.yml  --componentAttributesConfig=chaostoolkit_nimble/resources/components/component_attributes_kerberos.yml --validationConfig=chaostoolkit_nimble/resources/validation/sample_validation_config.yml chaostoolkit_nimble/tests/sample/test_jio_spark_job.py
+python -m pytest -k "test_chaos_on_driver_and_executor_kill or test_data_validation" --testbed=chaostoolkit_nimble/resources/testbeds/open_nebula_135_35.yml  --componentAttributesConfig=chaostoolkit_nimble/resources/components/component_attributes_kerberos.yml --validationConfig=chaostoolkit_nimble/resources/validation/sample_validation_config.yml chaostoolkit_nimble/tests/sample/test_jio_spark_job.py
 
 ```
 
