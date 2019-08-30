@@ -1,3 +1,11 @@
+
+# chaosToolkit-nimble (Guavus Chaos Test automation framework)
+
+- [ChaosToolkit Overview](#ChaosToolkit Overview)
+- [Jio Use Cases Implemented](#Jio Use Cases Implemented)
+- [Installation](#Installation of chaostoolkit-nimble on the local system (MAC))
+- [Resolving dependency issues on local system (MAC)](#Resolving dependency issues on the local system (MAC))
+
 ## ChaosToolkit Overview
 
 *The end goal of using chaostoolkit is to practice chaos engineering, and discover how your system reacts when certain anomalies are injected in it. 
@@ -247,37 +255,34 @@ python -m pytest -k "test_chaos_on_driver_and_executor_kill or test_data_validat
 
 ```
 
-## Setting up chaostoolkit-nimble on local system
+## Installation of chaostoolkit-nimble on the local system (MAC)
 
-Assumptions : 
-Python 3 is already installed on the system.
+`Assumptions` : 
 
-Automation code from your own solution repo is already checked out on the system.
+* Python 3 is already installed on the system.
 
+* Automation code from your own solution repo is already checked out on the system.
 
-##### Install chaostoolkit-nimble package
+##### 1. Install chaostoolkit-nimble package
 ```
-1) cd ../ ; mkdir chaos_virenv ; cd chaos_virenv
-2) virtualenv --python=python3 venv
-3) source venv/bin/activate
-4)Remove nimble and add chaostoolkit-nimble in your requirements.txt
-5)Install chaostoolkit-nimble in their virtualenv using command: 
-6) pip install -r <PATH-TO_REQUIREMENTS.txt> --extra-index-url http://192.168.192.201:5050/simple/ --trusted-host 192.168.192.201
+1.1 cd ../ ; mkdir chaos_virenv ; cd chaos_virenv
+1.2 virtualenv --python=python3 venv
+1.3 source venv/bin/activate
+1.4 Remove nimble and add chaostoolkit-nimble in your requirements.txt
+1.5 Install chaostoolkit-nimble in their virtualenv using command: 
+1.6 pip install -r <PATH-TO_REQUIREMENTS.txt> --extra-index-url http://192.168.192.201:5050/simple/ --trusted-host 192.168.192.201
 ```
 
-##### Add this virtual env in pycharm
+##### 2. Add this virtual env in pycharm
 ```
 Pycharm --> Preferences --> Project interpreter --> settings --> show all --> add the chaos_virenv
 ```
 
-##### Post installation changes
+##### 3. Post installation changes
 
-###### `Pre-requisite`
-The testbed file names should follow the nomenclature `open_nebula_*`.
-
-###### `Changes required`
-1)Add the chaos test case in the corresponding job's test file.
-2)Update conftest.py with below piece of code
+3.1 Make sure the testbed file name follow the nomenclature `open_nebula_*`. If not then remane it accoridingly.
+3.2 Add the chaos test case in the corresponding job's test file.
+3.3 Update conftest.py with below piece of code
 
 ```
 parser.addoption("--experimentsPath",
@@ -305,7 +310,8 @@ def initialize_node_obj(request):
     yield
     ShellUtils.execute_shell_command(ShellUtils.remove(setup_files_base_path, recursive=True))
 ```
-##### Resolving dependency issues on MAC
+
+## Resolving dependency issues on local system (MAC)
 * `Install python 3 using below command`
 ```
 brew install python3
