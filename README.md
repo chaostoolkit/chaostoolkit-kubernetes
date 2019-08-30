@@ -6,12 +6,15 @@
 - [Installation](#Installation of chaostoolkit-nimble on the local system (MAC))
 - [Resolving dependency issues on local system (MAC)](#Resolving dependency issues on the local system (MAC))
 
+
 ## ChaosToolkit Overview
+* The Chaostoolkit is an open source third party tool that enables you to run chaos engineering experiments seamlessly against applications and infrastructure components to assess resiliency and fault tolerance.
 
-*The end goal of using chaostoolkit is to practice chaos engineering, and discover how your system reacts when certain anomalies are injected in it. 
+* With use of Chaostoolkit you may learn how to change the system accordingly and make it more resilient on multiple levels like application, network and platform.
 
-*By doing this in a controlled fashion, you may learn how to change the system accordingly and make it more resilient on multiple levels like application, network and platform.
+* Chaostoolkit has been integrated with nimble which led to the formulation of `chaostoolkit-nimble`. 
 
+* `Chaostoolkit-nimble` is built on top of nimble and using all its core utilities.
 
 ### The Various Sections of an Experiment
 ##### `Controls`
