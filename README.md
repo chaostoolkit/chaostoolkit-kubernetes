@@ -277,7 +277,7 @@ python -m pytest -k "test_chaos_on_driver_and_executor_kill or test_data_validat
 
 * Automation code from your own solution repo is already checked out on the system.
 
-##### 1. Install chaostoolkit-nimble package
+##### 1. Install chaostoolkit-nimble package in a virtualenv
 ```
 1.1 cd ../ ; mkdir chaos_virenv ; cd chaos_virenv
 1.2 virtualenv --python=python3 venv
