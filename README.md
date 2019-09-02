@@ -12,9 +12,7 @@
 
 * With use of Chaostoolkit you may learn how to change the system accordingly and make it more resilient on multiple levels like application, network and platform.
 
-* Chaostoolkit has been integrated with nimble which led to the formulation of `chaostoolkit-nimble`. 
-
-* `Chaostoolkit-nimble` is built on top of nimble and using all its core utilities.
+* `Chaostoolkit-nimble` is built on top of `nimble` and `chaostoolkit-kubernetes` which is a kubernetes-specific chaos extension.
 
 ### The Various Sections of an Experiment
 ##### `Controls`
@@ -45,6 +43,17 @@ The second time the hypothesis is applied is after the conditions were changed i
 *Finally, the rollback section (which is optional) tries to remediate to the changes we made on/off the system during the anomaly injection.
 
 *This block will be executed always irrespective of the fact that Hypothesis was met or not in the first time. 
+```
+
+#### `Possible Types of an activity`
+###### `Probes`
+```
+A probe is a way of detecting a particular set of conditions in the system that is undergoing experimentation.
+```
+
+###### `Action`
+```
+An action is a particular activity that needs to be enacted on the system under experimentation.
 ```
 
 #### `Sample Experiment json file` 
