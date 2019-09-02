@@ -2,7 +2,13 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.20.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.21.0...HEAD
+
+## [0.21.0][] - 2019-09-02
+
+[0.21.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.20.0...0.21.0
+
+### Changed
 
 - Try to read proxy from environment variable "HTTP_PROXY" and set it
   appropriately if it exists
