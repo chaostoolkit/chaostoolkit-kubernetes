@@ -45,15 +45,17 @@ The second time the hypothesis is applied is after the conditions were changed i
 *This block will be executed always irrespective of the fact that Hypothesis was met or not in the first time. 
 ```
 
-#### `Possible Types of an activity`
-###### `Probes`
+#### `Different Types of Activities`
+###### `Probe`
 ```
-A probe is a way of detecting a particular set of conditions in the system that is undergoing experimentation.
+* A probe is a way of detecting a particular set of conditions in the system that is undergoing experimentation.
+* Hypothesis uses probes only and the method may or may not use them.
 ```
 
 ###### `Action`
 ```
-An action is a particular activity that needs to be enacted on the system under experimentation.
+* An action is a particular activity that needs to be enacted on the system under experimentation.
+* Rollbacks are made of actions only and the method also use actions. 
 ```
 
 #### `Sample Experiment json file` 
