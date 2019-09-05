@@ -67,6 +67,7 @@ setup_params = dict(
     version=get_version_from_package(),
     description=desc,
     long_description=long_desc,
+    long_description_content_type='text/markdown',
     classifiers=classifiers,
     author=author,
     author_email=author_email,
