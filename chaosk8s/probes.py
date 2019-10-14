@@ -53,7 +53,9 @@ def microservice_available_and_healthy(
         secrets: Secrets = None) -> Union[bool, None]:
     """
     Lookup a deployment by `name` in the namespace `ns`.
+
     The selected resources are matched by the given `label_selector`.
+
     Raises :exc:`chaoslib.exceptions.ActivityFailed` when the state is not
     as expected.
     """
