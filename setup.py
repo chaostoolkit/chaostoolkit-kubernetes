@@ -8,7 +8,7 @@ if __name__ == "__main__":
         name="chaostoolkit-nimble",
         packages=find_packages(),
         description="Guavus Chaos Test automation framework",
-        version="0.0.1",
+        version="0.0.2",
         install_requires=requirements,
         url="https://github.com/kritika-saxena-guavus/chaos_eng_automation",
         author="Core Automation Squad",

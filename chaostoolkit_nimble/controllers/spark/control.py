@@ -64,14 +64,14 @@ def after_experiment_control(context: Experiment, state: Journal,
     logger.debug("AFTER EXPERIMENT CONTROL: %s" % state)
     hadoop_rest_client_utils = HadoopRestClientUtils()
     try:
-        hadoop_rest_client_utils.is_yarn_job_finished(APPLICATION_ID)
+        hadoop_rest_client_utils.wait_for_yarn_job_to_finish(APPLICATION_ID)
         job_stats = hadoop_rest_client_utils.get_yarn_job_details(APPLICATION_ID)
         logger.info("Total execution time for yarn job with application id %s: %s ms (i.e %s minutes) " % (
             APPLICATION_ID, job_stats["app"]["elapsedTime"],
             date_utils.get_minutes_from_milliseconds(job_stats["app"]["elapsedTime"])))
     except RetryError:
         try:
-            hadoop_rest_client_utils.is_yarn_job_finished(APPLICATION_ID)
+            hadoop_rest_client_utils.wait_for_yarn_job_to_finish(APPLICATION_ID)
             job_stats = hadoop_rest_client_utils.get_yarn_job_details(APPLICATION_ID)
             logger.info("Total execution time for yarn job with application id %s: %s ms (i.e %s minutes) " % (
                 APPLICATION_ID, job_stats["app"]["elapsedTime"],
