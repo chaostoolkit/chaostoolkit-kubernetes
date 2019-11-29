@@ -10,8 +10,7 @@
   as newever version of K8s no longer add a name label by defult [#53][53].
 - Fix `microservice_available_and_healthy` to only use `label_selector` if one is passed in [#53][53].
 - Updates to `kubectl` api version to point to `apps/v1` instead of `apps/v1beta1`  [#65][65]
-
-[65]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/65
+- Added function to execute remote commands in a container
 
 ## [0.21.0][] - 2019-09-02
 
