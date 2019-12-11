@@ -70,7 +70,7 @@ def test_expecting_healthy_microservice_should_be_reported_when_not(cl,
 
     v1 = MagicMock()
     v1.list_namespaced_deployment.return_value = result
-    client.AppsV1beta1Api.return_value = v1
+    client.AppsV1Api.return_value = v1
 
     with pytest.raises(ActivityFailed) as excinfo:
         microservice_available_and_healthy("mysvc")
