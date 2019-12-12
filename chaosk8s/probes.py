@@ -63,7 +63,7 @@ def microservice_available_and_healthy(
     field_selector = "metadata.name={name}".format(name=name)
     api = create_k8s_api_client(secrets)
 
-    v1 = client.AppsV1beta1Api(api)
+    v1 = client.AppsV1Api(api)
     if label_selector:
         ret = v1.list_namespaced_deployment(ns, field_selector=field_selector,
                                             label_selector=label_selector)
@@ -160,7 +160,7 @@ def _deployment_readiness_has_state(name: str, ready: bool,
     """
     label_selector = label_selector.format(name=name)
     api = create_k8s_api_client(secrets)
-    v1 = client.AppsV1beta1Api(api)
+    v1 = client.AppsV1Api(api)
     w = watch.Watch()
     timeout = int(timeout)
 
