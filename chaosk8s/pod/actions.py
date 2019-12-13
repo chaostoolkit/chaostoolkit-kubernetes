@@ -1,16 +1,23 @@
 # -*- coding: utf-8 -*-
+import datetime
 import math
 import random
 import re
+import json
+from typing import List
 
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
 from kubernetes import client
+from kubernetes import stream
+from kubernetes.stream.ws_client import ERROR_CHANNEL
+from kubernetes.stream.ws_client import STDOUT_CHANNEL
+from kubernetes.client.models.v1_pod import V1Pod
 from logzero import logger
 
 from chaosk8s import create_k8s_api_client
 
-__all__ = ["terminate_pods"]
+__all__ = ["terminate_pods", "exec_in_pods"]
 
 
 def terminate_pods(label_selector: str = None, name_pattern: str = None,
@@ -46,21 +53,138 @@ def terminate_pods(label_selector: str = None, name_pattern: str = None,
     be used as the grace period (in seconds) to terminate the pods.
     Otherwise, the default pod's grace period will be used.
     """
+
+    api = create_k8s_api_client(secrets)
+    v1 = client.CoreV1Api(api)
+
+    pods = _select_pods(v1, label_selector, name_pattern,
+                        all, rand, mode, qty, ns, order)
+
+    body = client.V1DeleteOptions()
+    if grace_period >= 0:
+        body = client.V1DeleteOptions(grace_period_seconds=grace_period)
+
+    for p in pods:
+        v1.delete_namespaced_pod(p.metadata.name, ns, body=body)
+
+
+def exec_in_pods(label_selector: str = None, name_pattern: str = None,
+                 all: bool = False, rand: bool = False,
+                 mode: str = "fixed", qty: int = 1,
+                 ns: str = "default", order: str = "alphabetic",
+                 secrets: Secrets = None, cmdstr: str = None,
+                 container_name: str = None,
+                 request_timeout: int = 60) -> List[str]:
+    """
+    Execute a command in the specified pod's container.
+    Select the appropriate pods by label and/or name patterns.
+    Whenever a pattern is provided for the name, all pods retrieved will be
+    filtered out if their name do not match the given pattern.
+
+    If neither `label_selector` nor `name_pattern` are provided, all pods
+    in the namespace will be selected for termination.
+
+    If `all` is set to `True`, all matching pods will be affected.
+
+    Value of `qty` varies based on `mode`.
+    If `mode` is set to `fixed`, then `qty` refers to number of pods affected.
+    If `mode` is set to `percentage`, then `qty` refers to
+    percentage of pods, from 1 to 100, to be affected.
+    Default `mode` is `fixed` and default `qty` is `1`.
+
+    If `order` is set to `oldest`, the retrieved pods will be ordered
+    by the pods creation_timestamp, with the oldest pod first in list.
+
+    If `rand` is set to `True`, n random pods will be affected
+    Otherwise, the first retrieved n pods will be used
+    """
+
+    api = create_k8s_api_client(secrets)
+    v1 = client.CoreV1Api(api)
+
+    pods = _select_pods(v1, label_selector, name_pattern,
+                        all, rand, mode, qty, ns, order)
+
+    if cmdstr:
+        exec_command = cmdstr.split()
+    else:
+        raise ActivityFailed("No command specified to be executed.")
+
+    results = []
+    for po in pods:
+        logger.debug("Picked pods '{p}' for command execution {c}".format(
+            p=po.metadata.name, c=exec_command))
+        if not any(c.name == container_name for c in po.spec.containers):
+            logger.debug("Pod {p} do not have container named '{n}'".format(
+                p=po.metadata.name, n=container_name))
+            continue
+
+        pod_execution_result = {}
+        # Use _preload_content to get back the raw JSON response.
+        resp = stream.stream(v1.connect_get_namespaced_pod_exec,
+                             po.metadata.name,
+                             ns,
+                             container=container_name,
+                             command=exec_command,
+                             stderr=True,
+                             stdin=False,
+                             stdout=True,
+                             tty=False,
+                             _preload_content=False)
+
+        resp.run_forever(timeout=request_timeout)
+
+        err = json.loads(resp.read_channel(ERROR_CHANNEL))
+        out = resp.read_channel(STDOUT_CHANNEL)
+
+        if err['status'] != "Success":
+            error_code = err['details']['causes'][0]['message']
+            error_message = err['message']
+        else:
+            error_code = 0
+            error_message = ''
+
+        results.append(dict(pod_name=po.metadata.name,
+                            exit_code=error_code,
+                            cmd=cmdstr,
+                            stdout=out,
+                            stderr=error_message))
+    return results
+
+
+def _sort_by_pod_creation_timestamp(pod: V1Pod) -> datetime.datetime:
+    """
+    Function that serves as a key for the sort pods comparison
+    """
+    return pod.metadata.creation_timestamp
+
+
+def _select_pods(v1: client.CoreV1Api = None, label_selector: str = None,
+                 name_pattern: str = None,
+                 all: bool = False, rand: bool = False,
+                 mode: str = "fixed", qty: int = 1,
+                 ns: str = "default",
+                 order: str = "alphabetic") -> List[V1Pod]:
+
+    # Fail if CoreV1Api is not instanciated
+    if v1 is None:
+        raise ActivityFailed("Cannot select pods. Client API is None")
+
     # Fail when quantity is less than 0
     if qty < 0:
         raise ActivityFailed(
-            "Cannot terminate pods. Quantity '{q}' is negative.".format(q=qty))
+            "Cannot select pods. Quantity '{q}' is negative.".format(q=qty))
+
     # Fail when mode is not `fixed` or `percentage`
     if mode not in ['fixed', 'percentage']:
         raise ActivityFailed(
-            "Cannot terminate pods. Mode '{m}' is invalid.".format(m=mode))
+            "Cannot select pods. Mode '{m}' is invalid.".format(m=mode))
+
     # Fail when order not `alphabetic` or `oldest`
     if order not in ['alphabetic', 'oldest']:
         raise ActivityFailed(
-            "Cannot terminate pods. Order '{o}' is invalid.".format(o=order))
-    api = create_k8s_api_client(secrets)
+            "Cannot select pods. Order '{o}' is invalid.".format(o=order))
 
-    v1 = client.CoreV1Api(api)
     if label_selector:
         ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
         logger.debug("Found {d} pods labelled '{s}' in ns {n}".format(
@@ -95,16 +219,4 @@ def terminate_pods(label_selector: str = None, name_pattern: str = None,
         else:
             pods = pods[:qty]
 
-    logger.debug("Picked pods '{p}' to be terminated".format(
-        p=",".join([po.metadata.name for po in pods])))
-
-    body = client.V1DeleteOptions()
-    if grace_period >= 0:
-        body = client.V1DeleteOptions(grace_period_seconds=grace_period)
-
-    for p in pods:
-        res = v1.delete_namespaced_pod(p.metadata.name, ns, body=body)
-
-
-def _sort_by_pod_creation_timestamp(pod):
-    return pod.metadata.creation_timestamp
+    return pods
