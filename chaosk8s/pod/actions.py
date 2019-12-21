@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import datetime
+import json
 import math
 import random
 import re
-import json
-from typing import List
+from typing import Any, Dict, List
 
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
@@ -68,15 +68,16 @@ def terminate_pods(label_selector: str = None, name_pattern: str = None,
         v1.delete_namespaced_pod(p.metadata.name, ns, body=body)
 
 
-def exec_in_pods(label_selector: str = None, name_pattern: str = None,
+def exec_in_pods(cmd: str,
+                 label_selector: str = None, name_pattern: str = None,
                  all: bool = False, rand: bool = False,
                  mode: str = "fixed", qty: int = 1,
                  ns: str = "default", order: str = "alphabetic",
-                 secrets: Secrets = None, cmdstr: str = None,
                  container_name: str = None,
-                 request_timeout: int = 60) -> List[str]:
+                 request_timeout: int = 60,
+                 secrets: Secrets = None) -> List[Dict[str, Any]]:
     """
-    Execute a command in the specified pod's container.
+    Execute the command `cmd` in the specified pod's container.
     Select the appropriate pods by label and/or name patterns.
     Whenever a pattern is provided for the name, all pods retrieved will be
     filtered out if their name do not match the given pattern.
@@ -98,6 +99,8 @@ def exec_in_pods(label_selector: str = None, name_pattern: str = None,
     If `rand` is set to `True`, n random pods will be affected
     Otherwise, the first retrieved n pods will be used
     """
+    if not cmd:
+        raise ActivityFailed("A command must be set to run a container")
 
     api = create_k8s_api_client(secrets)
     v1 = client.CoreV1Api(api)
@@ -105,10 +108,7 @@ def exec_in_pods(label_selector: str = None, name_pattern: str = None,
     pods = _select_pods(v1, label_selector, name_pattern,
                         all, rand, mode, qty, ns, order)
 
-    if cmdstr:
-        exec_command = cmdstr.split()
-    else:
-        raise ActivityFailed("No command specified to be executed.")
+    exec_command = cmd.strip().split()
 
     results = []
     for po in pods:
@@ -146,12 +146,15 @@ def exec_in_pods(label_selector: str = None, name_pattern: str = None,
 
         results.append(dict(pod_name=po.metadata.name,
                             exit_code=error_code,
-                            cmd=cmdstr,
+                            cmd=cmd,
                             stdout=out,
                             stderr=error_message))
     return results
 
 
+###############################################################################
+# Internals
+###############################################################################
 def _sort_by_pod_creation_timestamp(pod: V1Pod) -> datetime.datetime:
     """
     Function that serves as a key for the sort pods comparison

@@ -3,7 +3,8 @@ from unittest.mock import MagicMock, patch, ANY, call
 
 import pytest
 from kubernetes import stream
-from chaoslib.exceptions import ActivityFailed
+from chaoslib.exceptions import ActivityFailed, InvalidActivity
+from chaoslib.provider.python import validate_python_activity
 
 from chaosk8s.pod.actions import terminate_pods, exec_in_pods
 from chaosk8s.pod.probes import pods_in_phase, pods_not_in_phase, \
@@ -961,7 +962,7 @@ def test_exec_in_pods_by_name_pattern(cl, client, has_conf):
     stream.stream.return_value.read_channel.return_value = '{"status":"Success"}'
 
     exec_in_pods(name_pattern="my-app-[0-9]$",
-                 cmdstr="dummy -a -b -c",
+                 cmd="dummy -a -b -c",
                  container_name="container1",
                  all=True)
 
@@ -1007,7 +1008,7 @@ def test_exec_in_pods_by_name_pattern_rand(cl, client, has_conf):
     stream.stream.return_value.read_channel.return_value = '{"status":"Success"}'
 
     exec_in_pods(name_pattern="my-app-[0-9]$",
-                 cmdstr="dummy -a -b -c",
+                 cmd="dummy -a -b -c",
                  container_name="container2",
                  qty=3,
                  rand=True)
@@ -1043,7 +1044,7 @@ def test_exec_in_pods_invalid_container_name(cl, client, has_conf):
 
     stream.stream = MagicMock()
     exec_in_pods(name_pattern="my-app-[0-9]$",
-                 cmdstr="dummy -a -b -c",
+                 cmd="dummy -a -b -c",
                  container_name="bad_container_name",
                  qty=2,
                  rand=True)
@@ -1079,14 +1080,33 @@ def test_exec_in_pods_no_command_provided(cl, client, has_conf):
 
     stream.stream = MagicMock()
 
-    with pytest.raises(ActivityFailed) as expinfo:
-        exec_in_pods(name_pattern="my-app-[0-9]$",
-                     cmdstr=None,
-                     container_name="container1",
-                     qty=2,
-                     rand=True)
+    with pytest.raises(InvalidActivity) as expinfo:
+        validate_python_activity({
+            "name": "run-in-pod",
+            "type": "action",
+            "provider": {
+                "type": "python",
+                "module": "chaosk8s.pod.actions",
+                "func": "exec_in_pods",
+                "arguments": dict(
+                    name_pattern="my-app-[0-9]$",
+                    container_name="container1",
+                    qty=2,
+                    rand=True
+                )
+            }
+        })
 
-    assert "No command specified to be executed" in str(expinfo.value)
+    with pytest.raises(ActivityFailed) as expinfo:
+        exec_in_pods(
+            cmd=None,
+            name_pattern="my-app-[0-9]$",
+            container_name="container1",
+            qty=2,
+            rand=True
+        )
+
+    assert "A command must be set to run a container" in str(expinfo.value)
     assert stream.stream.call_count == 0
 
 
@@ -1118,7 +1138,7 @@ def test_exec_in_pods_no_pod_found_with_name(cl, client, has_conf):
 
     stream.stream = MagicMock()
     exec_in_pods(name_pattern="no-app-[0-9]$",
-                 cmdstr="dummy -a -b -c",
+                 cmd="dummy -a -b -c",
                  container_name="container1",
                  qty=2,
                  rand=True)
@@ -1160,7 +1180,7 @@ def test_exec_in_pods_order_by_oldest(cl, client, has_conf):
 
     exec_in_pods(name_pattern="my-app-[0-9]$",
                  order="oldest",
-                 cmdstr="dummy -a -b -c",
+                 cmd="dummy -a -b -c",
                  container_name="container1",
                  qty=2,
                  rand=True)
@@ -1197,7 +1217,7 @@ def test_exec_in_pods_invalid_order(cl, client, has_conf):
     with pytest.raises(ActivityFailed) as excinfo:
         exec_in_pods(name_pattern="my-app-[0-9]$",
                      order="bad_order",
-                     cmdstr="dummy -a -b -c",
+                     cmd="dummy -a -b -c",
                      container_name="container1",
                      qty=2,
                      rand=True)
@@ -1238,7 +1258,7 @@ def test_exec_in_pods_using_pod_label_selector(cl, client, has_conf):
     stream.stream.return_value.read_channel.return_value = '{"status":"Success"}'
 
     exec_in_pods(label_selector="dummy_label1=dummy_value1",
-                 cmdstr="dummy -a -b -c",
+                 cmd="dummy -a -b -c",
                  container_name="container1",
                  qty=2,
                  rand=True)
@@ -1278,7 +1298,7 @@ def test_exec_in_pods_return_value(cl, client, has_conf):
     stream.stream.return_value.read_channel.return_value = '{"status":"Success"}'
 
     exec_in_pods(label_selector="dummy_label1=dummy_value1",
-                 cmdstr="dummy -a -b -c",
+                 cmd="dummy -a -b -c",
                  container_name="container1",
                  qty=2,
                  rand=True)
