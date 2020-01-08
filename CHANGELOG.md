@@ -11,9 +11,10 @@
 - Fix `microservice_available_and_healthy` to only use `label_selector` if one is passed in [#53][53].
 - Updates to `kubectl` api version to point to `apps/v1` instead of `apps/v1beta1`  [#65][65]
 - Added function to execute remote commands in a container
-
+- Added action to scale statefulsets [#73][73]
 
 [65]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/65
+[73]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/73
 
 ## [0.21.0][] - 2019-09-02
 

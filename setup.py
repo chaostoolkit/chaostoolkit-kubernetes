@@ -48,7 +48,8 @@ license = 'Apache License Version 2.0'
 packages = [
     'chaosk8s',
     'chaosk8s.node',
-    'chaosk8s.pod'
+    'chaosk8s.pod',
+    'chaosk8s.statefulset'
 ]
 
 needs_pytest = set(['pytest', 'test']).intersection(sys.argv)
