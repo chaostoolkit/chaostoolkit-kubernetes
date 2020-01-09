@@ -9,7 +9,6 @@ from chaosk8s.actions import start_microservice, kill_microservice
 from chaosk8s.node.actions import cordon_node, create_node, delete_nodes, \
     uncordon_node, drain_nodes
 
-
 @patch('chaosk8s.has_local_config_file', autospec=True)
 def test_cannot_process_other_than_yaml_and_json(has_conf):
     has_conf.return_value = False
