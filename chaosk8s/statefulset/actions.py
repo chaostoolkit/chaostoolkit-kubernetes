@@ -27,7 +27,7 @@ def create_statefulset(spec_path: str, ns: str = "default",
         if ext == '.json':
             statefulset = json.loads(f.read())
         elif ext in ['.yml', '.yaml']:
-            statefulset = yaml.load(f.read())
+            statefulset = yaml.safe_load(f.read())
         else:
             raise ActivityFailed(
                 "cannot process {path}".format(path=spec_path))

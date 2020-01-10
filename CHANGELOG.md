@@ -15,6 +15,8 @@
 - Added action to scale statefulsets [#73][73]
 - Added action to create a statefulset from a json/yaml file [#74][74]
 - Added action to create a service endpoint from a json/yaml file [#68][68]
+- Fix yaml load warning #75
+
 
 [53]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/53
 [65]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/65
@@ -22,6 +24,7 @@
 [70]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/70
 [73]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/73
 [74]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/74
+[75]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/75
 
 ## [0.21.0][] - 2019-09-02
 

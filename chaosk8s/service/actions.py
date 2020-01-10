@@ -25,7 +25,7 @@ def create_service_endpoint(spec_path: str, ns: str = "default",
         if ext == '.json':
             service = json.loads(f.read())
         elif ext in ['.yml', '.yaml']:
-            service = yaml.load(f.read())
+            service = yaml.safe_load(f.read())
         else:
             raise ActivityFailed(
                 "cannot process {path}".format(path=spec_path))
