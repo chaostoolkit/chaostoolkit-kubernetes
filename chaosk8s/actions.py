@@ -28,7 +28,7 @@ def start_microservice(spec_path: str, ns: str = "default",
         if ext == '.json':
             deployment = json.loads(f.read())
         elif ext in ['.yml', '.yaml']:
-            deployment = yaml.load(f.read())
+            deployment = yaml.safe_load(f.read())
         else:
             raise ActivityFailed(
                 "cannot process {path}".format(path=spec_path))
