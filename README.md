@@ -174,3 +174,11 @@ $ pip install -e .
 
 Now, you can edit the files and they will be automatically be seen by your
 environment, even when running from the `chaos` command locally.
+
+### Test
+
+To run the tests for the project execute the following:
+
+```
+$ pytest
+```
