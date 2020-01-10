@@ -139,4 +139,5 @@ def load_exported_activities() -> List[DiscoveredActivities]:
     activities.extend(discover_probes("chaosk8s.pod.probes"))
     activities.extend(discover_actions("chaosk8s.node.actions"))
     activities.extend(discover_actions("chaosk8s.statefulset.actions"))
+    activities.extend(discover_actions("chaosk8s.service.actions"))
     return activities

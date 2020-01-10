@@ -49,7 +49,8 @@ packages = [
     'chaosk8s',
     'chaosk8s.node',
     'chaosk8s.pod',
-    'chaosk8s.statefulset'
+    'chaosk8s.statefulset',
+    'chaosk8s.service'
 ]
 
 needs_pytest = set(['pytest', 'test']).intersection(sys.argv)

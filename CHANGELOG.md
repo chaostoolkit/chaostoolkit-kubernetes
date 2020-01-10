@@ -14,9 +14,11 @@
 - Remove check Kubernetes statefulset by name and label  [#70][70]
 - Added action to scale statefulsets [#73][73]
 - Added action to create a statefulset from a json/yaml file [#74][74]
+- Added action to create a service endpoint from a json/yaml file [#68][68]
 
 [53]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/53
 [65]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/65
+[68]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/68
 [70]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/70
 [73]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/73
 [74]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/74
