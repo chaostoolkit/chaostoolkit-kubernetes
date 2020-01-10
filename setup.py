@@ -22,7 +22,7 @@ def get_version_from_package() -> str:
 
 
 name = 'chaostoolkit-kubernetes'
-desc = 'Chaos Toolkit Kubernetes support'
+desc = 'Chaos Toolkit Extension for Kubernetes'
 
 with io.open('README.md', encoding='utf-8') as strm:
     long_desc = strm.read()
