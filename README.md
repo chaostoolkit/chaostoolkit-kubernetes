@@ -1,4 +1,4 @@
-# Chaos Toolkit Kubernetes Support
+# Chaos Toolkit Extensions for Kubernetes
 
 [![Build Status](https://travis-ci.org/chaostoolkit/chaostoolkit-kubernetes.svg?branch=master)](https://travis-ci.org/chaostoolkit/chaostoolkit-kubernetes)
 [![codecov](https://codecov.io/gh/chaostoolkit/chaostoolkit-kubernetes/branch/master/graph/badge.svg)](https://codecov.io/gh/chaostoolkit/chaostoolkit-kubernetes)
@@ -6,7 +6,8 @@
 [![Downloads](https://pepy.tech/badge/chaostoolkit-kubernetes)](https://pepy.tech/project/chaostoolkit-kubernetes)
 
 This project contains activities, such as probes and actions, you can call from
-your experiment through the Chaos Toolkit.
+your experiment through the Chaos Toolkit to perform Chaos Engineering against
+the Kubernetes API: killing a pod, removing a statefulset or node...
 
 ## Install
 
@@ -26,60 +27,158 @@ experiment file:
 
 ```json
 {
-    "name": "all-our-microservices-should-be-healthy",
-    "type": "probe",
-    "tolerance": true,
-    "provider": {
-        "type": "python",
-        "module": "chaosk8s.probes",
-        "func": "microservice_available_and_healthy",
-        "arguments": {
-            "name": "myapp",
-            "ns": "myns"
-        }
-    }
-},
-{
-    "type": "action",
-    "name": "terminate-db-pod",
-    "provider": {
-        "type": "python",
-        "module": "chaosk8s.pod.actions",
-        "func": "terminate_pods",
-        "arguments": {
-            "label_selector": "app=my-app",
-            "name_pattern": "my-app-[0-9]$",
-            "rand": true,
-            "ns": "default"
-        }
+    "title": "Do we remain available in face of pod going down?",
+    "description": "We expect Kubernetes to handle the situation gracefully when a pod goes down",
+    "tags": ["kubernetes"],
+    "steady-state-hypothesis": {
+        "title": "Verifying service remains healthy",
+        "probes": [
+            {
+                "name": "all-our-microservices-should-be-healthy",
+                "type": "probe",
+                "tolerance": true,
+                "provider": {
+                    "type": "python",
+                    "module": "chaosk8s.probes",
+                    "func": "microservice_available_and_healthy",
+                    "arguments": {
+                        "name": "myapp"
+                    }
+                }
+            }
+        ]
     },
-    "pauses": {
-        "after": 5
-    }
+    "method": [
+        {
+            "type": "action",
+            "name": "terminate-db-pod",
+            "provider": {
+                "type": "python",
+                "module": "chaosk8s.pod.actions",
+                "func": "terminate_pods",
+                "arguments": {
+                    "label_selector": "app=my-app",
+                    "name_pattern": "my-app-[0-9]$",
+                    "rand": true
+                }
+            },
+            "pauses": {
+                "after": 5
+            }
+        }
+    ]
 }
 ```
 
 That's it! Notice how the action gives you the way to kill one pod randomly.
 
-Please explore the code to see existing probes and actions.
+Please explore the [documentation][doc] to see existing probes and actions.
 
-### Discovery
-
-You may use the Chaos Toolkit to discover the capabilities of this extension:
-
-```
-$ chaos discover chaostoolkit-kubernetes --no-install
-```
+[doc]: https://docs.chaostoolkit.org/drivers/kubernetes/#exported-activities
 
 ## Configuration
 
-This extension to the Chaos Toolkit can use the Kubernetes configuration 
-found at the usual place in your HOME directory under `~/.kube/`, or, when
-run from a Pod in a Kubernetes cluster, it will use the local service account.
-In that case, make sure to set the `CHAOSTOOLKIT_IN_POD` environment variable
-to `"true"`.
+### Use ~/.kube/config
 
-You can also pass the credentials via secrets as follows:
+If you have a valid entry in your `~/.kube/config` file for the cluster you
+want to target, then there is nothing to be done.
+
+You may specify `KUBECONFIG` to specify a different location.
+
+```
+$ export KUBECONFIG=/tmp/my-config
+```
+
+#### Specify the Kubernetes context
+
+Quite often, your Kubernetes configuration contains several entries and you
+need to define the one to use as a default context when not it isn't
+explicitely provided.
+
+You may of course change your default using
+`kubectl config use-context KUBERNETES_CONTEXT` but you can also be explicit
+in your experiment as follows:
+
+```json
+{
+    "title": "Do we remain available in face of pod going down?",
+    "description": "We expect Kubernetes to handle the situation gracefully when a pod goes down",
+    "tags": ["kubernetes"],
+    "secrets": {
+        "k8s": {
+            "KUBERNETES_CONTEXT": "..."
+        }
+    },
+    "steady-state-hypothesis": {
+        "title": "Verifying service remains healthy",
+        "probes": [
+            {
+                "name": "all-our-microservices-should-be-healthy",
+                "type": "probe",
+                "tolerance": true,
+                "secrets": ["k8s"],
+                "provider": {
+                    "type": "python",
+                    "module": "chaosk8s.probes",
+                    "func": "microservice_available_and_healthy",
+                    "arguments": {
+                        "name": "myapp"
+                    }
+                }
+            }
+        ]
+    },
+    "method": [
+        {
+            "type": "action",
+            "name": "terminate-db-pod",
+            "secrets": ["k8s"],
+            "provider": {
+                "type": "python",
+                "module": "chaosk8s.pod.actions",
+                "func": "terminate_pods",
+                "arguments": {
+                    "label_selector": "app=my-app",
+                    "name_pattern": "my-app-[0-9]$",
+                    "rand": true
+                }
+            },
+            "pauses": {
+                "after": 5
+            }
+        }
+    ]
+}
+```
+
+You need to specify the `KUBERNETES_CONTEXT` secret key to the name of the
+context you want the experiment to use. Make sure to also inform the
+actions and probes about the secret entries they should be
+passed `"secrets": ["k8s"]`.
+
+### Use a Pod's service account
+
+When running from a pod (not your local machine or a CI for instance), the
+ `./.kube/config` file does not exist. Instead, the credentials can be found
+ at [/var/run/secrets/kubernetes.io/serviceaccount/token][podcreds].
+
+ [podcreds]: https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/#accessing-the-api-from-a-pod
+
+ To let the extension know about this, simply set `CHAOSTOOLKIT_IN_POD` from the
+ environment variable of the pod specification:
+
+```yaml
+env:
+- name: CHAOSTOOLKIT_IN_POD
+  value: "true"
+```
+
+## Pass all credentials in the experiment
+
+Finally, you may pass explicitely all required credentials information to the
+experiment as follows:
+
+### Using an API key
 
 ```json
 {
@@ -95,48 +194,65 @@ You can also pass the credentials via secrets as follows:
 }
 ```
 
-Then in your probe or action:
-
-```json
-{
-    "name": "all-our-microservices-should-be-healthy",
-    "provider": {
-        "type": "python",
-        "module": "chaosk8s.probes",
-        "func": "microservice_available_and_healthy",
-        "secrets": ["kubernetes"],
-        "arguments": {
-            "name": "myapp",
-            "ns": "myns"
-        }
-    }
-}
-```
-
-You may specify the Kubernetes context you want to use as follows:
+### Using a username/password
 
 ```json
 {
     "secrets": {
         "kubernetes": {
-            "KUBERNETES_CONTEXT": "minikube"
+            "KUBERNETES_HOST": "http://somehost",
+            "KUBERNETES_USERNAME": {
+                "type": "env",
+                "key": "SOME_ENV_VAR"
+            },
+            "KUBERNETES_PASSWORD": {
+                "type": "env",
+                "key": "SOME_ENV_VAR"
+            }
         }
     }
 }
 ```
 
-Or via the environment:
+### Using a TLS key/certificate
+
+```json
+{
+    "secrets": {
+        "kubernetes": {
+            "KUBERNETES_HOST": "http://somehost",
+            "KUBERNETES_CERT_FILE": {
+                "type": "env",
+                "key": "SOME_ENV_VAR"
+            },
+            "KUBERNETES_KEY_FILE": {
+                "type": "env",
+                "key": "SOME_ENV_VAR"
+            }
+        }
+    }
+}
+```
+
+## Managed Kubernetes Clusters Authentication
+
+On some managed Kubernetes clusters, you also need to authenticate against the
+platform itself because the Kubernetes authentication is delegated to it.
+
+### Google Cloud Platform
+
+In addition to your Kubernetes credentials (via the `~/.kube/config` file), you
+need to authenticate against the Google Cloud Platform itself. Usually this
+is done [via][gcloud]:
+
+[gcloud]: https://cloud.google.com/sdk/gcloud/reference/auth/login
 
 ```
-$ export KUBERNETES_CONTEXT=minikube
+$ gcloud auth login
 ```
 
-In the same spirit, you can specify where to find your Kubernetes configuration
-with:
-
-```
-$ export KUBECONFIG=some/path/config
-```
+But can also be achieved by defining the `GOOGLE_APPLICATION_CREDENTIALS`
+environment variable.
 
 ## Contribute
 
