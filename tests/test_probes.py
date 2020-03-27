@@ -7,6 +7,7 @@ import pytest
 import urllib3
 from chaoslib.exceptions import ActivityFailed
 
+from chaosk8s.statefulset.probes import statefulset_is_fully_available
 from chaosk8s.node.probes import get_nodes
 from chaosk8s.probes import all_microservices_healthy, \
     microservice_available_and_healthy, microservice_is_not_available, \
@@ -279,3 +280,21 @@ def test_can_select_nodes_by_label(cl, client, has_conf):
     v1.list_node.assert_called_with(
         label_selector=label_selector, _preload_content=False)
     assert resp == {"hey": "there"}
+
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.statefulset.probes.watch', autospec=True)
+@patch('chaosk8s.statefulset.probes.client', autospec=True)
+@patch('chaosk8s.client')
+def test_statefulset_is_fully_available(cl, client, watch, has_conf):
+    has_conf.return_value = False
+    statefulset = MagicMock()
+    statefulset.spec.replicas = 2
+    statefulset.status.ready_replicas = 2
+
+    watcher = MagicMock()
+    watcher.stream = MagicMock()
+    watcher.stream.side_effect = [[{"object": statefulset, "type": "ADDED"}]]
+    watch.Watch.return_value = watcher
+
+    assert statefulset_is_fully_available("mysvc") is True
