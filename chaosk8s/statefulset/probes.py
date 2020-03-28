@@ -77,5 +77,5 @@ def statefulset_is_fully_available(name: str, ns: str = "default",
         return True
     else:
         raise ActivityFailed(
-            "StatefulSet '{name}' failed to recover running within {t}s".format(
+            "StatefulSet '{name}' failed to recover within {t}s".format(
                 name=name, t=timeout))
