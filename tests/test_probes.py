@@ -298,3 +298,25 @@ def test_statefulset_is_fully_available(cl, client, watch, has_conf):
     watch.Watch.return_value = watcher
 
     assert statefulset_is_fully_available("mysvc") is True
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.statefulset.probes.watch', autospec=True)
+@patch('chaosk8s.statefulset.probes.client', autospec=True)
+@patch('chaosk8s.client')
+def test_statefulset_is_not_fully_available_when_it_should(cl, client,
+                                                          watch, has_conf):
+    has_conf.return_value = False
+    statefulset = MagicMock()
+    statefulset.spec.replicas = 2
+    statefulset.status.ready_replicas = 1
+
+    watcher = MagicMock()
+    watcher.stream = MagicMock()
+    watcher.stream.side_effect = urllib3.exceptions.ReadTimeoutError(
+        None, None, None)
+    watch.Watch.return_value = watcher
+
+    with pytest.raises(ActivityFailed) as excinfo:
+        statefulset_is_fully_available("mysvc")
+    assert "StatefulSet 'mysvc' failed to recover within" in \
+        str(excinfo.value)
