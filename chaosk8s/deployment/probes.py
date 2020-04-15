@@ -4,6 +4,7 @@ from typing import Union
 import urllib3
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
+from functools import partial
 from kubernetes import client, watch
 from logzero import logger
 
@@ -17,7 +18,7 @@ __all__ = ["deployment_available_and_healthy",
 
 def deployment_available_and_healthy(
         name: str, ns: str = "default",
-        label_selector: str = "name in ({name})",
+        label_selector: str = None,
         secrets: Secrets = None) -> Union[bool, None]:
     """
     Lookup a deployment by `name` in the namespace `ns`.
@@ -59,7 +60,7 @@ def deployment_available_and_healthy(
 def _deployment_readiness_has_state(
         name: str, ready: bool,
         ns: str = "default",
-        label_selector: str = "name in ({name})",
+        label_selector: str = None,
         timeout: int = 30,
         secrets: Secrets = None) -> Union[bool, None]:
     """
@@ -68,17 +69,28 @@ def _deployment_readiness_has_state(
     If the state is not reached after `timeout` seconds, a
     :exc:`chaoslib.exceptions.ActivityFailed` exception is raised.
     """
-    label_selector = label_selector.format(name=name)
+    field_selector = "metadata.name={name}".format(name=name)
     api = create_k8s_api_client(secrets)
     v1 = client.AppsV1beta1Api(api)
     w = watch.Watch()
     timeout = int(timeout)
 
+    if label_selector is None:
+        watch_events = partial(w.stream, v1.list_namespaced_deployment,
+                               namespace=ns,
+                               field_selector=field_selector,
+                               _request_timeout=timeout)
+    else:
+        label_selector = label_selector.format(name=name)
+        watch_events = partial(w.stream, v1.list_namespaced_deployment,
+                               namespace=ns,
+                               field_selector=field_selector,
+                               label_selector=label_selector,
+                               _request_timeout=timeout)
+
     try:
         logger.debug("Watching events for {t}s".format(t=timeout))
-        for event in w.stream(v1.list_namespaced_deployment, namespace=ns,
-                              label_selector=label_selector,
-                              _request_timeout=timeout):
+        for event in watch_events():
             deployment = event['object']
             status = deployment.status
             spec = deployment.spec
@@ -105,7 +117,7 @@ def _deployment_readiness_has_state(
 
 def deployment_not_fully_available(
         name: str, ns: str = "default",
-        label_selector: str = "name in ({name})",
+        label_selector: str = None,
         timeout: int = 30,
         secrets: Secrets = None) -> Union[bool, None]:
     """
@@ -131,7 +143,7 @@ def deployment_not_fully_available(
 
 def deployment_fully_available(
         name: str, ns: str = "default",
-        label_selector: str = "name in ({name})",
+        label_selector: str = None,
         timeout: int = 30,
         secrets: Secrets = None) -> Union[bool, None]:
     """

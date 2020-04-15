@@ -64,7 +64,7 @@ def service_endpoint_is_initialized(name: str, ns: str = "default",
 
 # moved to deployment/probes.py
 def deployment_is_not_fully_available(name: str, ns: str = "default",
-                                      label_selector: str = "name in ({name})",
+                                      label_selector: str = None,
                                       timeout: int = 30,
                                       secrets: Secrets = None):
     """
@@ -78,7 +78,7 @@ def deployment_is_not_fully_available(name: str, ns: str = "default",
 
 # moved to deployment/probes.py
 def deployment_is_fully_available(name: str, ns: str = "default",
-                                  label_selector: str = "name in ({name})",
+                                  label_selector: str = None,
                                   timeout: int = 30,
                                   secrets: Secrets = None):
     """

@@ -8,6 +8,16 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.22.0...HEAD
 
+### Changed
+
+- Fix `deployment_is_not_fully_available` and `deployment_is_fully_available` to use
+  `metadata.name` field as a name selector as newer version of K8s no longer add a
+  name label by default [#85][85].
+- Fix `deployment_is_not_fully_available` and `deployment_is_fully_available` to only
+  use `label_selector` if one is passed in [#85][85].
+
+[85]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/85
+
 ## [0.22.0][] - 2020-01-10
 
 [0.22.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.21.0...0.22.0
