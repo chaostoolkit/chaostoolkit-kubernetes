@@ -12,6 +12,8 @@ from chaosk8s.probes import all_microservices_healthy, \
     microservice_available_and_healthy, microservice_is_not_available, \
     service_endpoint_is_initialized, deployment_is_not_fully_available, \
     deployment_is_fully_available, read_microservices_logs
+from chaosk8s.statefulset.probes import statefulset_fully_available, \
+    statefulset_not_fully_available
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -220,6 +222,88 @@ def test_deployment_is_not_fully_available_when_it_should(cl, client,
     with pytest.raises(ActivityFailed) as excinfo:
         deployment_is_fully_available("mysvc")
     assert "deployment 'mysvc' failed to recover within" in \
+        str(excinfo.value)
+
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.statefulset.probes.watch', autospec=True)
+@patch('chaosk8s.statefulset.probes.client', autospec=True)
+@patch('chaosk8s.client')
+def test_statefulset_not_fully_available(cl, client, watch, has_conf):
+    has_conf.return_value = False
+    statefulset = MagicMock()
+    statefulset.spec.replicas = 2
+    statefulset.status.ready_replicas = 1
+
+    watcher = MagicMock()
+    watcher.stream = MagicMock()
+    watcher.stream.side_effect = [[{"object": statefulset, "type": "ADDED"}]]
+    watch.Watch.return_value = watcher
+
+    assert statefulset_not_fully_available("mysvc") is True
+
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.statefulset.probes.watch', autospec=True)
+@patch('chaosk8s.statefulset.probes.client', autospec=True)
+@patch('chaosk8s.client')
+def test_statefulset_fully_available_when_it_should_not(cl, client,
+                                                          watch, has_conf):
+    has_conf.return_value = False
+    statefulset = MagicMock()
+    statefulset.spec.replicas = 2
+    statefulset.status.ready_replicas = 2
+
+    watcher = MagicMock()
+    watcher.stream = MagicMock()
+    watcher.stream.side_effect = urllib3.exceptions.ReadTimeoutError(
+        None, None, None)
+    watch.Watch.return_value = watcher
+
+    with pytest.raises(ActivityFailed) as excinfo:
+        statefulset_not_fully_available("mysvc")
+    assert "microservice 'mysvc' failed to stop running within" in \
+        str(excinfo.value)
+
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.statefulset.probes.watch', autospec=True)
+@patch('chaosk8s.statefulset.probes.client', autospec=True)
+@patch('chaosk8s.client')
+def test_statefulset_fully_available(cl, client, watch, has_conf):
+    has_conf.return_value = False
+    statefulset = MagicMock()
+    statefulset.spec.replicas = 2
+    statefulset.status.ready_replicas = 2
+
+    watcher = MagicMock()
+    watcher.stream = MagicMock()
+    watcher.stream.side_effect = [[{"object": statefulset, "type": "ADDED"}]]
+    watch.Watch.return_value = watcher
+
+    assert statefulset_fully_available("mysvc") is True
+
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.statefulset.probes.watch', autospec=True)
+@patch('chaosk8s.statefulset.probes.client', autospec=True)
+@patch('chaosk8s.client')
+def test_statefulset_not_fully_available_when_it_should(cl, client,
+                                                          watch, has_conf):
+    has_conf.return_value = False
+    statefulset = MagicMock()
+    statefulset.spec.replicas = 2
+    statefulset.status.ready_replicas = 1
+
+    watcher = MagicMock()
+    watcher.stream = MagicMock()
+    watcher.stream.side_effect = urllib3.exceptions.ReadTimeoutError(
+        None, None, None)
+    watch.Watch.return_value = watcher
+
+    with pytest.raises(ActivityFailed) as excinfo:
+        statefulset_fully_available("mysvc")
+    assert "microservice 'mysvc' failed to recover within" in \
         str(excinfo.value)
 
 
