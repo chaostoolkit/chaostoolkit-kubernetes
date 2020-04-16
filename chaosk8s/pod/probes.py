@@ -4,7 +4,7 @@ from typing import Dict, Union, List
 
 import dateparser
 from chaoslib.exceptions import ActivityFailed
-from chaoslib.types import Secrets
+from chaoslib.types import MicroservicesStatus, Secrets
 from kubernetes import client
 from logzero import logger
 
@@ -15,7 +15,8 @@ __all__ = [
     "pods_in_conditions",
     "pods_not_in_phase",
     "read_pod_logs",
-    "count_pods"
+    "count_pods",
+    "pod_is_not_available"
 ]
 
 
@@ -217,3 +218,67 @@ def count_pods(label_selector: str, phase: str = None,
             count = count + 1
 
     return count
+
+
+def pod_is_not_available(name: str, ns: str = "default",
+                         label_selector: str = "name in ({name})",
+                         secrets: Secrets = None) -> bool:
+    """
+    Lookup pods with a `name` label set to the given `name` in the specified
+    `ns`.
+
+    Raises :exc:`chaoslib.exceptions.ActivityFailed` when one of the pods
+    with the specified `name` is in the `"Running"` phase.
+    """
+    label_selector = label_selector.format(name=name)
+    api = create_k8s_api_client(secrets)
+
+    v1 = client.CoreV1Api(api)
+    if label_selector:
+        ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
+    else:
+        ret = v1.list_namespaced_pod(ns)
+
+    logger.debug("Found {d} pod(s) named '{n}' in ns '{s}".format(
+        d=len(ret.items), n=name, s=ns))
+
+    for p in ret.items:
+        phase = p.status.phase
+        logger.debug("Pod '{p}' has status '{s}'".format(
+            p=p.metadata.name, s=phase))
+        if phase == "Running":
+            raise ActivityFailed(
+                "pod '{name}' is actually running".format(name=name))
+
+    return True
+
+
+def all_pods_healthy(ns: str = "default",
+                     secrets: Secrets = None) -> MicroservicesStatus:
+    """
+    Check all pods in the system are running and available.
+
+    Raises :exc:`chaoslib.exceptions.ActivityFailed` when the state is not
+    as expected.
+    """
+    api = create_k8s_api_client(secrets)
+    not_ready = []
+    failed = []
+
+    v1 = client.CoreV1Api(api)
+    ret = v1.list_namespaced_pod(namespace=ns)
+    for p in ret.items:
+        phase = p.status.phase
+        if phase == "Failed":
+            failed.append(p)
+        elif phase not in ("Running", "Succeeded"):
+            not_ready.append(p)
+
+    logger.debug("Found {d} failed and {n} not ready pods".format(
+        d=len(failed), n=len(not_ready)))
+
+    # we probably should list them in the message
+    if failed or not_ready:
+        raise ActivityFailed("the system is unhealthy")
+
+    return True

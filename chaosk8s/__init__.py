@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
-import json
 import os
 import os.path
 from typing import List
 
 from chaoslib.discovery.discover import discover_actions, discover_probes, \
     initialize_discovery_result
-from chaoslib.exceptions import DiscoveryFailed
-from chaoslib.types import Discovery, DiscoveredActivities, \
-    DiscoveredSystemInfo, Secrets
+from chaoslib.types import Discovery, DiscoveredActivities, Secrets
 from kubernetes import client, config
 from logzero import logger
 
@@ -135,9 +132,20 @@ def load_exported_activities() -> List[DiscoveredActivities]:
     activities = []
     activities.extend(discover_actions("chaosk8s.actions"))
     activities.extend(discover_probes("chaosk8s.probes"))
+    activities.extend(discover_actions("chaosk8s.deployment.actions"))
+    activities.extend(discover_actions("chaosk8s.deployment.probes"))
+    activities.extend(discover_actions("chaosk8s.node.actions"))
+    activities.extend(discover_actions("chaosk8s.node.probes"))
     activities.extend(discover_actions("chaosk8s.pod.actions"))
     activities.extend(discover_probes("chaosk8s.pod.probes"))
-    activities.extend(discover_actions("chaosk8s.node.actions"))
-    activities.extend(discover_actions("chaosk8s.statefulset.actions"))
+    activities.extend(discover_actions("chaosk8s.replicaset.actions"))
     activities.extend(discover_actions("chaosk8s.service.actions"))
+    activities.extend(discover_actions("chaosk8s.service.probes"))
+    activities.extend(discover_actions("chaosk8s.statefulset.actions"))
     return activities
+
+
+def _log_deprecated(name: str, alt_name: str):
+    logger.warning("{} function is DEPRECATED and will be removed in the next \
+        releases, please use {} instead".format(
+        name, alt_name))
