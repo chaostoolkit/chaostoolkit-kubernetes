@@ -9,7 +9,7 @@ import yaml
 
 from chaosk8s import create_k8s_api_client
 
-__all__ = ["create_service_endpoint"]
+__all__ = ["create_service_endpoint", "delete_service"]
 
 
 def create_service_endpoint(spec_path: str, ns: str = "default",
@@ -32,3 +32,12 @@ def create_service_endpoint(spec_path: str, ns: str = "default",
 
     v1 = client.CoreV1Api(api)
     v1.create_namespaced_service(ns, body=service)
+
+
+def delete_service(name: str, ns: str = "default", secrets: Secrets = None):
+    """
+    Remove the given service
+    """
+    api = create_k8s_api_client(secrets)
+    v1 = client.CoreV1Api(api)
+    v1.delete_namespaced_service(name, namespace=ns)

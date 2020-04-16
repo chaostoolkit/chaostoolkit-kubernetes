@@ -16,7 +16,7 @@ from chaosk8s.probes import all_microservices_healthy, \
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.probes.client', autospec=True)
+@patch('chaosk8s.pod.probes.client', autospec=True)
 @patch('chaosk8s.client')
 def test_unhealthy_system_should_be_reported(cl, client, has_conf):
     has_conf.return_value = False
@@ -36,7 +36,7 @@ def test_unhealthy_system_should_be_reported(cl, client, has_conf):
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.probes.client', autospec=True)
+@patch('chaosk8s.pod.probes.client', autospec=True)
 @patch('chaosk8s.client')
 def test_succeeded_and_running_pods_should_be_considered_healthy(cl, client,
                                                                  has_conf):
@@ -60,7 +60,7 @@ def test_succeeded_and_running_pods_should_be_considered_healthy(cl, client,
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.probes.client', autospec=True)
+@patch('chaosk8s.deployment.probes.client', autospec=True)
 @patch('chaosk8s.client')
 def test_expecting_healthy_microservice_should_be_reported_when_not(cl,
                                                                     client,
@@ -71,11 +71,11 @@ def test_expecting_healthy_microservice_should_be_reported_when_not(cl,
 
     v1 = MagicMock()
     v1.list_namespaced_deployment.return_value = result
-    client.AppsV1Api.return_value = v1
+    client.AppsV1beta1Api.return_value = v1
 
     with pytest.raises(ActivityFailed) as excinfo:
         microservice_available_and_healthy("mysvc")
-    assert "microservice 'mysvc' was not found" in str(excinfo.value)
+    assert "Deployment 'mysvc' was not found" in str(excinfo.value)
 
     deployment = MagicMock()
     deployment.spec.replicas = 2
@@ -84,11 +84,11 @@ def test_expecting_healthy_microservice_should_be_reported_when_not(cl,
 
     with pytest.raises(ActivityFailed) as excinfo:
         microservice_available_and_healthy("mysvc")
-    assert "microservice 'mysvc' is not healthy" in str(excinfo.value)
+    assert "Deployment 'mysvc' is not healthy" in str(excinfo.value)
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.probes.client', autospec=True)
+@patch('chaosk8s.pod.probes.client', autospec=True)
 @patch('chaosk8s.client')
 def test_expecting_microservice_is_there_when_it_should_not(cl, client,
                                                             has_conf):
@@ -104,11 +104,11 @@ def test_expecting_microservice_is_there_when_it_should_not(cl, client,
 
     with pytest.raises(ActivityFailed) as excinfo:
         microservice_is_not_available("mysvc")
-    assert "microservice 'mysvc' is actually running" in str(excinfo.value)
+    assert "pod 'mysvc' is actually running" in str(excinfo.value)
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.probes.client', autospec=True)
+@patch('chaosk8s.service.probes.client', autospec=True)
 @patch('chaosk8s.client')
 def test_expecting_service_endpoint_should_be_initialized(cl, client,
                                                           has_conf):
@@ -125,7 +125,7 @@ def test_expecting_service_endpoint_should_be_initialized(cl, client,
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.probes.client', autospec=True)
+@patch('chaosk8s.service.probes.client', autospec=True)
 @patch('chaosk8s.client')
 def test_unitialized_or_not_existing_service_endpoint_should_not_be_available(
         cl, client, has_conf):
@@ -143,8 +143,8 @@ def test_unitialized_or_not_existing_service_endpoint_should_not_be_available(
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.probes.watch', autospec=True)
-@patch('chaosk8s.probes.client', autospec=True)
+@patch('chaosk8s.deployment.probes.watch', autospec=True)
+@patch('chaosk8s.deployment.probes.client', autospec=True)
 @patch('chaosk8s.client')
 def test_deployment_is_not_fully_available(cl, client, watch, has_conf):
     has_conf.return_value = False
@@ -161,8 +161,8 @@ def test_deployment_is_not_fully_available(cl, client, watch, has_conf):
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.probes.watch', autospec=True)
-@patch('chaosk8s.probes.client', autospec=True)
+@patch('chaosk8s.deployment.probes.watch', autospec=True)
+@patch('chaosk8s.deployment.probes.client', autospec=True)
 @patch('chaosk8s.client')
 def test_deployment_is_fully_available_when_it_should_not(cl, client,
                                                           watch, has_conf):
@@ -179,13 +179,13 @@ def test_deployment_is_fully_available_when_it_should_not(cl, client,
 
     with pytest.raises(ActivityFailed) as excinfo:
         deployment_is_not_fully_available("mysvc")
-    assert "microservice 'mysvc' failed to stop running within" in \
+    assert "deployment 'mysvc' failed to stop running within" in \
         str(excinfo.value)
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.probes.watch', autospec=True)
-@patch('chaosk8s.probes.client', autospec=True)
+@patch('chaosk8s.deployment.probes.watch', autospec=True)
+@patch('chaosk8s.deployment.probes.client', autospec=True)
 @patch('chaosk8s.client')
 def test_deployment_is_fully_available(cl, client, watch, has_conf):
     has_conf.return_value = False
@@ -202,8 +202,8 @@ def test_deployment_is_fully_available(cl, client, watch, has_conf):
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.probes.watch', autospec=True)
-@patch('chaosk8s.probes.client', autospec=True)
+@patch('chaosk8s.deployment.probes.watch', autospec=True)
+@patch('chaosk8s.deployment.probes.client', autospec=True)
 @patch('chaosk8s.client')
 def test_deployment_is_not_fully_available_when_it_should(cl, client,
                                                           watch, has_conf):
@@ -220,7 +220,7 @@ def test_deployment_is_not_fully_available_when_it_should(cl, client,
 
     with pytest.raises(ActivityFailed) as excinfo:
         deployment_is_fully_available("mysvc")
-    assert "microservice 'mysvc' failed to recover within" in \
+    assert "deployment 'mysvc' failed to recover within" in \
         str(excinfo.value)
 
 
@@ -247,7 +247,7 @@ def test_fetch_last_logs(cl, client, has_conf):
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.probes.client', autospec=True)
+@patch('chaosk8s.service.probes.client', autospec=True)
 @patch('chaosk8s.client')
 def test_can_select_by_label(cl, client, has_conf):
     has_conf.return_value = False

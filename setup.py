@@ -47,10 +47,12 @@ url = 'http://chaostoolkit.org'
 license = 'Apache License Version 2.0'
 packages = [
     'chaosk8s',
+    'chaosk8s.deployment',
     'chaosk8s.node',
     'chaosk8s.pod',
-    'chaosk8s.statefulset',
-    'chaosk8s.service'
+    'chaosk8s.replicaset',
+    'chaosk8s.service',
+    'chaosk8s.statefulset'
 ]
 
 needs_pytest = set(['pytest', 'test']).intersection(sys.argv)

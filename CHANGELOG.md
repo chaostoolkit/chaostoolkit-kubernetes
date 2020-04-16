@@ -2,6 +2,10 @@
 
 ## [Unreleased][]
 
+- Add namespace to all probes and actions with backward compatibility [#39][39]  
+
+[39]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/39
+
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.22.0...HEAD
 
 ## [0.22.0][] - 2020-01-10
