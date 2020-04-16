@@ -2,11 +2,15 @@
 
 ## [Unreleased][]
 
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.22.0...HEAD
+
+### Added
+
 - Add namespace to all probes and actions with backward compatibility [#39][39]  
+- Added `statefulset_is_fully_available` and `statefulset_is_not_fully_available` [#86][86].
 
 [39]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/39
-
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.22.0...HEAD
+[86]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/86
 
 ### Changed
 
