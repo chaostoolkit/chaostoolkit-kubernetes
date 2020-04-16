@@ -36,12 +36,13 @@ def daemonset_ready(name: str, ns: str = "default",
                      '{m}' misscheduled".format(
                      u=ds.status.number_unavailable,
                      m=ds.status.number_misscheduled))
-        if ((ds.status.number_unavailable is not None
-             and ds.status.number_unavailable != 0)
-             or ds.status.number_misscheduled != 0):
-            raise ActivityFailed(
+        if (
+           (ds.status.number_unavailable is not None
+            and ds.status.number_unavailable != 0)
+            or ds.status.number_misscheduled != 0
+           )            raise ActivityFailed(
                                 "DaemonSet has '{u}' unavailable replicas "
                                 "and '{m}' misscheduled".format(
-                                u=ds.status.number_unavailable, 
-                                m=ds.status.number_misscheduled))
+                                    u=ds.status.number_unavailable,
+                                    m=ds.status.number_misscheduled))
     return True
