@@ -13,10 +13,10 @@ __all__ = ["statefulset_fully_available"]
 
 
 def _statefulset_readiness_has_state(name: str, ready: bool,
-                                    ns: str = "default",
-                                    label_selector: str = "name in ({name})",
-                                    timeout: int = 30,
-                                    secrets: Secrets = None):
+                                     ns: str = "default",
+                                     label_selector: str = "name in ({name})",
+                                     timeout: int = 30,
+                                     secrets: Secrets = None):
     """
     Check wether if the given deployment state is ready or not
     according to the ready paramter.
@@ -57,9 +57,9 @@ def _statefulset_readiness_has_state(name: str, ready: bool,
 
 
 def statefulset_is_fully_available(name: str, ns: str = "default",
-                                      label_selector: str = "name in ({name})",
-                                      timeout: int = 30,
-                                      secrets: Secrets = None):
+                                   label_selector: str = "name in ({name})",
+                                   timeout: int = 30,
+                                   secrets: Secrets = None):
     """
     Wait until the StatefulSet gets into an intermediate state where all
     expected replicas are available. Once this state is reached, return `True`.
