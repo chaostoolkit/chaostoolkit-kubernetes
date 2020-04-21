@@ -8,7 +8,7 @@ from chaoslib.provider.python import validate_python_activity
 
 from chaosk8s.pod.actions import terminate_pods, exec_in_pods
 from chaosk8s.pod.probes import pods_in_phase, pods_not_in_phase, \
-    pods_in_conditions
+    pods_in_conditions, all_pods_healthy
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -1017,6 +1017,30 @@ def test_exec_in_pods_by_name_pattern_rand(cl, client, has_conf):
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.pod.probes.client', autospec=True)
+@patch('chaosk8s.client')
+def test_unhealthy_system_should_be_reported(cl, client, has_conf):
+    has_conf.return_value = False
+    pod = MagicMock()
+    pod.status.phase = "Failed"
+
+    result = MagicMock()
+    result.items = [pod]
+
+    v1 = MagicMock()
+    v1.list_namespaced_pod.return_value = result
+    client.CoreV1Api.return_value = v1
+
+    stream.stream = MagicMock()
+    stream.stream.return_value.read_channel = MagicMock()
+    stream.stream.return_value.read_channel.return_value = '{"status":"Success"}'
+
+    with pytest.raises(ActivityFailed) as excinfo:
+        all_pods_healthy()
+    assert "the system is unhealthy" in str(excinfo.value)
+
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
 @patch('chaosk8s.pod.actions.client', autospec=True)
 @patch('chaosk8s.client')
 def test_exec_in_pods_invalid_container_name(cl, client, has_conf):
@@ -1303,3 +1327,29 @@ def test_exec_in_pods_return_value(cl, client, has_conf):
                  qty=2,
                  rand=True)
     assert stream.stream.call_count == 1
+
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.pod.probes.client', autospec=True)
+@patch('chaosk8s.client')
+def test_succeeded_and_running_pods_should_be_considered_healthy(cl, client,
+                                                                 has_conf):
+    has_conf.return_value = False
+
+    podSucceeded = MagicMock()
+    podSucceeded.status.phase = "Succeeded"
+
+    podRunning = MagicMock()
+    podRunning.status.phase = "Running"
+
+    result = MagicMock()
+    result.items = [podSucceeded, podRunning]
+
+    v1 = MagicMock()
+    v1.list_namespaced_pod.return_value = result
+    client.CoreV1Api.return_value = v1
+
+    health = all_pods_healthy()
+    assert health
+
+

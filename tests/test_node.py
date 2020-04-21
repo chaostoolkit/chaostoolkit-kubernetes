@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import io
+import json
 from unittest.mock import ANY, MagicMock, patch
 
 import pytest
@@ -8,6 +10,7 @@ from kubernetes.client.rest import ApiException
 from chaosk8s.actions import start_microservice, kill_microservice
 from chaosk8s.node.actions import cordon_node, create_node, delete_nodes, \
     uncordon_node, drain_nodes
+from chaosk8s.node.probes import get_nodes
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
 def test_cannot_process_other_than_yaml_and_json(has_conf):
@@ -352,13 +355,13 @@ def test_mirror_pod_cannot_be_drained(cl, client, has_conf):
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.actions.client', autospec=True)
+@patch('chaosk8s.deployment.actions.client', autospec=True)
 @patch('chaosk8s.client')
 def test_killing_microservice_deletes_deployment(cl, client, has_conf):
     has_conf.return_value = False
 
     v1 = MagicMock()
-    client.AppsV1Api.return_value = v1
+    client.AppsV1beta1Api.return_value = v1
 
     body = MagicMock()
     client.V1DeleteOptions.return_value = body
@@ -375,13 +378,13 @@ def test_killing_microservice_deletes_deployment(cl, client, has_conf):
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.actions.client', autospec=True)
+@patch('chaosk8s.replicaset.actions.client', autospec=True)
 @patch('chaosk8s.client')
 def test_killing_microservice_deletes_rs(cl, client, has_conf):
     has_conf.return_value = False
 
     v1 = MagicMock()
-    client.AppsV1Api.return_value = v1
+    client.ExtensionsV1beta1Api.return_value = v1
 
     body = MagicMock()
     client.V1DeleteOptions.return_value = body
@@ -398,7 +401,7 @@ def test_killing_microservice_deletes_rs(cl, client, has_conf):
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.actions.client', autospec=True)
+@patch('chaosk8s.pod.actions.client', autospec=True)
 @patch('chaosk8s.client')
 def test_killing_microservice_deletes_pod(cl, client, has_conf):
     has_conf.return_value = False
@@ -418,3 +421,35 @@ def test_killing_microservice_deletes_pod(cl, client, has_conf):
 
     v1.delete_namespaced_pod.assert_called_with(
         "mydeployment", "default", body=body)
+
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.node.probes.client', autospec=True)
+@patch('chaosk8s.client')
+def test_can_select_nodes_by_label(cl, client, has_conf):
+    has_conf.return_value = False
+    v1 = MagicMock()
+    v1.list_node.return_value = io.BytesIO(
+        json.dumps({"hey": "there"}).encode('utf-8'))
+    client.CoreV1Api.return_value = v1
+
+    label_selector = 'beta.kubernetes.io/instance-type=m5.large'
+    resp = get_nodes(label_selector=label_selector)
+    v1.list_node.assert_called_with(
+        label_selector=label_selector, _preload_content=False)
+    assert resp == {"hey": "there"}
+
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.node.probes.client', autospec=True)
+@patch('chaosk8s.client')
+def test_can_select_nodes_without_label(cl, client, has_conf):
+    has_conf.return_value = False
+    v1 = MagicMock()
+    v1.list_node.return_value = io.BytesIO(
+        json.dumps({"hey": "there"}).encode('utf-8'))
+    client.CoreV1Api.return_value = v1
+
+    resp = get_nodes()
+    v1.list_node.assert_called_with(_preload_content=False)
+    assert resp == {"hey": "there"}
