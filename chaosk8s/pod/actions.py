@@ -64,8 +64,12 @@ def terminate_pods(label_selector: str = None, name_pattern: str = None,
     if grace_period >= 0:
         body = client.V1DeleteOptions(grace_period_seconds=grace_period)
 
+    deleted_pods = []
     for p in pods:
         v1.delete_namespaced_pod(p.metadata.name, ns, body=body)
+        deleted_pods.append(p.metadata.name)
+
+    return deleted_pods
 
 
 def exec_in_pods(cmd: str,
