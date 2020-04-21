@@ -29,8 +29,10 @@ def test_terminate_pods_by_name_pattern(cl, client, has_conf):
     v1.list_namespaced_pod.return_value = result
     client.CoreV1Api.return_value = v1
 
-    terminate_pods(name_pattern="my-app-[0-9]$")
-
+    ret = terminate_pods(name_pattern="my-app-[0-9]$")
+    
+    assert len(ret) == 1
+    assert ret == [pod.metadata.name]
     assert v1.delete_namespaced_pod.call_count == 1
     v1.delete_namespaced_pod.assert_called_with(
         pod.metadata.name, "default", body=ANY)
@@ -57,8 +59,10 @@ def test_terminate_pods_by_name_pattern_all(cl, client, has_conf):
     v1.list_namespaced_pod.return_value = result
     client.CoreV1Api.return_value = v1
 
-    terminate_pods(name_pattern="my-app-[0-9]$", all=True)
+    ret = terminate_pods(name_pattern="my-app-[0-9]$", all=True)
 
+    assert len(ret) == 2
+    assert ret == [pod1.metadata.name, pod2.metadata.name]
     assert v1.delete_namespaced_pod.call_count == 2
     calls = [call(pod1.metadata.name, "default", body=ANY),
              call(pod2.metadata.name, "default", body=ANY)]
@@ -91,8 +95,10 @@ def test_terminate_pods_by_name_pattern_rand(cl, client, has_conf):
         v1.list_namespaced_pod.return_value = result
         client.CoreV1Api.return_value = v1
 
-        terminate_pods(name_pattern="my-app-[0-9]$", rand=True)
+        ret = terminate_pods(name_pattern="my-app-[0-9]$", rand=True)
 
+        assert len(ret) == 1
+        assert ret == [pod3.metadata.name]
         assert v1.delete_namespaced_pod.call_count == 1
         v1.delete_namespaced_pod.assert_called_with(
             pod3.metadata.name, "default", body=ANY)
@@ -116,8 +122,10 @@ def test_terminate_pods_all(cl, client, has_conf):
     v1.list_namespaced_pod.return_value = result
     client.CoreV1Api.return_value = v1
 
-    terminate_pods(all=True)
+    ret = terminate_pods(all=True)
 
+    assert len(ret) == 2
+    assert ret == [pod1.metadata.name, pod2.metadata.name]
     assert v1.delete_namespaced_pod.call_count == 2
     calls = [call(pod1.metadata.name, "default", body=ANY),
              call(pod2.metadata.name, "default", body=ANY)]
@@ -144,8 +152,10 @@ def test_terminate_pods_rand(cl, client, has_conf):
         v1.list_namespaced_pod.return_value = result
         client.CoreV1Api.return_value = v1
 
-        terminate_pods(rand=True)
+        ret = terminate_pods(rand=True)
 
+        assert len(ret) == 1
+        assert ret == [pod2.metadata.name]
         assert v1.delete_namespaced_pod.call_count == 1
         v1.delete_namespaced_pod.assert_called_with(
             pod2.metadata.name, "default", body=ANY)
@@ -169,8 +179,10 @@ def test_terminate_pods_when_no_params_given(cl, client, has_conf):
     v1.list_namespaced_pod.return_value = result
     client.CoreV1Api.return_value = v1
 
-    terminate_pods()
+    ret = terminate_pods()
 
+    assert len(ret) == 1
+    assert ret == [pod1.metadata.name]
     assert v1.delete_namespaced_pod.call_count == 1
     v1.delete_namespaced_pod.assert_called_with(
         pod1.metadata.name, "default", body=ANY)
@@ -191,8 +203,10 @@ def test_terminate_pods_when_grace_period_is_set(cl, client, has_conf):
     v1.list_namespaced_pod.return_value = result
     client.CoreV1Api.return_value = v1
 
-    terminate_pods(grace_period=5)
+    ret = terminate_pods(grace_period=5)
 
+    assert len(ret) == 1
+    assert ret == [pod1.metadata.name]
     assert v1.delete_namespaced_pod.call_count == 1
     v1.delete_namespaced_pod.assert_called_with(
         pod1.metadata.name, "default",
@@ -223,8 +237,10 @@ def test_terminate_pods_by_given_percentage(cl, client, has_conf):
     v1.list_namespaced_pod.return_value = result
     client.CoreV1Api.return_value = v1
 
-    terminate_pods(mode='percentage', qty=40)
+    ret = terminate_pods(mode='percentage', qty=40)
 
+    assert len(ret) == 2
+    assert ret == [pod1.metadata.name, pod2.metadata.name]
     assert v1.delete_namespaced_pod.call_count == 2
     calls = [call(pod1.metadata.name, "default", body=ANY),
              call(pod2.metadata.name, "default", body=ANY)]
@@ -257,8 +273,10 @@ def test_terminate_pods_by_given_percentage_rand(cl, client, has_conf):
         v1.list_namespaced_pod.return_value = result
         client.CoreV1Api.return_value = v1
 
-        terminate_pods(mode='percentage', qty=40, rand=True)
+        ret = terminate_pods(mode='percentage', qty=40, rand=True)
 
+        assert len(ret) == 2
+        assert ret == [pod3.metadata.name, pod4.metadata.name]
         assert v1.delete_namespaced_pod.call_count == 2
         calls = [call(pod3.metadata.name, "default", body=ANY),
                  call(pod4.metadata.name, "default", body=ANY)]
@@ -283,8 +301,10 @@ def test_terminate_pods_when_qty_grt_than_pods_selected(cl, client, has_conf):
     v1.list_namespaced_pod.return_value = result
     client.CoreV1Api.return_value = v1
 
-    terminate_pods(qty=40)
+    ret = terminate_pods(qty=40)
 
+    assert len(ret) == 2
+    assert ret == [pod1.metadata.name, pod2.metadata.name]
     assert v1.delete_namespaced_pod.call_count == 2
     calls = [call(pod1.metadata.name, "default", body=ANY),
              call(pod2.metadata.name, "default", body=ANY)]
