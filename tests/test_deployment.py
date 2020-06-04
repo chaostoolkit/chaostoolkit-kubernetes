@@ -49,7 +49,7 @@ def test_update_image_when_container_is_found(client, api):
                  image="image:tag",
                  ns="default",
                  container_name=container_mock.name)
-    v1.replace_namespaced_deployment.assert_called_once()
+    v1.replace_namespaced_deployment.assert_called_once_with(ANY)
 
 
 @patch('chaosk8s.deployment.actions.create_k8s_api_client', autospec=True)
