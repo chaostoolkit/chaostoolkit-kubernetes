@@ -80,13 +80,20 @@ def scale_deployment(name: str, replicas: int, ns: str = "default",
                 s=name, r=replicas, e=str(e)))
 
 
-def update_image(name: str, image: str, ns: "default", container_name: str, secrets: Secrets = None):
+def update_image(name: str, image: str, ns: "default", container_name: str,
+                 secrets: Secrets = None):
     """
     Updates a deployment to use the given container `image`.
     """
     api = create_k8s_api_client(secrets)
     v1 = client.AppsV1Api(api)
     deployment = v1.read_namespaced_deployment(name, ns)
-    # TODO get named container
-    deployment.spec.template.spec.containers[0].image = image
+    container_found = False
+    for container in deployment.spec.template.spec.containers:
+        if container.name == container_name:
+            container.image = image
+            container_found = True
+    if not container_found:
+        raise ActivityFailed("container with the given name was not found: {}"
+                             .format(container_name))
     v1.replace_namespaced_deployment(name, ns, deployment)
