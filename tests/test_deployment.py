@@ -9,7 +9,8 @@ from kubernetes.client.models import V1DeploymentList, V1Deployment, V1ObjectMet
 from chaosk8s.deployment.actions import create_deployment, delete_deployment, \
     scale_deployment, update_image, trigger_deployment
 from chaosk8s.deployment.probes import deployment_not_fully_available, \
-    deployment_available_and_healthy, deployment_fully_available
+    deployment_available_and_healthy, deployment_fully_available, \
+    wait_for_rollout_completion
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -257,3 +258,56 @@ def test_deployment_is_not_fully_available_when_it_should(cl, client,
     with pytest.raises(ActivityFailed) as excinfo:
         deployment_fully_available("mysvc")
     assert "deployment 'mysvc' failed to recover within" in str(excinfo)
+
+
+@patch('chaosk8s.deployment.probes.client', autospec=True)
+def test_wait_for_rollout_completion_should_wait_for_replicas_to_match(client):
+    v1 = MagicMock()
+    client.AppsV1Api.return_value = v1
+    read_count = 0
+
+    def read_namespaced_deployment(name, ns):
+        nonlocal read_count
+        read_count = read_count+1
+        deployment = MagicMock()
+        deployment.spec.replicas = 2
+        deployment.status.available_replicas = read_count
+        return deployment
+
+    v1.read_namespaced_deployment = read_namespaced_deployment
+
+    wait_for_rollout_completion(
+        name="deployment-name",
+        timeout_secs=3,
+        interval_secs=1
+    )
+
+    assert read_count == 2
+
+
+@patch('chaosk8s.deployment.probes.client', autospec=True)
+def test_wait_for_rollout_completion_should_fail_if_replicas_dont_match(
+        client):
+    v1 = MagicMock()
+    client.AppsV1Api.return_value = v1
+    read_count = 0
+
+    def read_namespaced_deployment(name, ns):
+        nonlocal read_count
+        read_count = read_count+1
+        deployment = MagicMock()
+        deployment.spec.replicas = 2
+        deployment.status.available_replicas = 0
+        return deployment
+
+    v1.read_namespaced_deployment = read_namespaced_deployment
+
+    with pytest.raises(ActivityFailed) as exception:
+        wait_for_rollout_completion(
+            name="deployment-name",
+            timeout_secs=3,
+            interval_secs=1
+        )
+
+    assert "failed to complete rollout" in str(exception)
+
