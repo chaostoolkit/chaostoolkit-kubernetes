@@ -1,10 +1,13 @@
 import json
 import os.path
+import uuid
+
 import yaml
 
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
 from kubernetes import client
+from kubernetes.client import V1EnvVar
 from logzero import logger
 from kubernetes.client.rest import ApiException
 
@@ -14,7 +17,8 @@ __all__ = [
     "create_deployment",
     "delete_deployment",
     "scale_deployment",
-    "update_image"
+    "update_image",
+    "trigger_deployment"
 ]
 
 
@@ -102,3 +106,17 @@ def update_image(name: str, image: str, ns: "default", container_name: str,
         raise ActivityFailed("container with the given name was not found: {}"
                              .format(container_name))
     v1.replace_namespaced_deployment(name, ns, deployment)
+
+
+def trigger_deployment(name: str, ns: "default", secrets: Secrets = None):
+    """
+    Triggers a refresh of the deployment's container by adding a dummy
+    environment variable to each one.
+    """
+    api = create_k8s_api_client(secrets)
+    v1 = client.AppsV1Api(api)
+    deployment = v1.read_namespaced_deployment(name, ns)
+    for container in deployment.spec.template.spec.containers:
+        container.env.append(V1EnvVar(str(uuid.uuid4()), "value"))
+    v1.replace_namespaced_deployment(name, ns, deployment)
+
