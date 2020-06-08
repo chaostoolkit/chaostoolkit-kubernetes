@@ -117,6 +117,7 @@ def trigger_deployment(name: str, ns: "default", secrets: Secrets = None):
     v1 = client.AppsV1Api(api)
     deployment = v1.read_namespaced_deployment(name, ns)
     for container in deployment.spec.template.spec.containers:
-        container.env.append(V1EnvVar("ENV-{}".format(str(uuid.uuid4())), "value"))
+        container.env.append(
+            V1EnvVar("ENV-{}".format(str(uuid.uuid4())), "value")
+        )
     v1.replace_namespaced_deployment(name, ns, deployment)
-
