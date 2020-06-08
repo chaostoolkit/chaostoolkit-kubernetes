@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import datetime
+import time
 from typing import Union
 
 import urllib3
@@ -13,7 +15,8 @@ from chaosk8s.pod.probes import read_pod_logs
 
 __all__ = ["deployment_available_and_healthy",
            "deployment_not_fully_available",
-           "deployment_fully_available"]
+           "deployment_fully_available",
+           "wait_for_rollout_completion"]
 
 
 def deployment_available_and_healthy(
@@ -55,6 +58,31 @@ def deployment_available_and_healthy(
                 "Deployment '{name}' is not healthy".format(name=name))
 
     return True
+
+
+def wait_for_rollout_completion(
+        name: str, timeout_secs: int, interval_secs: int, ns: str = "default",
+        secrets: Secrets = None):
+    api = create_k8s_api_client(secrets)
+    v1 = client.AppsV1Api(api)
+    current_time = datetime.datetime.now()
+    timeout = current_time + datetime.timedelta(0, timeout_secs)
+    while datetime.datetime.now() < timeout:
+        deployment = v1.read_namespaced_deployment(name, ns)
+        desired_replicas = deployment.spec.replicas
+        available_replicas = deployment.status.available_replicas
+        logger.info(
+            ("probe found {} available replicas compared to {} expected " +
+             "replicas").format(available_replicas, desired_replicas)
+        )
+        if desired_replicas == available_replicas:
+            return
+        time.sleep(interval_secs)
+    raise ActivityFailed(
+        ("deployment {} failed to complete rollout in {} seconds, with {}" +
+         "available replicas compared to {} expected").format(
+            name, timeout_secs, available_replicas, desired_replicas)
+    )
 
 
 def _deployment_readiness_has_state(
