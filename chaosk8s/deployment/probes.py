@@ -155,12 +155,12 @@ def deployment_not_fully_available(
     :exc:`chaoslib.exceptions.ActivityFailed` exception is raised.
     """
     if _deployment_readiness_has_state(
-            name,
-            False,
-            ns,
-            label_selector,
-            timeout,
-            secrets,
+        name,
+        False,
+        ns,
+        label_selector,
+        timeout,
+        secrets,
     ):
         return True
     else:
@@ -181,12 +181,12 @@ def deployment_fully_available(
     :exc:`chaoslib.exceptions.ActivityFailed` exception is raised.
     """
     if _deployment_readiness_has_state(
-            name,
-            True,
-            ns,
-            label_selector,
-            timeout,
-            secrets,
+        name,
+        True,
+        ns,
+        label_selector,
+        timeout,
+        secrets,
     ):
         return True
     else:
