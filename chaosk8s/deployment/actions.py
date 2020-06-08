@@ -118,6 +118,6 @@ def trigger_deployment(name: str, ns: "default", secrets: Secrets = None):
     deployment = v1.read_namespaced_deployment(name, ns)
     for container in deployment.spec.template.spec.containers:
         container.env.append(
-            V1EnvVar("ENV-{}".format(str(uuid.uuid4())), "value")
+            V1EnvVar("CHAOS_TOOLKIT_TRIGGER_DEPLOYMENT", str(uuid.uuid4()))
         )
     v1.replace_namespaced_deployment(name, ns, deployment)
