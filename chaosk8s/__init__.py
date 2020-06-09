@@ -7,12 +7,20 @@ from chaoslib.discovery.discover import discover_actions, discover_probes, \
     initialize_discovery_result
 from chaoslib.types import Discovery, DiscoveredActivities, Secrets
 from kubernetes import client, config
+from kubernetes.client import V1EnvVar
 from logzero import logger
 
 
 __all__ = ["create_k8s_api_client", "discover", "__version__"]
 __version__ = '0.22.0'
 CHAOS_TOOLKIT_TRIGGER_ROLLOUT = "CHAOS_TOOLKIT_TRIGGER_ROLLOUT"
+
+
+def get_env_var(env_vars: List[V1EnvVar], name: str):
+    for env_var in env_vars:
+        if env_var.name == name:
+            return env_var
+    return None
 
 
 def has_local_config_file():

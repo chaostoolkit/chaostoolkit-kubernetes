@@ -93,6 +93,29 @@ def test_trigger_rollout_adds_env_var(client, api):
     assert len(deployment.spec.template.spec.containers[0].env) == 2
 
 
+@patch('chaosk8s.deployment.actions.client', autospec=True)
+def test_trigger_rollout_twice_only_adds_one_env_var(client):
+    v1 = MagicMock()
+    client.AppsV1Api.return_value = v1
+    deployment_mock = MagicMock()
+    container_mock = MagicMock()
+    container_mock.env = [MagicMock()]
+    deployment_mock.spec.template.spec.containers = [container_mock]
+    v1.read_namespaced_deployment.return_value = deployment_mock
+
+    def replace_namespaced_deployment(name, ns, d):
+        nonlocal deployment_mock
+        deployment_mock = d
+
+    v1.replace_namespaced_deployment = replace_namespaced_deployment
+
+    trigger_rollout("deployment_name", "default")
+    trigger_rollout("deployment_name", "default")
+
+    assert len(deployment_mock.spec.template.spec.containers) == 1
+    assert len(deployment_mock.spec.template.spec.containers[0].env) == 2
+
+
 @patch('chaosk8s.deployment.actions.create_k8s_api_client', autospec=True)
 @patch('chaosk8s.deployment.actions.client', autospec=True)
 def test_delete_deployment(client, api):

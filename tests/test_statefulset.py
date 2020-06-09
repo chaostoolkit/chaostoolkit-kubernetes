@@ -186,3 +186,26 @@ def test_trigger_rollout_adds_environment_variable(client):
     statefulset = v1.replace_namespaced_stateful_set.call_args[0][2]
     assert len(statefulset.spec.template.spec.containers) == 1
     assert len(statefulset.spec.template.spec.containers[0].env) == 2
+
+
+@patch('chaosk8s.statefulset.actions.client', autospec=True)
+def test_trigger_rollout_twice_only_adds_one_environment_variable(client):
+    v1 = MagicMock()
+    client.AppsV1Api.return_value = v1
+    statefulset_mock = MagicMock()
+    container_mock = MagicMock()
+    container_mock.env = [MagicMock()]
+    statefulset_mock.spec.template.spec.containers = [container_mock]
+    v1.read_namespaced_stateful_set.return_value = statefulset_mock
+
+    def replace_namespaced_stateful_set(name, ns, ss):
+        nonlocal statefulset_mock
+        statefulset_mock = ss
+
+    v1.replace_namespaced_stateful_set = replace_namespaced_stateful_set
+
+    trigger_rollout("statefulset", "default")
+    trigger_rollout("statefulset", "default")
+
+    assert len(statefulset_mock.spec.template.spec.containers) == 1
+    assert len(statefulset_mock.spec.template.spec.containers[0].env) == 2
