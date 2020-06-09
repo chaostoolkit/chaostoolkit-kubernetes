@@ -18,7 +18,7 @@ __all__ = [
     "delete_deployment",
     "scale_deployment",
     "update_image",
-    "trigger_deployment"
+    "trigger_rollout"
 ]
 
 
@@ -108,9 +108,9 @@ def update_image(name: str, image: str, ns: "default", container_name: str,
     v1.replace_namespaced_deployment(name, ns, deployment)
 
 
-def trigger_deployment(name: str, ns: "default", secrets: Secrets = None):
+def trigger_rollout(name: str, ns: "default", secrets: Secrets = None):
     """
-    Triggers a refresh of the deployment's container by adding a dummy
+    Triggers a rollout of the deployment's containers by adding a dummy
     environment variable to each one.
     """
     api = create_k8s_api_client(secrets)
