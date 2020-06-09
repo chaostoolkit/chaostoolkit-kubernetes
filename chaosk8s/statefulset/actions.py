@@ -1,17 +1,24 @@
 # -*- coding: utf-8 -*-
 import json
 import os.path
+import uuid
 
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
 from kubernetes import client
+from kubernetes.client import V1EnvVar
 from kubernetes.client.rest import ApiException
 from logzero import logger
 import yaml
 
-from chaosk8s import create_k8s_api_client
+from chaosk8s import create_k8s_api_client, CHAOS_TOOLKIT_TRIGGER_ROLLOUT
 
-__all__ = ["create_statefulset", "scale_statefulset", "remove_statefulset"]
+__all__ = [
+    "create_statefulset",
+    "scale_statefulset",
+    "remove_statefulset",
+    "trigger_rollout"
+]
 
 
 def create_statefulset(spec_path: str, ns: str = "default",
@@ -83,3 +90,14 @@ def remove_statefulset(name: str = None, ns: str = "default",
     for d in ret.items:
         res = v1.delete_namespaced_stateful_set(
             d.metadata.name, ns, body=body)
+
+
+def trigger_rollout(name: str, ns: "default", secrets: Secrets = None):
+    api = create_k8s_api_client(secrets)
+    v1 = client.AppsV1Api(api)
+    statefulset = v1.read_namespaced_stateful_set(name, ns)
+    for container in statefulset.spec.template.spec.containers:
+        container.env.append(
+            V1EnvVar(CHAOS_TOOLKIT_TRIGGER_ROLLOUT, str(uuid.uuid4()))
+        )
+    v1.replace_namespaced_stateful_set(name, ns, statefulset)

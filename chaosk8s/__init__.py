@@ -12,6 +12,7 @@ from logzero import logger
 
 __all__ = ["create_k8s_api_client", "discover", "__version__"]
 __version__ = '0.22.0'
+CHAOS_TOOLKIT_TRIGGER_ROLLOUT = "CHAOS_TOOLKIT_TRIGGER_ROLLOUT"
 
 
 def has_local_config_file():

@@ -5,7 +5,7 @@ import pytest
 from chaoslib.exceptions import ActivityFailed
 
 from chaosk8s.statefulset.actions import scale_statefulset, \
-    remove_statefulset, create_statefulset
+    remove_statefulset, create_statefulset, trigger_rollout
 from chaosk8s.statefulset.probes import wait_to_be_healthy
 
 
@@ -169,3 +169,20 @@ def test_wait_to_be_healthy_should_fail_if_replicas_dont_match(client):
         )
 
     assert "failed to reach a healthy state" in str(exception)
+
+
+@patch('chaosk8s.statefulset.actions.client', autospec=True)
+def test_trigger_rollout_adds_environment_variable(client):
+    v1 = MagicMock()
+    client.AppsV1Api.return_value = v1
+    statefulset_mock = MagicMock()
+    container_mock = MagicMock()
+    container_mock.env = [MagicMock()]
+    statefulset_mock.spec.template.spec.containers = [container_mock]
+    v1.read_namespaced_stateful_set.return_value = statefulset_mock
+
+    trigger_rollout("statefulset", "default")
+
+    statefulset = v1.replace_namespaced_stateful_set.call_args[0][2]
+    assert len(statefulset.spec.template.spec.containers) == 1
+    assert len(statefulset.spec.template.spec.containers[0].env) == 2

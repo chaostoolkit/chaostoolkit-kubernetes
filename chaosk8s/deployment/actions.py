@@ -11,7 +11,7 @@ from kubernetes.client import V1EnvVar
 from logzero import logger
 from kubernetes.client.rest import ApiException
 
-from chaosk8s import create_k8s_api_client
+from chaosk8s import create_k8s_api_client, CHAOS_TOOLKIT_TRIGGER_ROLLOUT
 
 __all__ = [
     "create_deployment",
@@ -118,6 +118,6 @@ def trigger_rollout(name: str, ns: "default", secrets: Secrets = None):
     deployment = v1.read_namespaced_deployment(name, ns)
     for container in deployment.spec.template.spec.containers:
         container.env.append(
-            V1EnvVar("CHAOS_TOOLKIT_TRIGGER_DEPLOYMENT", str(uuid.uuid4()))
+            V1EnvVar(CHAOS_TOOLKIT_TRIGGER_ROLLOUT, str(uuid.uuid4()))
         )
     v1.replace_namespaced_deployment(name, ns, deployment)
