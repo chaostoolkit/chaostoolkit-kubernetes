@@ -290,11 +290,8 @@ def test_wait_for_rollout_completion_should_fail_if_replicas_dont_match(
         client):
     v1 = MagicMock()
     client.AppsV1Api.return_value = v1
-    read_count = 0
 
     def read_namespaced_deployment(name, ns):
-        nonlocal read_count
-        read_count = read_count+1
         deployment = MagicMock()
         deployment.spec.replicas = 2
         deployment.status.available_replicas = 0

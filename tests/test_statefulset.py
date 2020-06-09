@@ -6,6 +6,7 @@ from chaoslib.exceptions import ActivityFailed
 
 from chaosk8s.statefulset.actions import scale_statefulset, \
     remove_statefulset, create_statefulset
+from chaosk8s.statefulset.probes import wait_to_be_healthy
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -120,3 +121,51 @@ def test_creating_statefulset_with_file_txt_KO(cl, client, has_conf):
     with pytest.raises(ActivityFailed) as excinfo:
         create_statefulset(path)
     assert "cannot process {path}".format(path=path) in str(excinfo.value)
+
+
+@patch('chaosk8s.statefulset.probes.client', autospec=True)
+def test_wait_to_be_healthy_should_wait_for_replicas_to_match(client):
+    read_count = 0
+    v1 = MagicMock()
+    client.AppsV1Api.return_value = v1
+
+    def read_namespaced_stateful_set(name, ns):
+        nonlocal read_count
+        read_count = read_count+1
+        statefulset = MagicMock()
+        statefulset.spec.replicas = 2
+        statefulset.status.ready_replicas = read_count
+        return statefulset
+
+    v1.read_namespaced_stateful_set = read_namespaced_stateful_set
+
+    wait_to_be_healthy(
+        name="statefulset",
+        timeout_secs=3,
+        interval_secs=1
+    )
+
+    assert read_count == 2
+
+
+@patch('chaosk8s.statefulset.probes.client', autospec=True)
+def test_wait_to_be_healthy_should_fail_if_replicas_dont_match(client):
+    v1 = MagicMock()
+    client.AppsV1Api.return_value = v1
+
+    def read_namespaced_stateful_set(name, ns):
+        statefulset = MagicMock()
+        statefulset.spec.replicas = 2
+        statefulset.status.ready_replicas = 0
+        return statefulset
+
+    v1.read_namespaced_stateful_set = read_namespaced_stateful_set
+
+    with pytest.raises(ActivityFailed) as exception:
+        wait_to_be_healthy(
+            name="statefulset",
+            timeout_secs=3,
+            interval_secs=1
+        )
+
+    assert "failed to reach a healthy state" in str(exception)
