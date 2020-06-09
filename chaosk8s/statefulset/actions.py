@@ -1,18 +1,15 @@
 # -*- coding: utf-8 -*-
 import json
 import os.path
-import uuid
 
+import yaml
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
 from kubernetes import client
-from kubernetes.client import V1EnvVar
 from kubernetes.client.rest import ApiException
 from logzero import logger
-import yaml
 
-from chaosk8s import create_k8s_api_client, CHAOS_TOOLKIT_TRIGGER_ROLLOUT, \
-    get_env_var
+from chaosk8s import create_k8s_api_client, add_trigger_environment_variable
 
 __all__ = [
     "create_statefulset",
@@ -98,11 +95,5 @@ def trigger_rollout(name: str, ns: "default", secrets: Secrets = None):
     v1 = client.AppsV1Api(api)
     statefulset = v1.read_namespaced_stateful_set(name, ns)
     for container in statefulset.spec.template.spec.containers:
-        env_var = get_env_var(container.env, CHAOS_TOOLKIT_TRIGGER_ROLLOUT)
-        if env_var is not None:
-            env_var.value = str(uuid.uuid4())
-        else:
-            container.env.append(
-                V1EnvVar(CHAOS_TOOLKIT_TRIGGER_ROLLOUT, str(uuid.uuid4()))
-            )
+        add_trigger_environment_variable(container)
     v1.replace_namespaced_stateful_set(name, ns, statefulset)

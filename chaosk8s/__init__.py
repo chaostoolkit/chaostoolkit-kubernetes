@@ -1,22 +1,34 @@
 # -*- coding: utf-8 -*-
 import os
 import os.path
+import uuid
 from typing import List
 
 from chaoslib.discovery.discover import discover_actions, discover_probes, \
     initialize_discovery_result
 from chaoslib.types import Discovery, DiscoveredActivities, Secrets
 from kubernetes import client, config
-from kubernetes.client import V1EnvVar
+from kubernetes.client import V1EnvVar, V1Container
 from logzero import logger
 
 
 __all__ = ["create_k8s_api_client", "discover", "__version__"]
 __version__ = '0.22.0'
-CHAOS_TOOLKIT_TRIGGER_ROLLOUT = "CHAOS_TOOLKIT_TRIGGER_ROLLOUT"
 
 
-def get_env_var(env_vars: List[V1EnvVar], name: str):
+def add_trigger_environment_variable(container: V1Container):
+    if container.env is None:
+        container.env = []
+    env_var = _get_env_var(container.env, "CHAOS_TOOLKIT_TRIGGER_ROLLOUT")
+    if env_var is not None:
+        env_var.value = str(uuid.uuid4())
+    else:
+        container.env.append(
+            V1EnvVar("CHAOS_TOOLKIT_TRIGGER_ROLLOUT", str(uuid.uuid4()))
+        )
+
+
+def _get_env_var(env_vars: List[V1EnvVar], name: str):
     for env_var in env_vars:
         if env_var.name == name:
             return env_var
