@@ -1,24 +1,21 @@
 import json
 import os.path
-import uuid
 
 import yaml
-
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
 from kubernetes import client
-from kubernetes.client import V1EnvVar
-from logzero import logger
 from kubernetes.client.rest import ApiException
+from logzero import logger
 
-from chaosk8s import create_k8s_api_client
+from chaosk8s import create_k8s_api_client, add_trigger_environment_variable
 
 __all__ = [
     "create_deployment",
     "delete_deployment",
     "scale_deployment",
     "update_image",
-    "trigger_deployment"
+    "trigger_rollout"
 ]
 
 
@@ -108,16 +105,14 @@ def update_image(name: str, image: str, ns: "default", container_name: str,
     v1.replace_namespaced_deployment(name, ns, deployment)
 
 
-def trigger_deployment(name: str, ns: "default", secrets: Secrets = None):
+def trigger_rollout(name: str, ns: "default", secrets: Secrets = None):
     """
-    Triggers a refresh of the deployment's container by adding a dummy
+    Triggers a rollout of the deployment's containers by adding a dummy
     environment variable to each one.
     """
     api = create_k8s_api_client(secrets)
     v1 = client.AppsV1Api(api)
     deployment = v1.read_namespaced_deployment(name, ns)
     for container in deployment.spec.template.spec.containers:
-        container.env.append(
-            V1EnvVar("CHAOS_TOOLKIT_TRIGGER_DEPLOYMENT", str(uuid.uuid4()))
-        )
+        add_trigger_environment_variable(container)
     v1.replace_namespaced_deployment(name, ns, deployment)

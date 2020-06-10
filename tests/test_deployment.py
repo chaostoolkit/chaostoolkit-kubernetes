@@ -7,7 +7,7 @@ from chaoslib.exceptions import ActivityFailed
 from kubernetes.client.models import V1DeploymentList, V1Deployment, V1ObjectMeta
 
 from chaosk8s.deployment.actions import create_deployment, delete_deployment, \
-    scale_deployment, update_image, trigger_deployment
+    scale_deployment, update_image, trigger_rollout
 from chaosk8s.deployment.probes import deployment_not_fully_available, \
     deployment_available_and_healthy, deployment_fully_available, \
     wait_for_rollout_completion
@@ -77,7 +77,7 @@ def test_update_image_when_container_is_not_found(client, api):
 
 @patch('chaosk8s.deployment.actions.create_k8s_api_client', autospec=True)
 @patch('chaosk8s.deployment.actions.client', autospec=True)
-def test_trigger_deployment_adds_env_var(client, api):
+def test_trigger_rollout_adds_env_var(client, api):
     v1 = MagicMock()
     client.AppsV1Api.return_value = v1
     deployment_mock = MagicMock()
@@ -86,11 +86,34 @@ def test_trigger_deployment_adds_env_var(client, api):
     deployment_mock.spec.template.spec.containers = [container_mock]
     v1.read_namespaced_deployment.return_value = deployment_mock
 
-    trigger_deployment("deployment_name", "default")
+    trigger_rollout("deployment_name", "default")
 
     deployment = v1.replace_namespaced_deployment.call_args[0][2]
     assert len(deployment.spec.template.spec.containers) == 1
     assert len(deployment.spec.template.spec.containers[0].env) == 2
+
+
+@patch('chaosk8s.deployment.actions.client', autospec=True)
+def test_trigger_rollout_twice_only_adds_one_env_var(client):
+    v1 = MagicMock()
+    client.AppsV1Api.return_value = v1
+    deployment_mock = MagicMock()
+    container_mock = MagicMock()
+    container_mock.env = [MagicMock()]
+    deployment_mock.spec.template.spec.containers = [container_mock]
+    v1.read_namespaced_deployment.return_value = deployment_mock
+
+    def replace_namespaced_deployment(name, ns, d):
+        nonlocal deployment_mock
+        deployment_mock = d
+
+    v1.replace_namespaced_deployment = replace_namespaced_deployment
+
+    trigger_rollout("deployment_name", "default")
+    trigger_rollout("deployment_name", "default")
+
+    assert len(deployment_mock.spec.template.spec.containers) == 1
+    assert len(deployment_mock.spec.template.spec.containers[0].env) == 2
 
 
 @patch('chaosk8s.deployment.actions.create_k8s_api_client', autospec=True)
