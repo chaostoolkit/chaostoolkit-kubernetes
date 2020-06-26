@@ -282,7 +282,7 @@ def drain_nodes(name: str = None, label_selector: str = None,
                              "node '{}'".format(name, node_name))
                 continue
 
-            if any(filter(lambda v: v.empty_dir is not None, volumes)):
+            if volumes and any(filter(lambda v: v.empty_dir is not None, volumes)):
                 logger.debug(
                     "Pod '{}' on node '{}' has a volume made "
                     "of a local storage".format(name, node_name))
