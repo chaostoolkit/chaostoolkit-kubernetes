@@ -242,7 +242,7 @@ def test_fetch_last_logs(cl, client, has_conf):
     logs = read_microservices_logs("myapp")
 
     assert pod.metadata.name in logs
-    assert logs[pod.metadata.name] == "hello"
+    assert logs["stdout"] == "hello"
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
