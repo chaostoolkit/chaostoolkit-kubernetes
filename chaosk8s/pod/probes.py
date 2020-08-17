@@ -76,7 +76,7 @@ def read_pod_logs(name: str = None, last: Union[str, None] = None,
         name = p.metadata.name
         logger.debug("Fetching logs for pod '{n}'".format(n=name))
         r = v1.read_namespaced_pod_log(name, **params)
-        logs[name] = r.read().decode('utf-8')
+        logs[container_name or "stdout"] = r.read().decode('utf-8')
 
     return logs
 
