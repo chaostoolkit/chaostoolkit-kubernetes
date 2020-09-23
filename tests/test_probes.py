@@ -323,11 +323,11 @@ def test_fetch_last_logs(cl, client, has_conf):
 
     v1.read_namespaced_pod_log.return_value = io.BytesIO(b"hello")
 
-    logs = read_microservices_logs("myapp")
+    container_name = "mycontainer"
+    logs = read_microservices_logs(name="myapp", container_name=container_name)
 
-    assert pod.metadata.name in logs
-    assert logs[pod.metadata.name] == "hello"
-
+    assert container_name in logs
+    assert logs[container_name] == "hello"
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
 @patch('chaosk8s.service.probes.client', autospec=True)

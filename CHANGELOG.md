@@ -4,6 +4,12 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.23.0...HEAD
 
+### Changed
+
+- use container name in read_pod_logsinstead of pod's name to return logs [#95][95]
+
+[95]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/95
+
 ## [0.23.0][] - 2020-09-26
 
 [0.23.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.22.0...0.23.0
