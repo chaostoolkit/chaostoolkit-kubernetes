@@ -8,6 +8,7 @@
 
 - Add namespace to all probes and actions with backward compatibility [#39][39]  
 - Added `statefulset_is_fully_available` and `statefulset_is_not_fully_available` [#86][86].
+- Add custom resource objects actions and probes
 
 [39]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/39
 [86]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/86
