@@ -113,3 +113,5 @@ junit-test-results.xml
 .DS_Store
 
 .idea/
+.chaosiq
+journal.json
