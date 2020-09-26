@@ -1,6 +1,6 @@
 requests-mock
 coverage
 pycodestyle
-pytest>=2.8
+pytest>=6.0
 pytest-cov
 pytest-sugar

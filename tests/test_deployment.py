@@ -85,9 +85,9 @@ def test_deployment_is_fully_available_when_it_should_not(cl, client,
         None, None, None)
     watch.Watch.return_value = watcher
 
-    with pytest.raises(ActivityFailed) as excinfo:
+    with pytest.raises(ActivityFailed) as x:
         deployment_not_fully_available("mysvc")
-    assert "deployment 'mysvc' failed to stop running within" in str(excinfo)
+    assert "deployment 'mysvc' failed to stop running within" in str(x.value)
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -104,18 +104,18 @@ def test_expecting_a_healthy_microservice_should_be_reported_when_not(cl,
     v1.list_namespaced_deployment.return_value = result
     client.AppsV1beta1Api.return_value = v1
 
-    with pytest.raises(ActivityFailed) as excinfo:
+    with pytest.raises(ActivityFailed) as x:
         deployment_available_and_healthy("mysvc")
-    assert "Deployment 'mysvc' was not found" in str(excinfo)
+    assert "Deployment 'mysvc' was not found" in str(x.value)
 
     deployment = MagicMock()
     deployment.spec.replicas = 2
     deployment.status.available_replicas = 1
     result.items.append(deployment)
 
-    with pytest.raises(ActivityFailed) as excinfo:
+    with pytest.raises(ActivityFailed) as x:
         deployment_available_and_healthy("mysvc")
-    assert "Deployment 'mysvc' is not healthy" in str(excinfo)
+    assert "Deployment 'mysvc' is not healthy" in str(x.value)
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -157,9 +157,9 @@ def test_deployment_is_fully_available_when_it_should_not(cl, client,
         None, None, None)
     watch.Watch.return_value = watcher
 
-    with pytest.raises(ActivityFailed) as excinfo:
+    with pytest.raises(ActivityFailed) as x:
         deployment_not_fully_available("mysvc")
-    assert "deployment 'mysvc' failed to stop running within" in str(excinfo)
+    assert "deployment 'mysvc' failed to stop running within" in str(x.value)
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -197,6 +197,6 @@ def test_deployment_is_not_fully_available_when_it_should(cl, client,
         None, None, None)
     watch.Watch.return_value = watcher
 
-    with pytest.raises(ActivityFailed) as excinfo:
+    with pytest.raises(ActivityFailed) as x:
         deployment_fully_available("mysvc")
-    assert "deployment 'mysvc' failed to recover within" in str(excinfo)
+    assert "deployment 'mysvc' failed to recover within" in str(x.value)
