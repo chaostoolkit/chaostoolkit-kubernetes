@@ -361,7 +361,7 @@ def test_killing_microservice_deletes_deployment(cl, client, has_conf):
     has_conf.return_value = False
 
     v1 = MagicMock()
-    client.AppsV1beta1Api.return_value = v1
+    client.AppsV1Api.return_value = v1
 
     body = MagicMock()
     client.V1DeleteOptions.return_value = body
