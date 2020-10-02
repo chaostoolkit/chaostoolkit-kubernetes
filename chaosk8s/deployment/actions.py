@@ -31,7 +31,7 @@ def create_deployment(spec_path: str, ns: str = "default",
             raise ActivityFailed(
                 "cannot process {path}".format(path=spec_path))
 
-    v1 = client.AppsV1beta1Api(api)
+    v1 = client.AppsV1Api(api)
     resp = v1.create_namespaced_deployment(ns, body=deployment)
 
 
@@ -49,7 +49,7 @@ def delete_deployment(name: str, ns: str = "default",
     label_selector = label_selector.format(name=name)
     api = create_k8s_api_client(secrets)
 
-    v1 = client.AppsV1beta1Api(api)
+    v1 = client.AppsV1Api(api)
     if label_selector:
         ret = v1.list_namespaced_deployment(ns, label_selector=label_selector)
     else:

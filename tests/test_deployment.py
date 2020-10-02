@@ -27,7 +27,7 @@ def test_cannot_process_other_than_yaml_and_json(has_conf):
 @patch('chaosk8s.deployment.actions.client', autospec=True)
 def test_create_deployment(client, api, json, open):
     v1 = MagicMock()
-    client.AppsV1beta1Api.return_value = v1
+    client.AppsV1Api.return_value = v1
     json.loads.return_value = {"Kind": "Deployment"}
 
     create_deployment(spec_path="depl.json")
@@ -41,7 +41,7 @@ def test_delete_deployment(client, api):
     depl1 = V1Deployment(metadata=V1ObjectMeta(name="depl1"))
     depl2 = V1Deployment(metadata=V1ObjectMeta(name="depl2"))
     v1 = MagicMock()
-    client.AppsV1beta1Api.return_value = v1
+    client.AppsV1Api.return_value = v1
     v1.list_namespaced_deployment.return_value = V1DeploymentList(items=(depl1, depl2))
 
     delete_deployment("fake_name", "fake_ns")
@@ -102,7 +102,7 @@ def test_expecting_a_healthy_microservice_should_be_reported_when_not(cl,
 
     v1 = MagicMock()
     v1.list_namespaced_deployment.return_value = result
-    client.AppsV1beta1Api.return_value = v1
+    client.AppsV1Api.return_value = v1
 
     with pytest.raises(ActivityFailed) as x:
         deployment_available_and_healthy("mysvc")
@@ -130,7 +130,7 @@ def test_expecting_a_healthy_microservice(cl,
 
     v1 = MagicMock()
     v1.list_namespaced_deployment.return_value = result
-    client.AppsV1beta1Api.return_value = v1
+    client.AppsV1Api.return_value = v1
 
     deployment = MagicMock()
     deployment.spec.replicas = 2
