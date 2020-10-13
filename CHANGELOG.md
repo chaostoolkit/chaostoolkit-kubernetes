@@ -4,6 +4,14 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.23.0...HEAD
 
+### Changed
+
+- Moved to stable API channel for deployment calls [#103][103] as they beta
+  channels have been [deprecated][oldapi] for a while now.
+
+[103]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/103
+[oldapi]: https://cloud.google.com/kubernetes-engine/docs/release-notes#deprecated-apis-1-16
+
 ## [0.23.0][] - 2020-09-26
 
 [0.23.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.22.0...0.23.0
