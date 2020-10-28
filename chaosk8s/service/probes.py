@@ -26,8 +26,8 @@ def service_is_initialized(name: str = None, ns: str = "default",
 
     if name and not label_selector:
         logger.debug("Filtering services by name %s".format(name))
-        ret = v1.list_namespaced_service(ns,
-            field_selector="metadata.name={}".format(name))
+        ret = v1.list_namespaced_service(
+            ns, field_selector="metadata.name={}".format(name))
         logger.debug("Found {d} service(s) named '{n}' in ns '{s}'".format(
             d=len(ret.items), n=name, s=ns))
     elif label_selector and not name:
@@ -39,13 +39,13 @@ def service_is_initialized(name: str = None, ns: str = "default",
         logger.debug(
             "Filtering services by name %s and label %s".format(
                 name, label_selector))
-        ret = v1.list_namespaced_service(ns,
-            field_selector="metadata.name={}".format(name),
+        ret = v1.list_namespaced_service(
+            ns, field_selector="metadata.name={}".format(name),
             label_selector=label_selector)
         logger.debug(
             "Found {d} service(s) named '{n}' and labelled '{l}' "
-            "in ns '{s}'".format(d=len(ret.items), n=name, l=label_selector,
-            s=ns))
+            "in ns '{s}'".format(
+                d=len(ret.items), n=name, l=label_selector, s=ns))
     else:
         ret = v1.list_namespaced_service(ns)
         logger.debug("Found {d} service(s) in ns '{s}'".format(
