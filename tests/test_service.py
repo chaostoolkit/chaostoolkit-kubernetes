@@ -86,6 +86,9 @@ def test_expecting_service_should_be_initialized(cl, client,
     client.CoreV1Api.return_value = v1
 
     assert service_is_initialized("mysvc") is True
+    v1.list_namespaced_service.assert_called_with(
+        "default", field_selector="metadata.name=mysvc"
+    )
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
@@ -103,5 +106,6 @@ def test_can_select_by_label(cl, client, has_conf):
     label_selector = "app=my-super-app"
     service_is_initialized("mysvc", label_selector=label_selector)
     v1.list_namespaced_service.assert_called_with(
-        "default", label_selector=label_selector
+        "default", field_selector="metadata.name=mysvc",
+        label_selector=label_selector
     )

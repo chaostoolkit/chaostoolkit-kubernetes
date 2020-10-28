@@ -344,7 +344,8 @@ def test_can_select_by_label(cl, client, has_conf):
     label_selector = "app=my-super-app"
     service_endpoint_is_initialized("mysvc", label_selector=label_selector)
     v1.list_namespaced_service.assert_called_with(
-        "default", label_selector=label_selector
+        "default", field_selector="metadata.name=mysvc",
+        label_selector=label_selector
     )
 
 
