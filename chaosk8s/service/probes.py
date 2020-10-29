@@ -15,7 +15,7 @@ __all__ = ["service_is_initialized"]
 
 def service_is_initialized(name: str = None, ns: str = "default",
                            label_selector: str = None,
-                           secrets: Secrets = None):
+                           secrets: Secrets = None) -> bool:
     """
     Lookup a service endpoint by its name and raises :exc:`FailedProbe` when
     the service was not found or not initialized.

@@ -9,6 +9,7 @@
 - `service_is_initialized` can no use a name, a label_selector or both
   to find a matching service in a namespace. The name is not matched against
   labels anymore but againt field selectors. [#106][106]
+- declare return type of `service_is_initialized`
 
 [106]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/106
 
