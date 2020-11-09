@@ -60,12 +60,12 @@ def test_delete_deployment(client, api):
 @patch('chaosk8s.deployment.actions.client', autospec=True)
 def test_scale_deployment(client, api):
     v1 = MagicMock()
-    client.ExtensionsV1beta1Api.return_value = v1
+    client.AppsV1Api.return_value = v1
 
     scale_deployment("fake", 3, "fake_ns")
 
     body = {"spec": {"replicas": 3}}
-    v1.patch_namespaced_deployment_scale.assert_called_with("fake", namespace="fake_ns", body=body)
+    v1.patch_namespaced_deployment.assert_called_with(name="fake", namespace="fake_ns", body=body)
 
 
 @patch('chaosk8s.has_local_config_file', autospec=True)
