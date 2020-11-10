@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.24.1...HEAD
 
+### Changed
+
+- Fix `actions.scale_deployment` to use AppsV1Api in line with the rest of the actions.
+
 ## [0.24.1][] - 2020-10-29
 
 [0.24.1]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.24.0...0.24.1
