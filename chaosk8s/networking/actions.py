@@ -60,7 +60,7 @@ def deny_all_ingress(label_selectors: Dict[str, Any] = None,
     pod_selector = {}
     if label_selectors:
         pod_selector["matchLabels"] = label_selectors
-          
+
     create_network_policy(spec={
         "apiVersion": "networking.k8s.io/v1",
         "kind": "NetworkPolicy",
@@ -95,7 +95,7 @@ def deny_all_egress(label_selectors: Dict[str, Any] = None,
     pod_selector = {}
     if label_selectors:
         pod_selector["matchLabels"] = label_selectors
-          
+
     create_network_policy({
         "apiVersion": "networking.k8s.io/v1",
         "kind": "NetworkPolicy",
@@ -129,7 +129,7 @@ def allow_dns_access(label_selectors: Dict[str, Any] = None,
     pod_selector = {}
     if label_selectors:
         pod_selector["matchLabels"] = label_selectors
-          
+
     create_network_policy({
         "apiVersion": "networking.k8s.io/v1",
         "kind": "NetworkPolicy",
