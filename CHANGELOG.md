@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.24.1...HEAD
 
+### Added
+
+- Networking package with actions to add/remove network policies
+
 ### Changed
 
 - Fix `actions.scale_deployment` to use AppsV1Api in line with the rest of the actions.
