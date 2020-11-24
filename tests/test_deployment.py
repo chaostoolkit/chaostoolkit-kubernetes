@@ -46,6 +46,17 @@ def test_delete_deployment(client, api):
 
     delete_deployment("fake_name", "fake_ns")
 
+    v1.list_namespaced_deployment.assert_called_with("fake_ns", field_selector=ANY)
+    v1.delete_namespaced_deployment.assert_has_calls(
+        calls=[
+            call(depl1.metadata.name, "fake_ns", body=ANY),
+            call(depl2.metadata.name, "fake_ns", body=ANY)
+        ],
+        any_order=True
+    )
+
+    delete_deployment("fake_name", "fake_ns", "fake_label_selector")
+
     v1.list_namespaced_deployment.assert_called_with("fake_ns", label_selector=ANY)
     v1.delete_namespaced_deployment.assert_has_calls(
         calls=[

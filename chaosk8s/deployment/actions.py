@@ -36,7 +36,7 @@ def create_deployment(spec_path: str, ns: str = "default",
 
 
 def delete_deployment(name: str, ns: str = "default",
-                      label_selector: str = "name in ({name})",
+                      label_selector: str = None,
                       secrets: Secrets = None):
     """
     Delete a deployment by `name` in the namespace `ns`.
@@ -46,14 +46,14 @@ def delete_deployment(name: str, ns: str = "default",
 
     The selected resources are matched by the given `label_selector`.
     """
-    label_selector = label_selector.format(name=name)
     api = create_k8s_api_client(secrets)
 
     v1 = client.AppsV1Api(api)
     if label_selector:
         ret = v1.list_namespaced_deployment(ns, label_selector=label_selector)
     else:
-        ret = v1.list_namespaced_deployment(ns)
+        field_selector = "metadata.name={}".format(name)
+        ret = v1.list_namespaced_deployment(ns, field_selector=field_selector)
 
     logger.debug("Found {d} deployments named '{n}'".format(
         d=len(ret.items), n=name))
