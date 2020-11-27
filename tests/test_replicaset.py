@@ -19,7 +19,8 @@ def test_create_deployment(client, api):
 
     delete_replica_set("fake", "fake_ns")
 
-    v1.list_namespaced_replica_set.assert_called_with("fake_ns", label_selector="name in (fake)")
+    v1.list_namespaced_replica_set.assert_called_with(
+        "fake_ns", field_selector="metadata.name=fake")
     v1.delete_namespaced_replica_set.assert_has_calls(
         [
             call("repl1", "fake_ns", body=ANY),

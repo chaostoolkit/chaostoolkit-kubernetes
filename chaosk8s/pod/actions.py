@@ -225,21 +225,24 @@ def _select_pods(v1: client.CoreV1Api = None, label_selector: str = None,
     return pods
 
 
-def delete_pods(name: str, ns: str = "default",
-                label_selector: str = "name in ({name})",
+def delete_pods(name: str = None, ns: str = "default",
+                label_selector: str = None,
                 secrets: Secrets = None):
     """
-    Delete pods by `name` in the namespace `ns`.
+    Delete pods by `name` or `label_selector` in the namespace `ns`.
 
     The pods are deleted without a graceful period to trigger an abrupt
     termination.
 
-    The selected resources are matched by the given `label_selector`.
+    If neither of `name` and `label_selector` is specified, all the pods will
+    be deleted in the namespace.
     """
-    label_selector = label_selector.format(name=name)
     api = create_k8s_api_client(secrets)
     v1 = client.CoreV1Api(api)
-    if label_selector:
+    if name:
+        ret = v1.list_namespaced_pod(
+            ns, field_selector="metadata.name={}".format(name))
+    elif label_selector:
         ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
     else:
         ret = v1.list_namespaced_pod(ns)
