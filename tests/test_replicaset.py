@@ -8,7 +8,7 @@ from chaosk8s.replicaset.actions import delete_replica_set
 
 @patch('chaosk8s.replicaset.actions.create_k8s_api_client', autospec=True)
 @patch('chaosk8s.replicaset.actions.client', autospec=True)
-def test_create_deployment(client, api):
+def test_delete_replica_set(client, api):
     v1 = MagicMock()
     client.ExtensionsV1beta1Api.return_value = v1
 
@@ -19,7 +19,8 @@ def test_create_deployment(client, api):
 
     delete_replica_set("fake", "fake_ns")
 
-    v1.list_namespaced_replica_set.assert_called_with("fake_ns", label_selector="name in (fake)")
+    v1.list_namespaced_replica_set.assert_called_with(
+        "fake_ns", field_selector="metadata.name=fake")
     v1.delete_namespaced_replica_set.assert_has_calls(
         [
             call("repl1", "fake_ns", body=ANY),

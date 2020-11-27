@@ -57,24 +57,25 @@ def scale_statefulset(name: str, replicas: int, ns: str = "default",
 def remove_statefulset(name: str = None, ns: str = "default",
                        label_selector: str = None, secrets: Secrets = None):
     """
-    Remove a statefulset by `name` in the namespace `ns`.
+    Remove a statefulset by `name` or `label_selector` in the namespace `ns`.
 
     The statefulset is removed by deleting it without
         a graceful period to trigger an abrupt termination.
 
-    The selected resources are matched by the given `label_selector`.
+    If neither `name` nor `label_selector` is specified, all the statefulsets
+    will be deleted in the namespace.
     """
-    field_selector = "metadata.name={name}".format(name=name)
     api = create_k8s_api_client(secrets)
 
     v1 = client.AppsV1Api(api)
-    if label_selector:
+    if name:
         ret = v1.list_namespaced_stateful_set(
-            ns, field_selector=field_selector,
-            label_selector=label_selector)
+            ns, field_selector="metadata.name={}".format(name))
+    elif label_selector:
+        ret = v1.list_namespaced_stateful_set(
+            ns, label_selector=label_selector)
     else:
-        ret = v1.list_namespaced_stateful_set(ns,
-                                              field_selector=field_selector)
+        ret = v1.list_namespaced_stateful_set(ns)
 
     logger.debug("Found {d} statefulset(s) named '{n}' in ns '{s}'".format(
         d=len(ret.items), n=name, s=ns))

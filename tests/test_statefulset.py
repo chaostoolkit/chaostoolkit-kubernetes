@@ -42,6 +42,8 @@ def test_removing_statefulset_with_name(cl, client, has_conf):
 
     remove_statefulset("mystatefulset")
 
+    v1.list_namespaced_stateful_set.assert_called_with(
+        "default", field_selector="metadata.name=mystatefulset")
     assert v1.delete_namespaced_stateful_set.call_count == 1
     v1.delete_namespaced_stateful_set.assert_called_with(
         "mystatefulset", "default", body=ANY)
@@ -63,8 +65,10 @@ def test_removing_statefulset_with_label_selector(cl, client, has_conf):
     v1.list_namespaced_stateful_set.return_value = result
 
     label_selector = "app=my-super-app"
-    remove_statefulset("mystatefulset", label_selector=label_selector)
+    remove_statefulset(label_selector=label_selector)
 
+    v1.list_namespaced_stateful_set.assert_called_with(
+        "default", label_selector=label_selector)
     assert v1.delete_namespaced_stateful_set.call_count == 1
     v1.delete_namespaced_stateful_set.assert_called_with(
         "mystatefulset", "default", body=ANY)
