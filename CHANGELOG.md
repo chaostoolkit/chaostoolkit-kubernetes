@@ -2,7 +2,17 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.25.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.25.1...HEAD
+
+## [0.25.1][] - 2021-02-05
+
+[0.25.1]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.25.0...0.25.1
+
+### Changed
+
+- Fixed regex lookup pattern to match substring in `p.metadata.name` as described in [#114][114].
+
+[114]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/114
 
 ## [0.25.0][] - 2020-11-23
 
