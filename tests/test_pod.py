@@ -1353,3 +1353,89 @@ def test_succeeded_and_running_pods_should_be_considered_healthy(cl, client,
     assert health
 
 
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.pod.actions.client', autospec=True)
+@patch('chaosk8s.client')
+def test_terminate_pods_by_name_with_prefix_pattern(cl, client, has_conf):
+    has_conf.return_value = False
+    pod = MagicMock()
+    pod.metadata.name = "some-random-string-my-app-1"
+
+    pod2 = MagicMock()
+    pod2.metadata.name = "some-db"
+
+    result = MagicMock()
+    result.items = [pod, pod2]
+
+    v1 = MagicMock()
+    v1.list_namespaced_pod.return_value = result
+    client.CoreV1Api.return_value = v1
+
+    terminate_pods(name_pattern="my-app-[0-9]$")
+
+    assert v1.delete_namespaced_pod.call_count == 1
+    v1.delete_namespaced_pod.assert_called_with(
+        pod.metadata.name, "default", body=ANY)
+
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.pod.actions.client', autospec=True)
+@patch('chaosk8s.client')
+def test_terminate_pods_by_name_with_prefix_pattern_all(cl, client, has_conf):
+    has_conf.return_value = False
+    pod1 = MagicMock()
+    pod1.metadata.name = "some-random-string-my-app-1"
+
+    pod2 = MagicMock()
+    pod2.metadata.name = "my-app-2"
+
+    pod3 = MagicMock()
+    pod3.metadata.name = "some-random-3-my-app-test-3"
+
+    result = MagicMock()
+    result.items = [pod1, pod2, pod3]
+
+    v1 = MagicMock()
+    v1.list_namespaced_pod.return_value = result
+    client.CoreV1Api.return_value = v1
+
+    terminate_pods(name_pattern="my-app-[0-9]$", all=True)
+
+    assert v1.delete_namespaced_pod.call_count == 2
+    calls = [call(pod1.metadata.name, "default", body=ANY),
+             call(pod2.metadata.name, "default", body=ANY)]
+    v1.delete_namespaced_pod.assert_has_calls(calls, any_order=True)
+
+
+@patch('chaosk8s.has_local_config_file', autospec=True)
+@patch('chaosk8s.pod.actions.client', autospec=True)
+@patch('chaosk8s.client')
+def test_terminate_pods_by_name_with_prefix_pattern_rand(cl, client, has_conf):
+    # Patch `random.sample` to always return last items in seq
+    with patch('random.sample', side_effect=lambda seq, qty: seq[-qty:]):
+        has_conf.return_value = False
+        pod1 = MagicMock()
+        pod1.metadata.name = "some-random-1-string-my-app-1"
+
+        pod2 = MagicMock()
+        pod2.metadata.name = "my-app-2-with-prefix"
+
+        pod3 = MagicMock()
+        pod3.metadata.name = "some-random-3-my-app-3"
+
+        pod4 = MagicMock()
+        pod4.metadata.name = "my-app-test-1"
+
+        result = MagicMock()
+        result.items = [pod1, pod2, pod3, pod4]
+
+        v1 = MagicMock()
+        v1.list_namespaced_pod.return_value = result
+        client.CoreV1Api.return_value = v1
+
+        terminate_pods(name_pattern="my-app-[0-9]$", rand=True)
+
+        assert v1.delete_namespaced_pod.call_count == 1
+        v1.delete_namespaced_pod.assert_called_with(
+            pod3.metadata.name, "default", body=ANY)
+
