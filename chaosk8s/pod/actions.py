@@ -201,7 +201,7 @@ def _select_pods(v1: client.CoreV1Api = None, label_selector: str = None,
     if name_pattern:
         pattern = re.compile(name_pattern)
         for p in ret.items:
-            if pattern.match(p.metadata.name):
+            if pattern.search(p.metadata.name):
                 pods.append(p)
                 logger.debug("Pod '{p}' match pattern".format(
                     p=p.metadata.name))
