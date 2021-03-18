@@ -13,7 +13,8 @@ from chaosk8s.pod.probes import read_pod_logs
 
 __all__ = ["deployment_available_and_healthy",
            "deployment_not_fully_available",
-           "deployment_fully_available"]
+           "deployment_fully_available",
+           "deployment_partially_available"]
 
 
 def deployment_available_and_healthy(
@@ -55,6 +56,45 @@ def deployment_available_and_healthy(
                 "Deployment '{name}' is not healthy".format(name=name))
 
     return True
+
+
+def deployment_partially_available(
+        name: str, ns: str = "default",
+        label_selector: str = None,
+        secrets: Secrets = None) -> Union[bool, None]:
+    """
+    Check whether if the given deployment state is ready or at-least partially
+    ready.
+    Raises :exc:`chaoslib.exceptions.ActivityFailed` when the state is not
+    as expected.
+    """
+
+    field_selector = "metadata.name={name}".format(name=name)
+    api = create_k8s_api_client(secrets)
+
+    v1 = client.AppsV1Api(api)
+    if label_selector:
+        ret = v1.list_namespaced_deployment(ns, field_selector=field_selector,
+                                            label_selector=label_selector)
+    else:
+        ret = v1.list_namespaced_deployment(ns, field_selector=field_selector)
+
+    logger.debug("Found {d} deployment(s) named '{n}' in ns '{s}'".format(
+        d=len(ret.items), n=name, s=ns))
+
+    if not ret.items:
+        raise ActivityFailed(
+            "Deployment '{name}' was not found".format(name=name))
+
+    for d in ret.items:
+        logger.debug("Deployment has '{s}' available replicas".format(
+            s=d.status.available_replicas))
+
+        if d.status.available_replicas >= 1:
+            return True
+        else:
+            raise ActivityFailed(
+                "Deployment '{name}' is not healthy".format(name=name))
 
 
 def _deployment_readiness_has_state(
