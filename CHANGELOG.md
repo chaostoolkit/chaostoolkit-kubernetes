@@ -14,6 +14,7 @@
 
 ### Changed
 
+- Client have logging at debug level with `KUBERNETES_DEBUG`
 - Allow to not verify Kubernetes certificates even when using the default
   config or the one from a pod. This is useful when Kubernetes is deployed with
   a self-signed certificate.
