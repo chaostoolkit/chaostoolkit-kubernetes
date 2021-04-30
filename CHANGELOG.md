@@ -4,6 +4,24 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.25.1...HEAD
 
+### Added
+
+- Added probe `deployment_partially_available` in the `deployment` module 
+  to return if a deployment has some of its pods ready, making the deployment
+  at available (without requiring all pods to be healthy) [#117][117]
+
+[117]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/117
+
+### Changed
+
+- Passing name via `label_selector` has now moved to using the metadata of the
+  resource [#111][111]
+- Terminating pods now return the name of the pods that were actually deleted
+  [#104][104]
+
+[104]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/104
+[111]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/111
+
 ## [0.25.1][] - 2021-02-05
 
 [0.25.1]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.25.0...0.25.1
