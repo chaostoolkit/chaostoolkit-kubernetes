@@ -60,21 +60,26 @@ def create_k8s_api_client(secrets: Secrets = None) -> client.ApiClient:
     def lookup(k: str, d: str = None) -> str:
         return secrets.get(k, env.get(k, d))
 
+    verify_ssl = lookup("KUBERNETES_VERIFY_SSL", False) is not False
+
     if has_local_config_file():
         context = lookup("KUBERNETES_CONTEXT")
         logger.debug("Using Kubernetes context: {}".format(
             context or "default"))
 
         config.load_kube_config(context=context)
+        client.Configuration.verify_ssl = verify_ssl
 
         proxy_url = os.getenv('HTTP_PROXY', None)
         if proxy_url:
             client.Configuration._default.proxy = proxy_url
 
+
         return client.ApiClient()
 
     elif env.get("CHAOSTOOLKIT_IN_POD") == "true":
         config.load_incluster_config()
+        client.Configuration.verify_ssl = verify_ssl
 
         proxy_url = os.getenv('HTTP_PROXY', None)
         if proxy_url:

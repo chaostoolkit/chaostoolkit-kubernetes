@@ -14,6 +14,9 @@
 
 ### Changed
 
+- Allow to not verify Kubernetes certificates even when using the default
+  config or the one from a pod. This is useful when Kubernetes is deployed with
+  a self-signed certificate.
 - Passing name via `label_selector` has now moved to using the metadata of the
   resource [#111][111]
 - Terminating pods now return the name of the pods that were actually deleted
