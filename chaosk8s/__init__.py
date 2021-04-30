@@ -14,9 +14,12 @@ __all__ = ["create_k8s_api_client", "discover", "__version__"]
 __version__ = '0.25.1'
 
 
-def has_local_config_file():
-    config_path = os.path.expanduser(
-        os.environ.get('KUBECONFIG', '~/.kube/config'))
+def get_config_path() -> str:
+    return os.path.expanduser(os.environ.get('KUBECONFIG', '~/.kube/config'))
+
+
+def has_local_config_file(config_file: str = None):
+    config_path = config_file or get_config_path()
     return os.path.exists(config_path)
 
 
@@ -62,11 +65,13 @@ def create_k8s_api_client(secrets: Secrets = None) -> client.ApiClient:
 
     verify_ssl = lookup("KUBERNETES_VERIFY_SSL", False) is not False
     debug = lookup("KUBERNETES_DEBUG", False) is not False
+    config_file = get_config_path()
 
-    if has_local_config_file():
+    if has_local_config_file(config_file):
         context = lookup("KUBERNETES_CONTEXT")
-        logger.debug("Using Kubernetes context: {}".format(
-            context or "default"))
+        logger.debug(
+            "Using Kubernetes context '{}' from config '{}'".format(
+                context or "default", config_file))
 
         config.load_kube_config(context=context)
         client.Configuration.verify_ssl = verify_ssl
