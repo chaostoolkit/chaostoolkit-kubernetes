@@ -17,6 +17,8 @@ from logzero import logger
 
 from chaosk8s import create_k8s_api_client
 
+import shlex
+
 __all__ = ["terminate_pods", "exec_in_pods", "delete_pods"]
 
 
@@ -112,7 +114,7 @@ def exec_in_pods(cmd: str,
     pods = _select_pods(v1, label_selector, name_pattern,
                         all, rand, mode, qty, ns, order)
 
-    exec_command = cmd.strip().split()
+    exec_command = shlex.split(cmd)
 
     results = []
     for po in pods:
@@ -138,7 +140,16 @@ def exec_in_pods(cmd: str,
 
         resp.run_forever(timeout=request_timeout)
 
-        err = json.loads(resp.read_channel(ERROR_CHANNEL))
+        # When timeout_request is triggered, resp.read_channel(ERROR_CHANNEL)
+        # could return a None object
+        try:
+            err = json.loads(resp.read_channel(ERROR_CHANNEL))
+        except Exception:
+            err = json.loads('{"status": "Timedout", \
+                            "message": "Action has been timed out",\
+                            "details": {"causes": \
+                            [{"message": "Action stopped by timeout"}]}}')
+
         out = resp.read_channel(STDOUT_CHANNEL)
 
         if err['status'] != "Success":
