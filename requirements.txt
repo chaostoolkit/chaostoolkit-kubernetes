@@ -3,4 +3,3 @@ kubernetes
 logzero
 chaostoolkit-lib>=0.20.0
 pyyaml
-shlex
