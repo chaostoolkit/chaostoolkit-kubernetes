@@ -61,7 +61,7 @@ def _statefulset_readiness_has_state(name: str, ready: bool,
                     p=statefulset.metadata.name, t=event["type"],
                     r=status.ready_replicas,
                     a=spec.replicas,
-                    u=status.unavailable_replicas))
+                    u=spec.replicas - status.ready_replicas))
 
             readiness = status.ready_replicas == spec.replicas
             if ready == readiness:
