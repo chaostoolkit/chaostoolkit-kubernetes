@@ -74,6 +74,12 @@
 [103]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/103
 [oldapi]: https://cloud.google.com/kubernetes-engine/docs/release-notes#deprecated-apis-1-16
 
+### Changed
+
+- use container name in read_pod_logsinstead of pod's name to return logs [#95][95]
+
+[95]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/95
+
 ## [0.23.0][] - 2020-09-26
 
 [0.23.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.22.0...0.23.0

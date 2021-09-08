@@ -59,24 +59,37 @@ def read_pod_logs(name: str = None, last: Union[str, None] = None,
         now = datetime.now()
         since = int((now - dateparser.parse(last)).total_seconds())
 
-    params = dict(
-        namespace=ns,
-        follow=False,
-        previous=from_previous,
-        timestamps=True,
-        container=container_name or "",  # None is not a valid value
-        _preload_content=False
-    )
-
-    if since:
-        params["since_seconds"] = since
-
     logs = {}
+
     for p in ret.items:
-        name = p.metadata.name
-        logger.debug("Fetching logs for pod '{n}'".format(n=name))
-        r = v1.read_namespaced_pod_log(name, **params)
-        logs[name] = r.read().decode('utf-8')
+        # Retreive either logs for specific container
+        # or for all containers at once if not ptovided.
+        container_names = []
+        if container_name:
+            container_names.append(container_name)
+        else:
+            container_names = [c.name
+                               for i, c
+                               in enumerate(p.status.container_statuses)]
+
+        for cname in container_names:
+            params = dict(
+                namespace=ns,
+                follow=False,
+                previous=from_previous,
+                timestamps=True,
+                container=cname,
+                _preload_content=False
+            )
+            if since:
+                params["since_seconds"] = since
+
+            name = p.metadata.name
+            logger.debug("Fetching logs for pod '{n}' container {c}"
+                         .format(n=name, c=cname))
+
+            r = v1.read_namespaced_pod_log(name, **params)
+            logs[cname] = r.read().decode('utf-8')
 
     return logs
 
