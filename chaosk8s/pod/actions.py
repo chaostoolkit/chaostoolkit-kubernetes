@@ -15,9 +15,9 @@ from kubernetes.stream.ws_client import STDOUT_CHANNEL
 from kubernetes.client.models.v1_pod import V1Pod
 from logzero import logger
 
-from chaosk8s import create_k8s_api_client
+from chaosk8s import _log_deprecated, create_k8s_api_client
 
-__all__ = ["terminate_pods", "exec_in_pods", "delete_pods"]
+__all__ = ["terminate_pods", "exec_in_pods"]
 
 
 def terminate_pods(label_selector: str = None, name_pattern: str = None,
@@ -234,25 +234,9 @@ def delete_pods(name: str = None, ns: str = "default",
     """
     Delete pods by `name` or `label_selector` in the namespace `ns`.
 
-    The pods are deleted without a graceful period to trigger an abrupt
-    termination.
-
-    If neither of `name` and `label_selector` is specified, all the pods will
-    be deleted in the namespace.
+    This action has been deprecated in favor of `terminate_pods`.
     """
-    api = create_k8s_api_client(secrets)
-    v1 = client.CoreV1Api(api)
-    if name:
-        ret = v1.list_namespaced_pod(
-            ns, field_selector="metadata.name={}".format(name))
-    elif label_selector:
-        ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
-    else:
-        ret = v1.list_namespaced_pod(ns)
-
-    logger.debug("Found {d} pods named '{n}'".format(
-        d=len(ret.items), n=name))
-
-    body = client.V1DeleteOptions()
-    for p in ret.items:
-        v1.delete_namespaced_pod(p.metadata.name, ns, body=body)
+    _log_deprecated("delete_pods", "terminate_pods")
+    return terminate_pods(
+        name_pattern=name, label_selector=label_selector, ns=ns,
+        secrets=secrets)

@@ -23,9 +23,12 @@
   resource [#111][111]
 - Terminating pods now return the name of the pods that were actually deleted
   [#104][104]
+- Deprecated `chaosk8s.pod.actions.delete_pods` in favor to
+  `chaosk8s.pod.actions.terminate_pods` [#122][122]
 
 [104]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/104
 [111]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/111
+[122]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/122 
 
 ## [0.25.1][] - 2021-02-05
 
