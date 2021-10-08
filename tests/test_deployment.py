@@ -152,26 +152,6 @@ def test_expecting_a_healthy_microservice(cl, client, has_conf):
 @patch("chaosk8s.deployment.probes.watch", autospec=True)
 @patch("chaosk8s.deployment.probes.client", autospec=True)
 @patch("chaosk8s.client")
-def test_deployment_is_fully_available_when_it_should_not(cl, client, watch, has_conf):
-    has_conf.return_value = False
-    deployment = MagicMock()
-    deployment.spec.replicas = 2
-    deployment.status.ready_replicas = 2
-
-    watcher = MagicMock()
-    watcher.stream = MagicMock()
-    watcher.stream.side_effect = urllib3.exceptions.ReadTimeoutError(None, None, None)
-    watch.Watch.return_value = watcher
-
-    with pytest.raises(ActivityFailed) as x:
-        deployment_not_fully_available("mysvc")
-    assert "deployment 'mysvc' failed to stop running within" in str(x.value)
-
-
-@patch("chaosk8s.has_local_config_file", autospec=True)
-@patch("chaosk8s.deployment.probes.watch", autospec=True)
-@patch("chaosk8s.deployment.probes.client", autospec=True)
-@patch("chaosk8s.client")
 def test_deployment_is_fully_available(cl, client, watch, has_conf):
     has_conf.return_value = False
     deployment = MagicMock()
