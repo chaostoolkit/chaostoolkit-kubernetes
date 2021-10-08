@@ -835,7 +835,6 @@ def test_exec_in_pods_using_pod_label_selector(cl, client, has_conf):
     container2.name = "container2"
     container2.metadata.labels = {
         "dummy_label1": "dummy_value1",
-        "dummy_label1": "dummy_value2",
     }
 
     pod1 = MagicMock()
@@ -880,7 +879,6 @@ def test_exec_in_pods_return_value(cl, client, has_conf):
     container2.name = "container2"
     container2.metadata.labels = {
         "dummy_label1": "dummy_value1",
-        "dummy_label1": "dummy_value2",
     }
 
     pod1 = MagicMock()
