@@ -9,7 +9,7 @@ from chaosk8s.replicaset.actions import delete_replica_set
 @patch("chaosk8s.replicaset.actions.client", autospec=True)
 def test_delete_replica_set(client, api):
     v1 = MagicMock()
-    client.ExtensionsV1beta1Api.return_value = v1
+    client.AppsV1Api.return_value = v1
 
     v1.list_namespaced_replica_set.return_value = V1ReplicaSetList(
         items=(

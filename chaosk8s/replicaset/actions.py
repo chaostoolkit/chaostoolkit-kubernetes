@@ -23,7 +23,7 @@ def delete_replica_set(
     will be deleted in the namespace.
     """
     api = create_k8s_api_client(secrets)
-    v1 = client.ExtensionsV1beta1Api(api)
+    v1 = client.AppsV1Api(api)
     if name:
         ret = v1.list_namespaced_replica_set(ns, field_selector=f"metadata.name={name}")
     elif label_selector:

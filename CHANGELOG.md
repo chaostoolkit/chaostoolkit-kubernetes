@@ -19,6 +19,11 @@ of `pycodestyle`
 - Applied `pyupgrade --py36-plus` across codebase
 - Applied new formatting libs across codebase
 
+### Fixed
+
+- Fixed issue in `replicaset.actions.delete_replica_set`: `'ExtensionsV1beta1Api' object has no attribute 'list_namespaced_replica_set'`,
+we now use the `AppsV1Api` API
+
 ### Removed
 
 - Removed lots of duplicate tests which offered no different exercising of the code
