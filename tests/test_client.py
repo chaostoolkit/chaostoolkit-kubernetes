@@ -37,26 +37,19 @@ def test_client_can_be_created_from_secrets(has_conf):
 
 @patch("chaosk8s.has_local_config_file", autospec=True)
 @patch("chaosk8s.config.load_incluster_config", autospec=True)
-def test_client_can_be_created_from_secrets(load_incluster_config, has_conf):
-    os.environ["CHAOSTOOLKIT_IN_POD"] = "true"
-
-    try:
-        has_conf.return_value = False
-        load_incluster_config.return_value = None
-        api = create_k8s_api_client()
-        load_incluster_config.assert_called_once_with()
-    finally:
-        os.environ.pop("CHAOSTOOLKIT_IN_POD", None)
+@patch.dict(os.environ, {"CHAOSTOOLKIT_IN_POD": "true"})
+def test_client_can_be_created_when_ctk_in_prod(load_incluster_config, has_conf):
+    has_conf.return_value = False
+    load_incluster_config.return_value = None
+    _ = create_k8s_api_client()
+    load_incluster_config.assert_called_once_with()
 
 
 @patch("chaosk8s.has_local_config_file", autospec=True)
 @patch("chaosk8s.config", autospec=True)
+@patch.dict(os.environ, {"KUBERNETES_CONTEXT": "minikube"})
 def test_client_can_provide_a_context(cfg, has_conf):
     has_conf.return_value = True
     cfg.load_kube_config = MagicMock()
-    try:
-        os.environ.update({"KUBERNETES_CONTEXT": "minikube"})
-        api = create_k8s_api_client()
-        cfg.load_kube_config.assert_called_with(context="minikube")
-    finally:
-        os.environ.pop("KUBERNETES_CONTEXT", None)
+    _ = create_k8s_api_client()
+    cfg.load_kube_config.assert_called_with(context="minikube")
