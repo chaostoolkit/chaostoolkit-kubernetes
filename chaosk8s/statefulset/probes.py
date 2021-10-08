@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from functools import partial
-from typing import Union
 
 import urllib3
 from chaoslib.exceptions import ActivityFailed

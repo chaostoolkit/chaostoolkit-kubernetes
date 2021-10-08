@@ -9,7 +9,6 @@ from kubernetes import client, watch
 from logzero import logger
 
 from chaosk8s import create_k8s_api_client
-from chaosk8s.pod.probes import read_pod_logs
 
 __all__ = [
     "deployment_available_and_healthy",

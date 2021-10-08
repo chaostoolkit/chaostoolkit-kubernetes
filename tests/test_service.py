@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from unittest.mock import ANY, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from chaoslib.exceptions import ActivityFailed

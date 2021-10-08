@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
-from typing import Union
-
-import urllib3
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
-from kubernetes import client, watch
+from kubernetes import client
 from logzero import logger
 
 from chaosk8s import create_k8s_api_client
-from chaosk8s.pod.probes import pod_is_not_available, read_pod_logs
 
 __all__ = ["service_is_initialized"]
 
@@ -28,7 +24,7 @@ def service_is_initialized(
     v1 = client.CoreV1Api(api)
 
     if name and not label_selector:
-        logger.debug("Filtering services by name %s".format(name))
+        logger.debug("Filtering services by name {}".format(name))
         ret = v1.list_namespaced_service(
             ns, field_selector="metadata.name={}".format(name)
         )
@@ -38,7 +34,7 @@ def service_is_initialized(
             )
         )
     elif label_selector and not name:
-        logger.debug("Filtering services by label %s".format(label_selector))
+        logger.debug("Filtering services by label {}".format(label_selector))
         ret = v1.list_namespaced_service(ns, label_selector=label_selector)
         logger.debug(
             "Found {d} service(s) in ns '{s}' labelled '{l}'".format(
@@ -47,7 +43,9 @@ def service_is_initialized(
         )
     elif name and label_selector:
         logger.debug(
-            "Filtering services by name %s and label %s".format(name, label_selector)
+            "Filtering services by name {n} and label {l}}".format(
+                n=name, l=label_selector
+            )
         )
         ret = v1.list_namespaced_service(
             ns,
