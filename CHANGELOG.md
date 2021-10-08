@@ -9,6 +9,7 @@
 - Added probe `deployment_partially_available` in the `deployment` module 
   to return if a deployment has some of its pods ready, making the deployment
   at available (without requiring all pods to be healthy) [#117][117]
+- Add `build-and-test`, `check-pr`, and `release` workflows for GitHub Actions
 
 [117]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/117
 
