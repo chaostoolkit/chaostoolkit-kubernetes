@@ -59,6 +59,7 @@ jobs:
       - name: Upload wheel & source dist to GH release
         uses: ncipollo/release-action@v1
         with:
-          artifact: "dist/*.whl,dist/*.tar.gz"
+          artifacts: "dist/*.whl,dist/*.tar.gz"
+          artifact: ""
           token: ${{ secrets.GITHUB_TOKEN }}
           allowUpdates: true
