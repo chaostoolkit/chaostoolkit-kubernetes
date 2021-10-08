@@ -43,7 +43,7 @@ def service_is_initialized(
         )
     elif name and label_selector:
         logger.debug(
-            "Filtering services by name {n} and label {l}}".format(
+            "Filtering services by name {n} and label {l}".format(
                 n=name, l=label_selector
             )
         )
