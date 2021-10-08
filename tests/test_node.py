@@ -7,12 +7,18 @@ import pytest
 from chaoslib.exceptions import ActivityFailed
 from kubernetes.client.rest import ApiException
 
-from chaosk8s.actions import start_microservice, kill_microservice
-from chaosk8s.node.actions import cordon_node, create_node, delete_nodes, \
-    uncordon_node, drain_nodes
+from chaosk8s.actions import kill_microservice, start_microservice
+from chaosk8s.node.actions import (
+    cordon_node,
+    create_node,
+    delete_nodes,
+    drain_nodes,
+    uncordon_node,
+)
 from chaosk8s.node.probes import get_nodes
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
+
+@patch("chaosk8s.has_local_config_file", autospec=True)
 def test_cannot_process_other_than_yaml_and_json(has_conf):
     has_conf.return_value = False
     path = "./tests/fixtures/invalid-k8s.txt"
@@ -21,19 +27,15 @@ def test_cannot_process_other_than_yaml_and_json(has_conf):
     assert "cannot process {path}".format(path=path) in str(excinfo.value)
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.node.actions.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.node.actions.client", autospec=True)
+@patch("chaosk8s.client")
 def test_create_node(cl, client, has_conf):
     has_conf.return_value = False
 
-    meta = {
-        "cluster_name": "somevalue"
-    }
+    meta = {"cluster_name": "somevalue"}
 
-    spec = {
-        "external_id": "somemetavalue"
-    }
+    spec = {"external_id": "somemetavalue"}
 
     node = MagicMock()
     node.metadata.name = "mynode"
@@ -46,19 +48,15 @@ def test_create_node(cl, client, has_conf):
     assert res.metadata.name == "mynode"
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.node.actions.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.node.actions.client", autospec=True)
+@patch("chaosk8s.client")
 def test_create_node_may_fail(cl, client, has_conf):
     has_conf.return_value = False
 
-    meta = {
-        "cluster_name": "somevalue"
-    }
+    meta = {"cluster_name": "somevalue"}
 
-    spec = {
-        "external_id": "somemetavalue"
-    }
+    spec = {"external_id": "somemetavalue"}
 
     v1 = MagicMock()
     v1.create_node.side_effect = ApiException()
@@ -69,9 +67,9 @@ def test_create_node_may_fail(cl, client, has_conf):
     assert "Creating new node failed" in str(x.value)
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.node.actions.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.node.actions.client", autospec=True)
+@patch("chaosk8s.client")
 def test_delete_nodes(cl, client, has_conf):
     has_conf.return_value = False
 
@@ -91,13 +89,12 @@ def test_delete_nodes(cl, client, has_conf):
 
     delete_nodes(label_selector="k=mynode")
 
-    v1.delete_node.assert_called_with(
-        "mynode", body=ANY, grace_period_seconds=None)
+    v1.delete_node.assert_called_with("mynode", body=ANY, grace_period_seconds=None)
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.node.actions.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.node.actions.client", autospec=True)
+@patch("chaosk8s.client")
 def test_cordon_node_by_name(cl, client, has_conf):
     has_conf.return_value = False
 
@@ -113,18 +110,14 @@ def test_cordon_node_by_name(cl, client, has_conf):
 
     cordon_node(name="mynode")
 
-    body = {
-        "spec": {
-            "unschedulable": True
-        }
-    }
+    body = {"spec": {"unschedulable": True}}
 
     v1.patch_node.assert_called_with("mynode", body)
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.node.actions.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.node.actions.client", autospec=True)
+@patch("chaosk8s.client")
 def test_uncordon_node_by_name(cl, client, has_conf):
     has_conf.return_value = False
 
@@ -140,18 +133,14 @@ def test_uncordon_node_by_name(cl, client, has_conf):
 
     uncordon_node(name="mynode")
 
-    body = {
-        "spec": {
-            "unschedulable": False
-        }
-    }
+    body = {"spec": {"unschedulable": False}}
 
     v1.patch_node.assert_called_with("mynode", body)
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.node.actions.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.node.actions.client", autospec=True)
+@patch("chaosk8s.client")
 def test_drain_nodes_by_name(cl, client, has_conf):
     has_conf.return_value = False
 
@@ -184,19 +173,16 @@ def test_drain_nodes_by_name(cl, client, has_conf):
     new_pod.metadata.name = "apod"
     new_pod.metadata.namespace = "default"
 
-    v1.read_namespaced_pod.side_effect = [
-        pod, new_pod
-    ]
+    v1.read_namespaced_pod.side_effect = [pod, new_pod]
 
     drain_nodes(name="mynode")
 
-    v1.create_namespaced_pod_eviction.assert_called_with(
-        "apod", "default", body=ANY)
+    v1.create_namespaced_pod_eviction.assert_called_with("apod", "default", body=ANY)
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.node.actions.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.node.actions.client", autospec=True)
+@patch("chaosk8s.client")
 def test_daemonsets_cannot_be_drained(cl, client, has_conf):
     has_conf.return_value = False
 
@@ -230,9 +216,9 @@ def test_daemonsets_cannot_be_drained(cl, client, has_conf):
     v1.create_namespaced_pod_eviction.assert_not_called()
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.node.actions.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.node.actions.client", autospec=True)
+@patch("chaosk8s.client")
 def test_pod_with_local_volume_cannot_be_drained(cl, client, has_conf):
     has_conf.return_value = False
 
@@ -269,11 +255,10 @@ def test_pod_with_local_volume_cannot_be_drained(cl, client, has_conf):
     v1.create_namespaced_pod_eviction.assert_not_called()
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.node.actions.client', autospec=True)
-@patch('chaosk8s.client')
-def test_pod_with_local_volume_cannot_be_drained_unless_forced(cl, client,
-                                                               has_conf):
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.node.actions.client", autospec=True)
+@patch("chaosk8s.client")
+def test_pod_with_local_volume_cannot_be_drained_unless_forced(cl, client, has_conf):
     has_conf.return_value = False
 
     v1 = MagicMock()
@@ -305,19 +290,16 @@ def test_pod_with_local_volume_cannot_be_drained_unless_forced(cl, client,
     new_pod.metadata.name = "apod"
     new_pod.metadata.namespace = "default"
 
-    v1.read_namespaced_pod.side_effect = [
-        pod, new_pod
-    ]
+    v1.read_namespaced_pod.side_effect = [pod, new_pod]
 
     drain_nodes(name="mynode", delete_pods_with_local_storage=True)
 
-    v1.create_namespaced_pod_eviction.assert_called_with(
-        "apod", "default", body=ANY)
+    v1.create_namespaced_pod_eviction.assert_called_with("apod", "default", body=ANY)
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.node.actions.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.node.actions.client", autospec=True)
+@patch("chaosk8s.client")
 def test_mirror_pod_cannot_be_drained(cl, client, has_conf):
     has_conf.return_value = False
 
@@ -340,9 +322,7 @@ def test_mirror_pod_cannot_be_drained(cl, client, has_conf):
     pod.metadata.name = "apod"
     pod.metadata.namespace = "default"
     pod.metadata.owner_references = [owner]
-    pod.metadata.annotations = {
-        "kubernetes.io/config.mirror": "..."
-    }
+    pod.metadata.annotations = {"kubernetes.io/config.mirror": "..."}
 
     pods = MagicMock()
     pods.items = [pod]
@@ -354,9 +334,9 @@ def test_mirror_pod_cannot_be_drained(cl, client, has_conf):
     v1.create_namespaced_pod_eviction.assert_not_called()
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.deployment.actions.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.deployment.actions.client", autospec=True)
+@patch("chaosk8s.client")
 def test_killing_microservice_deletes_deployment(cl, client, has_conf):
     has_conf.return_value = False
 
@@ -374,12 +354,13 @@ def test_killing_microservice_deletes_deployment(cl, client, has_conf):
     kill_microservice("mydeployment")
 
     v1.delete_namespaced_deployment.assert_called_with(
-        "mydeployment", "default", body=body)
+        "mydeployment", "default", body=body
+    )
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.replicaset.actions.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.replicaset.actions.client", autospec=True)
+@patch("chaosk8s.client")
 def test_killing_microservice_deletes_rs(cl, client, has_conf):
     has_conf.return_value = False
 
@@ -397,12 +378,13 @@ def test_killing_microservice_deletes_rs(cl, client, has_conf):
     kill_microservice("mydeployment")
 
     v1.delete_namespaced_replica_set.assert_called_with(
-        "mydeployment", "default", body=body)
+        "mydeployment", "default", body=body
+    )
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.pod.actions.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.pod.actions.client", autospec=True)
+@patch("chaosk8s.client")
 def test_killing_microservice_deletes_pod(cl, client, has_conf):
     has_conf.return_value = False
 
@@ -419,35 +401,33 @@ def test_killing_microservice_deletes_pod(cl, client, has_conf):
 
     kill_microservice("mydeployment")
 
-    v1.delete_namespaced_pod.assert_called_with(
-        "mydeployment", "default", body=body)
+    v1.delete_namespaced_pod.assert_called_with("mydeployment", "default", body=body)
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.node.probes.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.node.probes.client", autospec=True)
+@patch("chaosk8s.client")
 def test_can_select_nodes_by_label(cl, client, has_conf):
     has_conf.return_value = False
     v1 = MagicMock()
-    v1.list_node.return_value = io.BytesIO(
-        json.dumps({"hey": "there"}).encode('utf-8'))
+    v1.list_node.return_value = io.BytesIO(json.dumps({"hey": "there"}).encode("utf-8"))
     client.CoreV1Api.return_value = v1
 
-    label_selector = 'beta.kubernetes.io/instance-type=m5.large'
+    label_selector = "beta.kubernetes.io/instance-type=m5.large"
     resp = get_nodes(label_selector=label_selector)
     v1.list_node.assert_called_with(
-        label_selector=label_selector, _preload_content=False)
+        label_selector=label_selector, _preload_content=False
+    )
     assert resp == {"hey": "there"}
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.node.probes.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.node.probes.client", autospec=True)
+@patch("chaosk8s.client")
 def test_can_select_nodes_without_label(cl, client, has_conf):
     has_conf.return_value = False
     v1 = MagicMock()
-    v1.list_node.return_value = io.BytesIO(
-        json.dumps({"hey": "there"}).encode('utf-8'))
+    v1.list_node.return_value = io.BytesIO(json.dumps({"hey": "there"}).encode("utf-8"))
     client.CoreV1Api.return_value = v1
 
     resp = get_nodes()

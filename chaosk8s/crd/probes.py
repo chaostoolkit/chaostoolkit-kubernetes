@@ -9,13 +9,22 @@ from kubernetes.client.rest import ApiException
 
 from chaosk8s import create_k8s_api_client
 
-__all__ = ["get_custom_object", "get_cluster_custom_object",
-           "list_custom_objects", "list_cluster_custom_objects"]
+__all__ = [
+    "get_custom_object",
+    "get_cluster_custom_object",
+    "list_custom_objects",
+    "list_cluster_custom_objects",
+]
 
 
-def get_custom_object(group: str, version: str, plural: str, name: str,
-                      ns: str = "default",
-                      secrets: Secrets = None) -> Dict[str, Any]:
+def get_custom_object(
+    group: str,
+    version: str,
+    plural: str,
+    name: str,
+    ns: str = "default",
+    secrets: Secrets = None,
+) -> Dict[str, Any]:
     """
     Get a custom object in the given namespace.
 
@@ -31,13 +40,13 @@ def get_custom_object(group: str, version: str, plural: str, name: str,
         return json.loads(r.data)
     except ApiException as x:
         raise ActivityFailed(
-            "Failed to create custom resource object: '{}' {}".format(
-                x.reason, x.body))
+            "Failed to create custom resource object: '{}' {}".format(x.reason, x.body)
+        )
 
 
-def list_custom_objects(group: str, version: str, plural: str,
-                        ns: str = "default",
-                        secrets: Secrets = None) -> List[Dict[str, Any]]:
+def list_custom_objects(
+    group: str, version: str, plural: str, ns: str = "default", secrets: Secrets = None
+) -> List[Dict[str, Any]]:
     """
     List custom objects in the given namespace.
 
@@ -53,12 +62,13 @@ def list_custom_objects(group: str, version: str, plural: str,
         return json.loads(r.data)
     except ApiException as x:
         raise ActivityFailed(
-            "Failed to create custom resource object: '{}' {}".format(
-                x.reason, x.body))
+            "Failed to create custom resource object: '{}' {}".format(x.reason, x.body)
+        )
 
 
-def get_cluster_custom_object(group: str, version: str, plural: str, name: str,
-                              secrets: Secrets = None) -> Dict[str, Any]:
+def get_cluster_custom_object(
+    group: str, version: str, plural: str, name: str, secrets: Secrets = None
+) -> Dict[str, Any]:
     """
     Get a custom object cluster-wide.
 
@@ -74,13 +84,13 @@ def get_cluster_custom_object(group: str, version: str, plural: str, name: str,
         return json.loads(r.data)
     except ApiException as x:
         raise ActivityFailed(
-            "Failed to create custom resource object: '{}' {}".format(
-                x.reason, x.body))
+            "Failed to create custom resource object: '{}' {}".format(x.reason, x.body)
+        )
 
 
-def list_cluster_custom_objects(group: str, version: str, plural: str,
-                                secrets: Secrets = None) \
-                                    -> List[Dict[str, Any]]:
+def list_cluster_custom_objects(
+    group: str, version: str, plural: str, secrets: Secrets = None
+) -> List[Dict[str, Any]]:
     """
     List custom objects cluster-wide.
 
@@ -96,5 +106,5 @@ def list_cluster_custom_objects(group: str, version: str, plural: str,
         return json.loads(r.data)
     except ApiException as x:
         raise ActivityFailed(
-            "Failed to create custom resource object: '{}' {}".format(
-                x.reason, x.body))
+            "Failed to create custom resource object: '{}' {}".format(x.reason, x.body)
+        )
