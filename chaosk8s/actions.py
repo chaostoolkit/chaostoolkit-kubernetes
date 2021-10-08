@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from chaoslib.types import Secrets
 
 from chaosk8s import _log_deprecated

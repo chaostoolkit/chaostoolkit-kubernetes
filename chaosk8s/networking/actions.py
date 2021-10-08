@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import json
 import os.path
 from typing import Any, Dict
@@ -42,7 +41,7 @@ def create_network_policy(
             elif ext in [".yml", ".yaml"]:
                 spec = yaml.safe_load(f.read())
             else:
-                raise ActivityFailed("cannot process {path}".format(path=spec_path))
+                raise ActivityFailed(f"cannot process {spec_path}")
 
     v1 = client.NetworkingV1Api(api)
     v1.create_namespaced_network_policy(ns, body=spec)

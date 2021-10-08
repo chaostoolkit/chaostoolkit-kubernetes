@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import io
 import json
 from unittest.mock import MagicMock, patch

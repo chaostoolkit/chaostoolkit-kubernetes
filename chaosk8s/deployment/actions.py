@@ -27,7 +27,7 @@ def create_deployment(spec_path: str, ns: str = "default", secrets: Secrets = No
         elif ext in [".yml", ".yaml"]:
             deployment = yaml.load(f.read())
         else:
-            raise ActivityFailed("cannot process {path}".format(path=spec_path))
+            raise ActivityFailed(f"cannot process {spec_path}")
 
     v1 = client.AppsV1Api(api)
     _ = v1.create_namespaced_deployment(ns, body=deployment)
@@ -53,15 +53,13 @@ def delete_deployment(
     v1 = client.AppsV1Api(api)
 
     if name:
-        ret = v1.list_namespaced_deployment(
-            ns, field_selector="metadata.name={}".format(name)
-        )
+        ret = v1.list_namespaced_deployment(ns, field_selector=f"metadata.name={name}")
     elif label_selector:
         ret = v1.list_namespaced_deployment(ns, label_selector=label_selector)
     else:
         ret = v1.list_namespaced_deployment(ns)
 
-    logger.debug("Found {d} deployments named '{n}'".format(d=len(ret.items), n=name))
+    logger.debug(f"Found {len(ret.items)} deployments named '{name}'")
 
     body = client.V1DeleteOptions()
     for d in ret.items:
@@ -82,7 +80,5 @@ def scale_deployment(
         v1.patch_namespaced_deployment(name=name, namespace=ns, body=body)
     except ApiException as e:
         raise ActivityFailed(
-            "failed to scale '{s}' to {r} replicas: {e}".format(
-                s=name, r=replicas, e=str(e)
-            )
+            f"failed to scale '{name}' to {replicas} replicas: {str(e)}"
         )

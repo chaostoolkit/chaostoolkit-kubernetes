@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from functools import partial
 from typing import Union
 
@@ -30,7 +29,7 @@ def deployment_available_and_healthy(
     as expected.
     """
 
-    field_selector = "metadata.name={name}".format(name=name)
+    field_selector = f"metadata.name={name}"
     api = create_k8s_api_client(secrets)
 
     v1 = client.AppsV1Api(api)
@@ -41,24 +40,18 @@ def deployment_available_and_healthy(
     else:
         ret = v1.list_namespaced_deployment(ns, field_selector=field_selector)
 
-    logger.debug(
-        "Found {d} deployment(s) named '{n}' in ns '{s}'".format(
-            d=len(ret.items), n=name, s=ns
-        )
-    )
+    logger.debug(f"Found {len(ret.items)} deployment(s) named '{name}' in ns '{ns}'")
 
     if not ret.items:
-        raise ActivityFailed("Deployment '{name}' was not found".format(name=name))
+        raise ActivityFailed(f"Deployment '{name}' was not found")
 
     for d in ret.items:
         logger.debug(
-            "Deployment has '{s}' available replicas".format(
-                s=d.status.available_replicas
-            )
+            f"Deployment has '{d.status.available_replicas}' available replicas"
         )
 
         if d.status.available_replicas != d.spec.replicas:
-            raise ActivityFailed("Deployment '{name}' is not healthy".format(name=name))
+            raise ActivityFailed(f"Deployment '{name}' is not healthy")
 
     return True
 
@@ -73,7 +66,7 @@ def deployment_partially_available(
     as expected.
     """
 
-    field_selector = "metadata.name={name}".format(name=name)
+    field_selector = f"metadata.name={name}"
     api = create_k8s_api_client(secrets)
 
     v1 = client.AppsV1Api(api)
@@ -84,26 +77,20 @@ def deployment_partially_available(
     else:
         ret = v1.list_namespaced_deployment(ns, field_selector=field_selector)
 
-    logger.debug(
-        "Found {d} deployment(s) named '{n}' in ns '{s}'".format(
-            d=len(ret.items), n=name, s=ns
-        )
-    )
+    logger.debug(f"Found {len(ret.items)} deployment(s) named '{name}' in ns '{ns}'")
 
     if not ret.items:
-        raise ActivityFailed("Deployment '{name}' was not found".format(name=name))
+        raise ActivityFailed(f"Deployment '{name}' was not found")
 
     for d in ret.items:
         logger.debug(
-            "Deployment has '{s}' available replicas".format(
-                s=d.status.available_replicas
-            )
+            f"Deployment has '{d.status.available_replicas}' available replicas"
         )
 
         if d.status.available_replicas >= 1:
             return True
         else:
-            raise ActivityFailed("Deployment '{name}' is not healthy".format(name=name))
+            raise ActivityFailed(f"Deployment '{name}' is not healthy")
 
 
 def _deployment_readiness_has_state(
@@ -120,7 +107,7 @@ def _deployment_readiness_has_state(
     If the state is not reached after `timeout` seconds, a
     :exc:`chaoslib.exceptions.ActivityFailed` exception is raised.
     """
-    field_selector = "metadata.name={name}".format(name=name)
+    field_selector = f"metadata.name={name}"
     api = create_k8s_api_client(secrets)
     v1 = client.AppsV1Api(api)
     w = watch.Watch()
@@ -146,23 +133,17 @@ def _deployment_readiness_has_state(
         )
 
     try:
-        logger.debug("Watching events for {t}s".format(t=timeout))
+        logger.debug(f"Watching events for {timeout}s")
         for event in watch_events():
             deployment = event["object"]
             status = deployment.status
             spec = deployment.spec
 
             logger.debug(
-                "Deployment '{p}' {t}: "
-                "Ready Replicas {r} - "
-                "Unavailable Replicas {u} - "
-                "Desired Replicas {a}".format(
-                    p=deployment.metadata.name,
-                    t=event["type"],
-                    r=status.ready_replicas,
-                    a=spec.replicas,
-                    u=status.unavailable_replicas,
-                )
+                f"Deployment '{deployment.metadata.name}' {event['type']}: "
+                f"Ready Replicas {status.ready_replicas} - "
+                f"Unavailable Replicas {status.unavailable_replicas} - "
+                f"Desired Replicas {spec.replicas}"
             )
 
             readiness = status.ready_replicas == spec.replicas
@@ -199,9 +180,7 @@ def deployment_not_fully_available(
         return True
     else:
         raise ActivityFailed(
-            "deployment '{name}' failed to stop running within {t}s".format(
-                name=name, t=timeout
-            )
+            f"deployment '{name}' failed to stop running within {timeout}s"
         )
 
 
@@ -228,8 +207,4 @@ def deployment_fully_available(
     ):
         return True
     else:
-        raise ActivityFailed(
-            "deployment '{name}' failed to recover within {t}s".format(
-                name=name, t=timeout
-            )
-        )
+        raise ActivityFailed(f"deployment '{name}' failed to recover within {timeout}s")

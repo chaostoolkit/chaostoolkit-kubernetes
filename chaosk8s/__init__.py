@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import os.path
 from typing import List
@@ -72,9 +71,8 @@ def create_k8s_api_client(secrets: Secrets = None) -> client.ApiClient:
     if has_local_config_file(config_file):
         context = lookup("KUBERNETES_CONTEXT")
         logger.debug(
-            "Using Kubernetes context '{}' from config '{}'".format(
-                context or "default", config_file
-            )
+            f"Using Kubernetes context '{context or 'default'}' "
+            f"from config '{config_file}'"
         )
 
         config.load_kube_config(context=context)
@@ -165,8 +163,6 @@ def load_exported_activities() -> List[DiscoveredActivities]:
 
 def _log_deprecated(name: str, alt_name: str):
     logger.warning(
-        "{} function is DEPRECATED and will be removed in the next \
-        releases, please use {} instead".format(
-            name, alt_name
-        )
+        f"{name} function is DEPRECATED and will be removed in the next \
+        releases, please use {alt_name} instead"
     )

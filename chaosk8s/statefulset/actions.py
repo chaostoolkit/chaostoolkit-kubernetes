@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import json
 import os.path
 
@@ -28,7 +27,7 @@ def create_statefulset(spec_path: str, ns: str = "default", secrets: Secrets = N
         elif ext in [".yml", ".yaml"]:
             statefulset = yaml.safe_load(f.read())
         else:
-            raise ActivityFailed("cannot process {path}".format(path=spec_path))
+            raise ActivityFailed(f"cannot process {spec_path}")
 
     v1 = client.AppsV1Api(api)
     v1.create_namespaced_stateful_set(ns, body=statefulset)
@@ -49,9 +48,7 @@ def scale_statefulset(
         v1.patch_namespaced_stateful_set(name, namespace=ns, body=body)
     except ApiException as e:
         raise ActivityFailed(
-            "failed to scale '{s}' to {r} replicas: {e}".format(
-                s=name, r=replicas, e=str(e)
-            )
+            f"failed to scale '{name}' to {replicas} replicas: {str(e)}"
         )
 
 
@@ -75,18 +72,14 @@ def remove_statefulset(
     v1 = client.AppsV1Api(api)
     if name:
         ret = v1.list_namespaced_stateful_set(
-            ns, field_selector="metadata.name={}".format(name)
+            ns, field_selector=f"metadata.name={name}"
         )
     elif label_selector:
         ret = v1.list_namespaced_stateful_set(ns, label_selector=label_selector)
     else:
         ret = v1.list_namespaced_stateful_set(ns)
 
-    logger.debug(
-        "Found {d} statefulset(s) named '{n}' in ns '{s}'".format(
-            d=len(ret.items), n=name, s=ns
-        )
-    )
+    logger.debug(f"Found {len(ret.items)} statefulset(s) named '{name}' in ns '{ns}'")
 
     body = client.V1DeleteOptions()
     for d in ret.items:

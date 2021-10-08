@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import io
 import json
 from unittest.mock import ANY, MagicMock, patch
@@ -24,7 +23,7 @@ def test_cannot_process_other_than_yaml_and_json(has_conf):
     path = "./tests/fixtures/invalid-k8s.txt"
     with pytest.raises(ActivityFailed) as excinfo:
         start_microservice(spec_path=path)
-    assert "cannot process {path}".format(path=path) in str(excinfo.value)
+    assert f"cannot process {path}" in str(excinfo.value)
 
 
 @patch("chaosk8s.has_local_config_file", autospec=True)

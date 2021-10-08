@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import json
 import os.path
 
@@ -28,7 +27,7 @@ def create_service_endpoint(
         elif ext in [".yml", ".yaml"]:
             service = yaml.safe_load(f.read())
         else:
-            raise ActivityFailed("cannot process {path}".format(path=spec_path))
+            raise ActivityFailed(f"cannot process {spec_path}")
 
     v1 = client.CoreV1Api(api)
     v1.create_namespaced_service(ns, body=service)

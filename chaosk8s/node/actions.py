@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # WARNING: This module exposes actions that have rather strong impacts on your
 # cluster. While Chaos Engineering is all about disrupting and weaknesses,
 # it is important to take the time to fully appreciate what those actions
@@ -49,13 +48,13 @@ def _select_nodes(
     v1 = client.CoreV1Api(api)
 
     if name and not label_selector:
-        logger.debug("Filtering nodes by name %s" % (name,))
-        ret = v1.list_node(field_selector="metadata.name={}".format(name))
-        logger.debug("Found {d} nodes".format(d=len(ret.items)))
+        logger.debug(f"Filtering nodes by name {name}")
+        ret = v1.list_node(field_selector=f"metadata.name={name}")
+        logger.debug(f"Found {len(ret.items)} nodes")
     elif label_selector and not name:
-        logger.debug("Filtering nodes by label %s" % (label_selector,))
+        logger.debug(f"Filtering nodes by label {label_selector}")
         ret = v1.list_node(label_selector=label_selector)
-        logger.debug("Found {d} nodes".format(d=len(ret.items)))
+        logger.debug(f"Found {len(ret.items)} nodes")
     elif name and label_selector:
         logger.debug(
             "Filtering nodes by name %s and \
@@ -63,22 +62,22 @@ def _select_nodes(
             % (name, label_selector)
         )
         ret = v1.list_node(
-            field_selector="metadata.name={}".format(name),
+            field_selector=f"metadata.name={name}",
             label_selector=label_selector,
         )
-        logger.debug("Found {d} nodes".format(d=len(ret.items)))
+        logger.debug(f"Found {len(ret.items)} nodes")
     else:
         ret = v1.list_node()
 
     if pod_label_selector and pod_namespace:
-        logger.debug("Filtering nodes by pod label %s" % (pod_label_selector,))
+        logger.debug(f"Filtering nodes by pod label {pod_label_selector}")
         pods = v1.list_namespaced_pod(pod_namespace, label_selector=pod_label_selector)
         for node in ret.items:
             for pod in pods.items:
                 if pod.spec.node_name == node.metadata.name:
                     nodes.append(node)
                     pass
-        logger.debug("Found {d} nodes".format(d=len(nodes)))
+        logger.debug(f"Found {len(nodes)} nodes")
     else:
         nodes = ret.items
 
@@ -89,9 +88,7 @@ def _select_nodes(
         nodes = [nodes[0]]
     elif count is not None:
         nodes = random.choices(nodes, k=count)
-    logger.debug(
-        "Picked nodes '{p}'".format(p=", ".join([n.metadata.name for n in nodes]))
-    )
+    logger.debug(f"Picked nodes '{', '.join([n.metadata.name for n in nodes])}'")
 
     return nodes
 
@@ -156,7 +153,7 @@ def delete_nodes(
         )
 
         if res.status != "Success":
-            logger.debug("Terminating nodes failed: {}".format(res.message))
+            logger.debug(f"Terminating nodes failed: {res.message}")
 
 
 def create_node(
@@ -182,9 +179,9 @@ def create_node(
     try:
         res = v1.create_node(body)
     except ApiException as x:
-        raise ActivityFailed("Creating new node failed: {}".format(x.body))
+        raise ActivityFailed(f"Creating new node failed: {x.body}")
 
-    logger.debug("Node '{}' created".format(res.metadata.name))
+    logger.debug(f"Node '{res.metadata.name}' created")
 
     return res
 
@@ -206,11 +203,9 @@ def cordon_node(name: str = None, label_selector: str = None, secrets: Secrets =
         try:
             v1.patch_node(n.metadata.name, body)
         except ApiException as x:
-            logger.debug(
-                "Unscheduling node '{}' failed: {}".format(n.metadata.name, x.body)
-            )
+            logger.debug(f"Unscheduling node '{n.metadata.name}' failed: {x.body}")
             raise ActivityFailed(
-                "Failed to unschedule node '{}': {}".format(n.metadata.name, x.body)
+                f"Failed to unschedule node '{n.metadata.name}': {x.body}"
             )
 
 
@@ -233,11 +228,9 @@ def uncordon_node(
         try:
             v1.patch_node(n.metadata.name, body)
         except ApiException as x:
-            logger.debug(
-                "Scheduling node '{}' failed: {}".format(n.metadata.name, x.body)
-            )
+            logger.debug(f"Scheduling node '{n.metadata.name}' failed: {x.body}")
             raise ActivityFailed(
-                "Failed to schedule node '{}': {}".format(n.metadata.name, x.body)
+                f"Failed to schedule node '{n.metadata.name}': {x.body}"
             )
 
 
@@ -284,12 +277,10 @@ def drain_nodes(
     for node in nodes:
         node_name = node.metadata.name
         ret = v1.list_pod_for_all_namespaces(
-            field_selector="spec.nodeName={}".format(node_name)
+            field_selector=f"spec.nodeName={node_name}"
         )
 
-        logger.debug(
-            "Found {d} pods on node '{n}'".format(d=len(ret.items), n=node_name)
-        )
+        logger.debug(f"Found {len(ret.items)} pods on node '{node_name}'")
 
         if not ret.items:
             continue
@@ -305,15 +296,14 @@ def drain_nodes(
             # do not handle mirror pods
             if annotations and "kubernetes.io/config.mirror" in annotations:
                 logger.debug(
-                    "Not deleting mirror pod '{}' on "
-                    "node '{}'".format(name, node_name)
+                    f"Not deleting mirror pod '{name}' on " f"node '{node_name}'"
                 )
                 continue
 
             if any(filter(lambda v: v.empty_dir is not None, volumes)):
                 logger.debug(
-                    "Pod '{}' on node '{}' has a volume made "
-                    "of a local storage".format(name, node_name)
+                    f"Pod '{name}' on node '{node_name}' has a volume made "
+                    "of a local storage"
                 )
                 if not delete_pods_with_local_storage:
                     logger.debug("Not evicting a pod with local storage")
@@ -332,21 +322,21 @@ def drain_nodes(
                     break
                 elif owner.kind == "DaemonSet":
                     logger.debug(
-                        "Pod '{}' on node '{}' is owned by a DaemonSet. Will "
-                        "not evict it".format(name, node_name)
+                        f"Pod '{name}' on node '{node_name}' is owned by a DaemonSet."
+                        " Will not evict it"
                     )
                     break
             else:
                 raise ActivityFailed(
-                    "Pod '{}' on node '{}' is unmanaged, cannot drain this "
-                    "node. Delete it manually first?".format(name, node_name)
+                    f"Pod '{name}' on node '{node_name}' is unmanaged, cannot drain"
+                    " this node. Delete it manually first?"
                 )
 
         if not eviction_candidates:
             logger.debug("No pods to evict. Let's return.")
             return True
 
-        logger.debug("Found {} pods to evict".format(len(eviction_candidates)))
+        logger.debug(f"Found {len(eviction_candidates)} pods to evict")
         for pod in eviction_candidates:
             eviction = client.V1beta1Eviction()
 
@@ -361,19 +351,19 @@ def drain_nodes(
                 )
             except ApiException as x:
                 raise ActivityFailed(
-                    "Failed to evict pod {}: {}".format(pod.metadata.name, x.body)
+                    f"Failed to evict pod {pod.metadata.name}: {x.body}"
                 )
 
         pods = eviction_candidates[:]
         started = time.time()
         while True:
-            logger.debug("Waiting for {} pods to go".format(len(pods)))
+            logger.debug(f"Waiting for {len(pods)} pods to go")
 
             if time.time() - started > timeout:
                 remaining_pods = "\n".join([p.metadata.name for p in pods])
                 raise ActivityFailed(
-                    "Draining nodes did not completed within {}s. "
-                    "Remaining pods are:\n{}".format(timeout, remaining_pods)
+                    f"Draining nodes did not completed within {timeout}s. "
+                    f"Remaining pods are:\n{remaining_pods}"
                 )
 
             pending_pods = pods[:]
@@ -387,9 +377,8 @@ def drain_nodes(
                         pending_pods.remove(pod)
                         continue
                     logger.debug(
-                        "Pod '{}' still around in phase: {}".format(
-                            p.metadata.name, p.status.phase
-                        )
+                        f"Pod '{p.metadata.name}' still around in phase:"
+                        f" {p.status.phase}"
                     )
                 except ApiException as x:
                     if x.status == 404:

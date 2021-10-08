@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from unittest.mock import ANY, MagicMock, patch
 
 import pytest
@@ -129,4 +128,4 @@ def test_creating_statefulset_with_file_txt_KO(cl, client, has_conf):
 
     with pytest.raises(ActivityFailed) as excinfo:
         create_statefulset(path)
-    assert "cannot process {path}".format(path=path) in str(excinfo.value)
+    assert f"cannot process {path}" in str(excinfo.value)

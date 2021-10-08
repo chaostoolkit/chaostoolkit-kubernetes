@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from unittest.mock import ANY, MagicMock, call, patch
 
 import pytest

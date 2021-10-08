@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from unittest.mock import ANY, MagicMock, call, patch
 
 from kubernetes.client.models import V1ObjectMeta, V1ReplicaSet, V1ReplicaSetList

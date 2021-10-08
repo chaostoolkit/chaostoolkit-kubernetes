@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import json
 from typing import Any, Dict, List
 
@@ -40,7 +39,7 @@ def get_custom_object(
         return json.loads(r.data)
     except ApiException as x:
         raise ActivityFailed(
-            "Failed to create custom resource object: '{}' {}".format(x.reason, x.body)
+            f"Failed to create custom resource object: '{x.reason}' {x.body}"
         )
 
 
@@ -62,7 +61,7 @@ def list_custom_objects(
         return json.loads(r.data)
     except ApiException as x:
         raise ActivityFailed(
-            "Failed to create custom resource object: '{}' {}".format(x.reason, x.body)
+            f"Failed to create custom resource object: '{x.reason}' {x.body}"
         )
 
 
@@ -84,7 +83,7 @@ def get_cluster_custom_object(
         return json.loads(r.data)
     except ApiException as x:
         raise ActivityFailed(
-            "Failed to create custom resource object: '{}' {}".format(x.reason, x.body)
+            f"Failed to create custom resource object: '{x.reason}' {x.body}"
         )
 
 
@@ -106,5 +105,5 @@ def list_cluster_custom_objects(
         return json.loads(r.data)
     except ApiException as x:
         raise ActivityFailed(
-            "Failed to create custom resource object: '{}' {}".format(x.reason, x.body)
+            f"Failed to create custom resource object: '{x.reason}' {x.body}"
         )

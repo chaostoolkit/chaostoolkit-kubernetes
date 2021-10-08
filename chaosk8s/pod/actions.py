@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import datetime
 import json
 import math
@@ -129,15 +128,11 @@ def exec_in_pods(
     results = []
     for po in pods:
         logger.debug(
-            "Picked pods '{p}' for command execution {c}".format(
-                p=po.metadata.name, c=exec_command
-            )
+            f"Picked pods '{po.metadata.name}' for command execution {exec_command}"
         )
         if not any(c.name == container_name for c in po.spec.containers):
             logger.debug(
-                "Pod {p} do not have container named '{n}'".format(
-                    p=po.metadata.name, n=container_name
-                )
+                f"Pod {po.metadata.name} do not have container named '{container_name}'"
             )
             continue
 
@@ -207,32 +202,24 @@ def _select_pods(
 
     # Fail when quantity is less than 0
     if qty < 0:
-        raise ActivityFailed(
-            "Cannot select pods. Quantity '{q}' is negative.".format(q=qty)
-        )
+        raise ActivityFailed(f"Cannot select pods. Quantity '{qty}' is negative.")
 
     # Fail when mode is not `fixed` or `percentage`
     if mode not in ["fixed", "percentage"]:
-        raise ActivityFailed(
-            "Cannot select pods. Mode '{m}' is invalid.".format(m=mode)
-        )
+        raise ActivityFailed(f"Cannot select pods. Mode '{mode}' is invalid.")
 
     # Fail when order not `alphabetic` or `oldest`
     if order not in ["alphabetic", "oldest"]:
-        raise ActivityFailed(
-            "Cannot select pods. Order '{o}' is invalid.".format(o=order)
-        )
+        raise ActivityFailed(f"Cannot select pods. Order '{order}' is invalid.")
 
     if label_selector:
         ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
         logger.debug(
-            "Found {d} pods labelled '{s}' in ns {n}".format(
-                d=len(ret.items), s=label_selector, n=ns
-            )
+            f"Found {len(ret.items)} pods labelled '{label_selector}' in ns {ns}"
         )
     else:
         ret = v1.list_namespaced_pod(ns)
-        logger.debug("Found {d} pods in ns '{n}'".format(d=len(ret.items), n=ns))
+        logger.debug(f"Found {len(ret.items)} pods in ns '{ns}'")
 
     pods = []
     if name_pattern:
@@ -240,7 +227,7 @@ def _select_pods(
         for p in ret.items:
             if pattern.search(p.metadata.name):
                 pods.append(p)
-                logger.debug("Pod '{p}' match pattern".format(p=p.metadata.name))
+                logger.debug(f"Pod '{p.metadata.name}' match pattern")
     else:
         pods = ret.items
 

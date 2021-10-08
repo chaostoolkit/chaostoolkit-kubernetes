@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from functools import partial
 
 import urllib3
@@ -26,7 +25,7 @@ def _statefulset_readiness_has_state(
     If the state is not reached after `timeout` seconds, a
     :exc:`chaoslib.exceptions.ActivityFailed` exception is raised.
     """
-    field_selector = "metadata.name={name}".format(name=name)
+    field_selector = f"metadata.name={name}"
     api = create_k8s_api_client(secrets)
     v1 = client.AppsV1Api(api)
     w = watch.Watch()
@@ -52,23 +51,17 @@ def _statefulset_readiness_has_state(
         )
 
     try:
-        logger.debug("Watching events for {t}s".format(t=timeout))
+        logger.debug(f"Watching events for {timeout}s")
         for event in watch_events():
             statefulset = event["object"]
             status = statefulset.status
             spec = statefulset.spec
 
             logger.debug(
-                "StatefulSet '{p}' {t}: "
-                "Ready Replicas {r} - "
-                "Unavailable Replicas {u} - "
-                "Desired Replicas {a}".format(
-                    p=statefulset.metadata.name,
-                    t=event["type"],
-                    r=status.ready_replicas,
-                    a=spec.replicas,
-                    u=status.unavailable_replicas,
-                )
+                f"StatefulSet '{statefulset.metadata.name}' {event['type']}: "
+                f"Ready Replicas {status.ready_replicas} - "
+                f"Unavailable Replicas {status.unavailable_replicas} - "
+                f"Desired Replicas {spec.replicas}"
             )
 
             readiness = status.ready_replicas == spec.replicas
@@ -105,9 +98,7 @@ def statefulset_not_fully_available(
         return True
     else:
         raise ActivityFailed(
-            "microservice '{name}' failed to stop running within {t}s".format(
-                name=name, t=timeout
-            )
+            f"microservice '{name}' failed to stop running within {timeout}s"
         )
 
 
@@ -135,7 +126,5 @@ def statefulset_fully_available(
         return True
     else:
         raise ActivityFailed(
-            "microservice '{name}' failed to recover within {t}s".format(
-                name=name, t=timeout
-            )
+            f"microservice '{name}' failed to recover within {timeout}s"
         )

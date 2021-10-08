@@ -24,7 +24,7 @@ def get_version_from_package() -> str:
 name = 'chaostoolkit-kubernetes'
 desc = 'Chaos Toolkit Extension for Kubernetes'
 
-with io.open('README.md', encoding='utf-8') as strm:
+with open('README.md', encoding='utf-8') as strm:
     long_desc = strm.read()
 
 classifiers = [
@@ -48,14 +48,14 @@ url = 'http://chaostoolkit.org'
 license = 'Apache License Version 2.0'
 packages = setuptools.find_packages(include=["chaosk8s", "chaosk8s.*"])
 
-needs_pytest = set(['pytest', 'test']).intersection(sys.argv)
+needs_pytest = {'pytest', 'test'}.intersection(sys.argv)
 pytest_runner = ['pytest_runner'] if needs_pytest else []
 test_require = []
-with io.open('requirements-dev.txt') as f:
+with open('requirements-dev.txt') as f:
     test_require = [l.strip() for l in f if not l.startswith('#')]
 
 install_require = []
-with io.open('requirements.txt') as f:
+with open('requirements.txt') as f:
     install_require = [l.strip() for l in f if not l.startswith('#')]
 
 

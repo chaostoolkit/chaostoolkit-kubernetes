@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from datetime import datetime
 from typing import Dict, List, Union
 
@@ -55,9 +54,8 @@ def read_pod_logs(
         ret = v1.list_namespaced_pod(ns)
 
     logger.debug(
-        "Found {d} pods: [{p}] in ns '{n}'".format(
-            d=len(ret.items), n=ns, p=", ".join([p.metadata.name for p in ret.items])
-        )
+        f"Found {len(ret.items)} "
+        f"pods: [{', '.join([p.metadata.name for p in ret.items])}] in ns '{ns}'"
     )
 
     since = None
@@ -80,7 +78,7 @@ def read_pod_logs(
     logs = {}
     for p in ret.items:
         name = p.metadata.name
-        logger.debug("Fetching logs for pod '{n}'".format(n=name))
+        logger.debug(f"Fetching logs for pod '{name}'")
         r = v1.read_namespaced_pod_log(name, **params)
         logs[name] = r.read().decode("utf-8")
 
@@ -105,23 +103,21 @@ def pods_in_phase(
     if label_selector:
         ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
         logger.debug(
-            "Found {d} pods matching label '{n}' in ns '{s}'".format(
-                d=len(ret.items), n=label_selector, s=ns
-            )
+            f"Found {len(ret.items)} pods matching label '{label_selector}'"
+            f" in ns '{ns}'"
         )
     else:
         ret = v1.list_namespaced_pod(ns)
-        logger.debug("Found {d} pods in ns '{n}'".format(d=len(ret.items), n=ns))
+        logger.debug(f"Found {len(ret.items)} pods in ns '{ns}'")
 
     if not ret.items:
-        raise ActivityFailed("no pods '{name}' were found".format(name=label_selector))
+        raise ActivityFailed(f"no pods '{label_selector}' were found")
 
     for d in ret.items:
         if d.status.phase != phase:
             raise ActivityFailed(
-                "pod '{name}' is in phase '{s}' but should be '{p}'".format(
-                    name=label_selector, s=d.status.phase, p=phase
-                )
+                f"pod '{label_selector}' is in phase '{d.status.phase}'"
+                f" but should be '{phase}'"
             )
 
     return True
@@ -145,16 +141,15 @@ def pods_in_conditions(
     if label_selector:
         ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
         logger.debug(
-            "Found {d} pods matching label '{n}' in ns '{s}'".format(
-                d=len(ret.items), n=label_selector, s=ns
-            )
+            f"Found {len(ret.items)} pods matching label '{label_selector}'"
+            f" in ns '{ns}'"
         )
     else:
         ret = v1.list_namespaced_pod(ns)
-        logger.debug("Found {d} pods in ns '{n}'".format(d=len(ret.items), n=ns))
+        logger.debug(f"Found {len(ret.items)} pods in ns '{ns}'")
 
     if not ret.items:
-        raise ActivityFailed("no pods '{name}' were found".format(name=label_selector))
+        raise ActivityFailed(f"no pods '{label_selector}' were found")
 
     for d in ret.items:
         # create a list of hash to compare with the given conditions
@@ -164,10 +159,8 @@ def pods_in_conditions(
         for condition in conditions:
             if condition not in pod_conditions:
                 raise ActivityFailed(
-                    "pod {name} does not match the following "
-                    "given condition: {condition}".format(
-                        name=d.metadata.name, condition=condition
-                    )
+                    f"pod {d.metadata.name} does not match the following "
+                    f"given condition: {condition}"
                 )
 
     return True
@@ -191,23 +184,20 @@ def pods_not_in_phase(
     if label_selector:
         ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
         logger.debug(
-            "Found {d} pods matching label '{n}' in ns '{s}'".format(
-                d=len(ret.items), n=label_selector, s=ns
-            )
+            f"Found {len(ret.items)} pods matching label '{label_selector}'"
+            f" in ns '{ns}'"
         )
     else:
         ret = v1.list_namespaced_pod(ns)
-        logger.debug("Found {d} pods in ns '{n}'".format(d=len(ret.items), n=ns))
+        logger.debug(f"Found {len(ret.items)} pods in ns '{ns}'")
 
     if not ret.items:
-        raise ActivityFailed("no pods '{name}' were found".format(name=label_selector))
+        raise ActivityFailed(f"no pods '{label_selector}' were found")
 
     for d in ret.items:
         if d.status.phase == phase:
             raise ActivityFailed(
-                "pod '{name}' should not be in phase '{s}'".format(
-                    name=label_selector, s=d.status.phase
-                )
+                f"pod '{label_selector}' should not be in phase '{d.status.phase}'"
             )
 
     return True
@@ -226,13 +216,12 @@ def count_pods(
     if label_selector:
         ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
         logger.debug(
-            "Found {d} pods matching label '{n}' in ns '{s}'".format(
-                d=len(ret.items), n=label_selector, s=ns
-            )
+            f"Found {len(ret.items)} pods matching label '{label_selector}'"
+            f" in ns '{ns}'"
         )
     else:
         ret = v1.list_namespaced_pod(ns)
-        logger.debug("Found {d} pods in ns '{n}'".format(d=len(ret.items), n=ns))
+        logger.debug(f"Found {len(ret.items)} pods in ns '{ns}'")
 
     if not ret.items:
         return 0
@@ -270,15 +259,13 @@ def pod_is_not_available(
     else:
         ret = v1.list_namespaced_pod(ns)
 
-    logger.debug(
-        "Found {d} pod(s) named '{n}' in ns '{s}".format(d=len(ret.items), n=name, s=ns)
-    )
+    logger.debug(f"Found {len(ret.items)} pod(s) named '{name}' in ns '{ns}")
 
     for p in ret.items:
         phase = p.status.phase
-        logger.debug("Pod '{p}' has status '{s}'".format(p=p.metadata.name, s=phase))
+        logger.debug(f"Pod '{p.metadata.name}' has status '{phase}'")
         if phase == "Running":
-            raise ActivityFailed("pod '{name}' is actually running".format(name=name))
+            raise ActivityFailed(f"pod '{name}' is actually running")
 
     return True
 
@@ -305,11 +292,7 @@ def all_pods_healthy(
         elif phase not in ("Running", "Succeeded"):
             not_ready.append(p)
 
-    logger.debug(
-        "Found {d} failed and {n} not ready pods".format(
-            d=len(failed), n=len(not_ready)
-        )
-    )
+    logger.debug(f"Found {len(failed)} failed and {len(not_ready)} not ready pods")
 
     # we probably should list them in the message
     if failed or not_ready:

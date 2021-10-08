@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import json
 from tempfile import NamedTemporaryFile
 from unittest.mock import ANY, MagicMock, patch

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from unittest.mock import ANY, MagicMock, call, patch
 
 import pytest
@@ -24,7 +23,7 @@ def test_cannot_process_other_than_yaml_and_json(has_conf):
     path = "./tests/fixtures/invalid-k8s.txt"
     with pytest.raises(ActivityFailed) as excinfo:
         create_deployment(spec_path=path)
-    assert "cannot process {path}".format(path=path) in str(excinfo)
+    assert f"cannot process {path}" in str(excinfo)
 
 
 @patch("builtins.open", autospec=True)

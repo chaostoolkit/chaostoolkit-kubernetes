@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import json
 import os.path
 from typing import Any, Dict
@@ -50,15 +49,11 @@ def create_custom_object(
         return json.loads(r.data)
     except ApiException as x:
         if x.status == 409:
-            logger.debug(
-                "Custom resource object {}/{} already exists".format(group, version)
-            )
+            logger.debug(f"Custom resource object {group}/{version} already exists")
             return json.loads(x.body)
         else:
             raise ActivityFailed(
-                "Failed to create custom resource object: '{}' {}".format(
-                    x.reason, x.body
-                )
+                f"Failed to create custom resource object: '{x.reason}' {x.body}"
             )
 
 
@@ -86,7 +81,7 @@ def delete_custom_object(
         return json.loads(r.data)
     except ApiException as x:
         raise ActivityFailed(
-            "Failed to delete custom resource object: '{}' {}".format(x.reason, x.body)
+            f"Failed to delete custom resource object: '{x.reason}' {x.body}"
         )
 
 
@@ -114,15 +109,11 @@ def create_cluster_custom_object(
         return json.loads(r.data)
     except ApiException as x:
         if x.status == 409:
-            logger.debug(
-                "Custom resource object {}/{} already exists".format(group, version)
-            )
+            logger.debug(f"Custom resource object {group}/{version} already exists")
             return json.loads(x.body)
         else:
             raise ActivityFailed(
-                "Failed to create custom resource object: '{}' {}".format(
-                    x.reason, x.body
-                )
+                "Failed to create custom resource object: '{x.reason}' {x.body}"
             )
 
 
@@ -144,7 +135,7 @@ def delete_cluster_custom_object(
         return json.loads(r.data)
     except ApiException as x:
         raise ActivityFailed(
-            "Failed to delete custom resource object: '{}' {}".format(x.reason, x.body)
+            f"Failed to delete custom resource object: '{x.reason}' {x.body}"
         )
 
 
@@ -177,7 +168,7 @@ def patch_custom_object(
         return json.loads(r.data)
     except ApiException as x:
         raise ActivityFailed(
-            "Failed to patch custom resource object: '{}' {}".format(x.reason, x.body)
+            f"Failed to patch custom resource object: '{x.reason}' {x.body}"
         )
 
 
@@ -209,7 +200,7 @@ def replace_custom_object(
         return json.loads(r.data)
     except ApiException as x:
         raise ActivityFailed(
-            "Failed to replace custom resource object: '{}' {}".format(x.reason, x.body)
+            f"Failed to replace custom resource object: '{x.reason}' {x.body}"
         )
 
 
@@ -241,7 +232,7 @@ def patch_cluster_custom_object(
         return json.loads(r.data)
     except ApiException as x:
         raise ActivityFailed(
-            "Failed to patch custom resource object: '{}' {}".format(x.reason, x.body)
+            f"Failed to patch custom resource object: '{x.reason}' {x.body}"
         )
 
 
@@ -272,7 +263,7 @@ def replace_cluster_custom_object(
         return json.loads(r.data)
     except ApiException as x:
         raise ActivityFailed(
-            "Failed to replace custom resource object: '{}' {}".format(x.reason, x.body)
+            f"Failed to replace custom resource object: '{x.reason}' {x.body}"
         )
 
 
@@ -291,9 +282,7 @@ def load_body(
         return body_as_object
 
     if not os.path.isfile(body_as_yaml_file):
-        raise ActivityFailed(
-            "Path '{}' is not a valid resource file".format(body_as_yaml_file)
-        )
+        raise ActivityFailed(f"Path '{body_as_yaml_file}' is not a valid resource file")
     else:
         with open(body_as_yaml_file) as f:
             return yaml.safe_load(f.read())
