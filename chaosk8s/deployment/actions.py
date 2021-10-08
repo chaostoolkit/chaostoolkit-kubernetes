@@ -30,7 +30,7 @@ def create_deployment(spec_path: str, ns: str = "default", secrets: Secrets = No
             raise ActivityFailed("cannot process {path}".format(path=spec_path))
 
     v1 = client.AppsV1Api(api)
-    resp = v1.create_namespaced_deployment(ns, body=deployment)
+    _ = v1.create_namespaced_deployment(ns, body=deployment)
 
 
 def delete_deployment(

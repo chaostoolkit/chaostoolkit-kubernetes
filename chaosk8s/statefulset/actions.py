@@ -90,4 +90,4 @@ def remove_statefulset(
 
     body = client.V1DeleteOptions()
     for d in ret.items:
-        res = v1.delete_namespaced_stateful_set(d.metadata.name, ns, body=body)
+        _ = v1.delete_namespaced_stateful_set(d.metadata.name, ns, body=body)

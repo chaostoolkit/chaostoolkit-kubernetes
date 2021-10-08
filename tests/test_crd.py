@@ -264,21 +264,6 @@ def test_creating_cro_allows_conflicts(cl, client, has_conf):
 def test_creating_cro_allows_fails_whencrd_not_applied_first(cl, client, has_conf):
     has_conf.return_value = False
 
-    resp_data = {
-        "kind": "Status",
-        "apiVersion": "v1",
-        "metadata": {},
-        "status": "Failure",
-        "message": 'crontabs.stable.example.com "my-new-cron-object" already exists',
-        "reason": "AlreadyExists",
-        "details": {
-            "name": "my-new-cron-object",
-            "group": "stable.example.com",
-            "kind": "crontabs",
-        },
-        "code": 409,
-    }
-
     resp = MagicMock()
     resp.status = 404
     resp.reason = "Not Found"

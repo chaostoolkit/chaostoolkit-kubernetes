@@ -141,7 +141,6 @@ def exec_in_pods(
             )
             continue
 
-        pod_execution_result = {}
         # Use _preload_content to get back the raw JSON response.
         resp = stream.stream(
             v1.connect_get_namespaced_pod_exec,
