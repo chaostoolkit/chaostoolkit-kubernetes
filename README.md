@@ -1,7 +1,6 @@
 # Chaos Toolkit Extensions for Kubernetes
 
-[![Build Status](https://travis-ci.org/chaostoolkit/chaostoolkit-kubernetes.svg?branch=master)](https://travis-ci.org/chaostoolkit/chaostoolkit-kubernetes)
-[![codecov](https://codecov.io/gh/chaostoolkit/chaostoolkit-kubernetes/branch/master/graph/badge.svg)](https://codecov.io/gh/chaostoolkit/chaostoolkit-kubernetes)
+[![Build Status](https://github.com/chaostoolkit/chaostoolkit-kubernetes/actions/workflows/build-and-test.yaml/badge.svg)](https://github.com/chaostoolkit/chaostoolkit-kubernetes/actions/workflows/build-and-test.yaml)
 [![Python versions](https://img.shields.io/pypi/pyversions/chaostoolkit-kubernetes.svg)](https://www.python.org/)
 [![Downloads](https://pepy.tech/badge/chaostoolkit-kubernetes)](https://pepy.tech/project/chaostoolkit-kubernetes)
 
@@ -318,4 +317,3 @@ $ make lint
 ```
 
 To ensure that any unused import statements/strings that are too long, etc. are also picked up.
-```
