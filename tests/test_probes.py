@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import io
 import json
 from unittest.mock import MagicMock, patch
@@ -8,17 +7,24 @@ import urllib3
 from chaoslib.exceptions import ActivityFailed
 
 from chaosk8s.node.probes import get_nodes
-from chaosk8s.probes import all_microservices_healthy, \
-    microservice_available_and_healthy, microservice_is_not_available, \
-    service_endpoint_is_initialized, deployment_is_not_fully_available, \
-    deployment_is_fully_available, read_microservices_logs
-from chaosk8s.statefulset.probes import statefulset_fully_available, \
-    statefulset_not_fully_available
+from chaosk8s.probes import (
+    all_microservices_healthy,
+    deployment_is_fully_available,
+    deployment_is_not_fully_available,
+    microservice_available_and_healthy,
+    microservice_is_not_available,
+    read_microservices_logs,
+    service_endpoint_is_initialized,
+)
+from chaosk8s.statefulset.probes import (
+    statefulset_fully_available,
+    statefulset_not_fully_available,
+)
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.pod.probes.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.pod.probes.client", autospec=True)
+@patch("chaosk8s.client")
 def test_unhealthy_system_should_be_reported(cl, client, has_conf):
     has_conf.return_value = False
     pod = MagicMock()
@@ -36,11 +42,10 @@ def test_unhealthy_system_should_be_reported(cl, client, has_conf):
     assert "the system is unhealthy" in str(excinfo.value)
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.pod.probes.client', autospec=True)
-@patch('chaosk8s.client')
-def test_succeeded_and_running_pods_should_be_considered_healthy(cl, client,
-                                                                 has_conf):
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.pod.probes.client", autospec=True)
+@patch("chaosk8s.client")
+def test_succeeded_and_running_pods_should_be_considered_healthy(cl, client, has_conf):
     has_conf.return_value = False
 
     podSucceeded = MagicMock()
@@ -60,12 +65,12 @@ def test_succeeded_and_running_pods_should_be_considered_healthy(cl, client,
     assert health
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.deployment.probes.client', autospec=True)
-@patch('chaosk8s.client')
-def test_expecting_healthy_microservice_should_be_reported_when_not(cl,
-                                                                    client,
-                                                                    has_conf):
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.deployment.probes.client", autospec=True)
+@patch("chaosk8s.client")
+def test_expecting_healthy_microservice_should_be_reported_when_not(
+    cl, client, has_conf
+):
     has_conf.return_value = False
     result = MagicMock()
     result.items = []
@@ -88,11 +93,10 @@ def test_expecting_healthy_microservice_should_be_reported_when_not(cl,
     assert "Deployment 'mysvc' is not healthy" in str(excinfo.value)
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.pod.probes.client', autospec=True)
-@patch('chaosk8s.client')
-def test_expecting_microservice_is_there_when_it_should_not(cl, client,
-                                                            has_conf):
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.pod.probes.client", autospec=True)
+@patch("chaosk8s.client")
+def test_expecting_microservice_is_there_when_it_should_not(cl, client, has_conf):
     has_conf.return_value = False
     pod = MagicMock()
     pod.status.phase = "Running"
@@ -108,11 +112,10 @@ def test_expecting_microservice_is_there_when_it_should_not(cl, client,
     assert "pod 'mysvc' is actually running" in str(excinfo.value)
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.service.probes.client', autospec=True)
-@patch('chaosk8s.client')
-def test_expecting_service_endpoint_should_be_initialized(cl, client,
-                                                          has_conf):
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.service.probes.client", autospec=True)
+@patch("chaosk8s.client")
+def test_expecting_service_endpoint_should_be_initialized(cl, client, has_conf):
     has_conf.return_value = False
     service = MagicMock()
     result = MagicMock()
@@ -125,11 +128,12 @@ def test_expecting_service_endpoint_should_be_initialized(cl, client,
     assert service_endpoint_is_initialized("mysvc") is True
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.service.probes.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.service.probes.client", autospec=True)
+@patch("chaosk8s.client")
 def test_unitialized_or_not_existing_service_endpoint_should_not_be_available(
-        cl, client, has_conf):
+    cl, client, has_conf
+):
     has_conf.return_value = False
     result = MagicMock()
     result.items = []
@@ -143,10 +147,10 @@ def test_unitialized_or_not_existing_service_endpoint_should_not_be_available(
     assert "service 'mysvc' is not initialized" in str(excinfo.value)
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.deployment.probes.watch', autospec=True)
-@patch('chaosk8s.deployment.probes.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.deployment.probes.watch", autospec=True)
+@patch("chaosk8s.deployment.probes.client", autospec=True)
+@patch("chaosk8s.client")
 def test_deployment_is_not_fully_available(cl, client, watch, has_conf):
     has_conf.return_value = False
     deployment = MagicMock()
@@ -161,12 +165,11 @@ def test_deployment_is_not_fully_available(cl, client, watch, has_conf):
     assert deployment_is_not_fully_available("mysvc") is True
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.deployment.probes.watch', autospec=True)
-@patch('chaosk8s.deployment.probes.client', autospec=True)
-@patch('chaosk8s.client')
-def test_deployment_is_fully_available_when_it_should_not(cl, client,
-                                                          watch, has_conf):
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.deployment.probes.watch", autospec=True)
+@patch("chaosk8s.deployment.probes.client", autospec=True)
+@patch("chaosk8s.client")
+def test_deployment_is_fully_available_when_it_should_not(cl, client, watch, has_conf):
     has_conf.return_value = False
     deployment = MagicMock()
     deployment.spec.replicas = 2
@@ -174,20 +177,18 @@ def test_deployment_is_fully_available_when_it_should_not(cl, client,
 
     watcher = MagicMock()
     watcher.stream = MagicMock()
-    watcher.stream.side_effect = urllib3.exceptions.ReadTimeoutError(
-        None, None, None)
+    watcher.stream.side_effect = urllib3.exceptions.ReadTimeoutError(None, None, None)
     watch.Watch.return_value = watcher
 
     with pytest.raises(ActivityFailed) as excinfo:
         deployment_is_not_fully_available("mysvc")
-    assert "deployment 'mysvc' failed to stop running within" in \
-        str(excinfo.value)
+    assert "deployment 'mysvc' failed to stop running within" in str(excinfo.value)
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.deployment.probes.watch', autospec=True)
-@patch('chaosk8s.deployment.probes.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.deployment.probes.watch", autospec=True)
+@patch("chaosk8s.deployment.probes.client", autospec=True)
+@patch("chaosk8s.client")
 def test_deployment_is_fully_available(cl, client, watch, has_conf):
     has_conf.return_value = False
     deployment = MagicMock()
@@ -202,12 +203,11 @@ def test_deployment_is_fully_available(cl, client, watch, has_conf):
     assert deployment_is_fully_available("mysvc") is True
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.deployment.probes.watch', autospec=True)
-@patch('chaosk8s.deployment.probes.client', autospec=True)
-@patch('chaosk8s.client')
-def test_deployment_is_not_fully_available_when_it_should(cl, client,
-                                                          watch, has_conf):
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.deployment.probes.watch", autospec=True)
+@patch("chaosk8s.deployment.probes.client", autospec=True)
+@patch("chaosk8s.client")
+def test_deployment_is_not_fully_available_when_it_should(cl, client, watch, has_conf):
     has_conf.return_value = False
     deployment = MagicMock()
     deployment.spec.replicas = 2
@@ -215,20 +215,18 @@ def test_deployment_is_not_fully_available_when_it_should(cl, client,
 
     watcher = MagicMock()
     watcher.stream = MagicMock()
-    watcher.stream.side_effect = urllib3.exceptions.ReadTimeoutError(
-        None, None, None)
+    watcher.stream.side_effect = urllib3.exceptions.ReadTimeoutError(None, None, None)
     watch.Watch.return_value = watcher
 
     with pytest.raises(ActivityFailed) as excinfo:
         deployment_is_fully_available("mysvc")
-    assert "deployment 'mysvc' failed to recover within" in \
-        str(excinfo.value)
+    assert "deployment 'mysvc' failed to recover within" in str(excinfo.value)
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.statefulset.probes.watch', autospec=True)
-@patch('chaosk8s.statefulset.probes.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.statefulset.probes.watch", autospec=True)
+@patch("chaosk8s.statefulset.probes.client", autospec=True)
+@patch("chaosk8s.client")
 def test_statefulset_not_fully_available(cl, client, watch, has_conf):
     has_conf.return_value = False
     statefulset = MagicMock()
@@ -243,12 +241,11 @@ def test_statefulset_not_fully_available(cl, client, watch, has_conf):
     assert statefulset_not_fully_available("mysvc") is True
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.statefulset.probes.watch', autospec=True)
-@patch('chaosk8s.statefulset.probes.client', autospec=True)
-@patch('chaosk8s.client')
-def test_statefulset_fully_available_when_it_should_not(cl, client,
-                                                          watch, has_conf):
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.statefulset.probes.watch", autospec=True)
+@patch("chaosk8s.statefulset.probes.client", autospec=True)
+@patch("chaosk8s.client")
+def test_statefulset_fully_available_when_it_should_not(cl, client, watch, has_conf):
     has_conf.return_value = False
     statefulset = MagicMock()
     statefulset.spec.replicas = 2
@@ -256,20 +253,18 @@ def test_statefulset_fully_available_when_it_should_not(cl, client,
 
     watcher = MagicMock()
     watcher.stream = MagicMock()
-    watcher.stream.side_effect = urllib3.exceptions.ReadTimeoutError(
-        None, None, None)
+    watcher.stream.side_effect = urllib3.exceptions.ReadTimeoutError(None, None, None)
     watch.Watch.return_value = watcher
 
     with pytest.raises(ActivityFailed) as excinfo:
         statefulset_not_fully_available("mysvc")
-    assert "microservice 'mysvc' failed to stop running within" in \
-        str(excinfo.value)
+    assert "microservice 'mysvc' failed to stop running within" in str(excinfo.value)
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.statefulset.probes.watch', autospec=True)
-@patch('chaosk8s.statefulset.probes.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.statefulset.probes.watch", autospec=True)
+@patch("chaosk8s.statefulset.probes.client", autospec=True)
+@patch("chaosk8s.client")
 def test_statefulset_fully_available(cl, client, watch, has_conf):
     has_conf.return_value = False
     statefulset = MagicMock()
@@ -284,12 +279,11 @@ def test_statefulset_fully_available(cl, client, watch, has_conf):
     assert statefulset_fully_available("mysvc") is True
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.statefulset.probes.watch', autospec=True)
-@patch('chaosk8s.statefulset.probes.client', autospec=True)
-@patch('chaosk8s.client')
-def test_statefulset_not_fully_available_when_it_should(cl, client,
-                                                          watch, has_conf):
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.statefulset.probes.watch", autospec=True)
+@patch("chaosk8s.statefulset.probes.client", autospec=True)
+@patch("chaosk8s.client")
+def test_statefulset_not_fully_available_when_it_should(cl, client, watch, has_conf):
     has_conf.return_value = False
     statefulset = MagicMock()
     statefulset.spec.replicas = 2
@@ -297,19 +291,17 @@ def test_statefulset_not_fully_available_when_it_should(cl, client,
 
     watcher = MagicMock()
     watcher.stream = MagicMock()
-    watcher.stream.side_effect = urllib3.exceptions.ReadTimeoutError(
-        None, None, None)
+    watcher.stream.side_effect = urllib3.exceptions.ReadTimeoutError(None, None, None)
     watch.Watch.return_value = watcher
 
     with pytest.raises(ActivityFailed) as excinfo:
         statefulset_fully_available("mysvc")
-    assert "microservice 'mysvc' failed to recover within" in \
-        str(excinfo.value)
+    assert "microservice 'mysvc' failed to recover within" in str(excinfo.value)
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.pod.probes.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.pod.probes.client", autospec=True)
+@patch("chaosk8s.client")
 def test_fetch_last_logs(cl, client, has_conf):
     has_conf.return_value = False
     pod = MagicMock()
@@ -329,9 +321,9 @@ def test_fetch_last_logs(cl, client, has_conf):
     assert logs[pod.metadata.name] == "hello"
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.service.probes.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.service.probes.client", autospec=True)
+@patch("chaosk8s.client")
 def test_can_select_by_label(cl, client, has_conf):
     has_conf.return_value = False
     result = MagicMock()
@@ -344,23 +336,22 @@ def test_can_select_by_label(cl, client, has_conf):
     label_selector = "app=my-super-app"
     service_endpoint_is_initialized("mysvc", label_selector=label_selector)
     v1.list_namespaced_service.assert_called_with(
-        "default", field_selector="metadata.name=mysvc",
-        label_selector=label_selector
+        "default", field_selector="metadata.name=mysvc", label_selector=label_selector
     )
 
 
-@patch('chaosk8s.has_local_config_file', autospec=True)
-@patch('chaosk8s.node.probes.client', autospec=True)
-@patch('chaosk8s.client')
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.node.probes.client", autospec=True)
+@patch("chaosk8s.client")
 def test_can_select_nodes_by_label(cl, client, has_conf):
     has_conf.return_value = False
     v1 = MagicMock()
-    v1.list_node.return_value = io.BytesIO(
-        json.dumps({"hey": "there"}).encode('utf-8'))
+    v1.list_node.return_value = io.BytesIO(json.dumps({"hey": "there"}).encode("utf-8"))
     client.CoreV1Api.return_value = v1
 
-    label_selector = 'beta.kubernetes.io/instance-type=m5.large'
+    label_selector = "beta.kubernetes.io/instance-type=m5.large"
     resp = get_nodes(label_selector=label_selector)
     v1.list_node.assert_called_with(
-        label_selector=label_selector, _preload_content=False)
+        label_selector=label_selector, _preload_content=False
+    )
     assert resp == {"hey": "there"}

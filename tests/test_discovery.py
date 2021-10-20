@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from chaosk8s import __version__, discover
 
 

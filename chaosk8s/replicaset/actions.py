@@ -7,8 +7,12 @@ from chaosk8s import create_k8s_api_client
 __all__ = ["delete_replica_set"]
 
 
-def delete_replica_set(name: str = None, ns: str = "default",
-                       label_selector: str = None, secrets: Secrets = None):
+def delete_replica_set(
+    name: str = None,
+    ns: str = "default",
+    label_selector: str = None,
+    secrets: Secrets = None,
+):
     """
     Delete a replica set by `name` or `label_selector` in the namespace `ns`.
 
@@ -19,17 +23,15 @@ def delete_replica_set(name: str = None, ns: str = "default",
     will be deleted in the namespace.
     """
     api = create_k8s_api_client(secrets)
-    v1 = client.ExtensionsV1beta1Api(api)
+    v1 = client.AppsV1Api(api)
     if name:
-        ret = v1.list_namespaced_replica_set(
-            ns, field_selector="metadata.name={}".format(name))
+        ret = v1.list_namespaced_replica_set(ns, field_selector=f"metadata.name={name}")
     elif label_selector:
         ret = v1.list_namespaced_replica_set(ns, label_selector=label_selector)
     else:
         ret = v1.list_namespaced_replica_set(ns)
 
-    logger.debug("Found {d} replica sets named '{n}'".format(
-        d=len(ret.items), n=name))
+    logger.debug(f"Found {len(ret.items)} replica sets named '{name}'")
 
     body = client.V1DeleteOptions()
     for r in ret.items:

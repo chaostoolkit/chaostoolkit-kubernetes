@@ -1,21 +1,22 @@
-# -*- coding: utf-8 -*-
 import os
 import os.path
 from typing import List
 
-from chaoslib.discovery.discover import discover_actions, discover_probes, \
-    initialize_discovery_result
-from chaoslib.types import Discovery, DiscoveredActivities, Secrets
+from chaoslib.discovery.discover import (
+    discover_actions,
+    discover_probes,
+    initialize_discovery_result,
+)
+from chaoslib.types import DiscoveredActivities, Discovery, Secrets
 from kubernetes import client, config
 from logzero import logger
 
-
 __all__ = ["create_k8s_api_client", "discover", "__version__"]
-__version__ = '0.25.1'
+__version__ = "0.25.1"
 
 
 def get_config_path() -> str:
-    return os.path.expanduser(os.environ.get('KUBECONFIG', '~/.kube/config'))
+    return os.path.expanduser(os.environ.get("KUBECONFIG", "~/.kube/config"))
 
 
 def has_local_config_file(config_file: str = None):
@@ -70,14 +71,15 @@ def create_k8s_api_client(secrets: Secrets = None) -> client.ApiClient:
     if has_local_config_file(config_file):
         context = lookup("KUBERNETES_CONTEXT")
         logger.debug(
-            "Using Kubernetes context '{}' from config '{}'".format(
-                context or "default", config_file))
+            f"Using Kubernetes context '{context or 'default'}' "
+            f"from config '{config_file}'"
+        )
 
         config.load_kube_config(context=context)
         client.Configuration.verify_ssl = verify_ssl
         client.Configuration.debug = debug
 
-        proxy_url = os.getenv('HTTP_PROXY', None)
+        proxy_url = os.getenv("HTTP_PROXY", None)
         if proxy_url:
             client.Configuration._default.proxy = proxy_url
 
@@ -88,7 +90,7 @@ def create_k8s_api_client(secrets: Secrets = None) -> client.ApiClient:
         client.Configuration.verify_ssl = verify_ssl
         client.Configuration.debug = debug
 
-        proxy_url = os.getenv('HTTP_PROXY', None)
+        proxy_url = os.getenv("HTTP_PROXY", None)
         if proxy_url:
             client.Configuration._default.proxy = proxy_url
 
@@ -98,24 +100,22 @@ def create_k8s_api_client(secrets: Secrets = None) -> client.ApiClient:
         configuration = client.Configuration()
         configuration.debug = debug
         configuration.host = lookup("KUBERNETES_HOST", "http://localhost")
-        configuration.verify_ssl = lookup(
-            "KUBERNETES_VERIFY_SSL", False) is not False
+        configuration.verify_ssl = lookup("KUBERNETES_VERIFY_SSL", False) is not False
         configuration.ssl_ca_cert = lookup("KUBERNETES_CA_CERT_FILE")
 
         if "KUBERNETES_API_KEY" in env or "KUBERNETES_API_KEY" in secrets:
-            configuration.api_key['authorization'] = lookup(
-                "KUBERNETES_API_KEY")
-            configuration.api_key_prefix['authorization'] = lookup(
-                "KUBERNETES_API_KEY_PREFIX", "Bearer")
-        elif "KUBERNETES_CERT_FILE" in env or \
-                "KUBERNETES_CERT_FILE" in secrets:
+            configuration.api_key["authorization"] = lookup("KUBERNETES_API_KEY")
+            configuration.api_key_prefix["authorization"] = lookup(
+                "KUBERNETES_API_KEY_PREFIX", "Bearer"
+            )
+        elif "KUBERNETES_CERT_FILE" in env or "KUBERNETES_CERT_FILE" in secrets:
             configuration.cert_file = lookup("KUBERNETES_CERT_FILE")
             configuration.key_file = lookup("KUBERNETES_KEY_FILE")
         elif "KUBERNETES_USERNAME" in env or "KUBERNETES_USERNAME" in secrets:
             configuration.username = lookup("KUBERNETES_USERNAME")
             configuration.password = lookup("KUBERNETES_PASSWORD", "")
 
-        proxy_url = os.getenv('HTTP_PROXY', None)
+        proxy_url = os.getenv("HTTP_PROXY", None)
         if proxy_url:
             configuration.proxy = proxy_url
 
@@ -129,7 +129,8 @@ def discover(discover_system: bool = True) -> Discovery:
     logger.info("Discovering capabilities from chaostoolkit-kubernetes")
 
     discovery = initialize_discovery_result(
-        "chaostoolkit-kubernetes", __version__, "kubernetes")
+        "chaostoolkit-kubernetes", __version__, "kubernetes"
+    )
     discovery["activities"].extend(load_exported_activities())
     return discovery
 
@@ -161,6 +162,7 @@ def load_exported_activities() -> List[DiscoveredActivities]:
 
 
 def _log_deprecated(name: str, alt_name: str):
-    logger.warning("{} function is DEPRECATED and will be removed in the next \
-        releases, please use {} instead".format(
-        name, alt_name))
+    logger.warning(
+        f"{name} function is DEPRECATED and will be removed in the next \
+        releases, please use {alt_name} instead"
+    )

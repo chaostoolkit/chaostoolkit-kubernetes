@@ -10,6 +10,23 @@
   to return if a deployment has some of its pods ready, making the deployment
   at available (without requiring all pods to be healthy) [#117][117]
 - Add `build-and-test`, `check-pr`, and `release` workflows for GitHub Actions
+- Added `Makefile` to abstract away common development commands
+
+### Changed
+
+- Switched to `black`, `flake8`, and `isort` for formatting/linting instead
+of `pycodestyle`
+- Applied `pyupgrade --py36-plus` across codebase
+- Applied new formatting libs across codebase
+
+### Fixed
+
+- Fixed issue in `replicaset.actions.delete_replica_set`: `'ExtensionsV1beta1Api' object has no attribute 'list_namespaced_replica_set'`,
+we now use the `AppsV1Api` API
+
+### Removed
+
+- Removed lots of duplicate tests which offered no different exercising of the code
 
 [117]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/117
 
