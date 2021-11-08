@@ -3,7 +3,7 @@ import json
 import math
 import random
 import re
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
@@ -77,7 +77,7 @@ def terminate_pods(
 
 
 def exec_in_pods(
-    cmd: str,
+    cmd: Union[str, List[str]],
     label_selector: str = None,
     name_pattern: str = None,
     all: bool = False,
@@ -112,6 +112,11 @@ def exec_in_pods(
 
     If `rand` is set to `True`, n random pods will be affected
     Otherwise, the first retrieved n pods will be used
+
+    The `cmd` should be a string or a sequence of program arguments. Providing
+    a sequence of arguments is generally preferred, as it allows the action to
+    take care of any required escaping and quoting (e.g. to permit spaces in the
+    arguments). If passing a single string it will be split automatically.
     """
     if not cmd:
         raise ActivityFailed("A command must be set to run a container")
@@ -123,7 +128,7 @@ def exec_in_pods(
         v1, label_selector, name_pattern, all, rand, mode, qty, ns, order
     )
 
-    exec_command = cmd.strip().split()
+    exec_command = cmd.strip().split() if isinstance(cmd, str) else cmd
 
     results = []
     for po in pods:
