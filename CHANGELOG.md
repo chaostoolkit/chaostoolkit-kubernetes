@@ -4,6 +4,12 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.26.0...HEAD
 
+### Fixed
+
+- Fixed statefulset probe by using the right properties on it [#112][112]
+
+[112]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/112
+
 ## [0.26.0][] - 2021-10-20
 
 [0.26.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.25.1...0.26.0

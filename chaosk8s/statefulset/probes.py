@@ -59,9 +59,10 @@ def _statefulset_readiness_has_state(
 
             logger.debug(
                 f"StatefulSet '{statefulset.metadata.name}' {event['type']}: "
+                f"Current Revision: {status.current_revision} - "
                 f"Ready Replicas {status.ready_replicas} - "
-                f"Unavailable Replicas {status.unavailable_replicas} - "
-                f"Desired Replicas {spec.replicas}"
+                f"Current Replicas {status.current_replicas} - "
+                f"Replicas {spec.replicas}"
             )
 
             readiness = status.ready_replicas == spec.replicas
