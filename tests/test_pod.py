@@ -648,19 +648,13 @@ def test_exec_in_pods_no_command_provided(cl, client, has_conf):
 
     container1 = MagicMock()
     container1.name = "container1"
-    container2 = MagicMock()
-    container2.name = "container2"
 
     pod1 = MagicMock()
     pod1.metadata.name = "my-app-1"
-    pod1.spec.containers = [container1, container2]
-
-    pod2 = MagicMock()
-    pod2.metadata.name = "my-app-2"
-    pod2.spec.containers = [container1, container2]
+    pod1.spec.containers = [container1]
 
     result = MagicMock()
-    result.items = [pod1, pod2]
+    result.items = [pod1]
 
     v1 = MagicMock()
     v1.list_namespaced_pod.return_value = result
@@ -692,8 +686,6 @@ def test_exec_in_pods_no_command_provided(cl, client, has_conf):
             cmd=None,
             name_pattern="my-app-[0-9]$",
             container_name="container1",
-            qty=2,
-            rand=True,
         )
 
     assert "A command must be set to run a container" in str(expinfo.value)
@@ -708,19 +700,13 @@ def test_exec_in_pods_no_pod_found_with_name(cl, client, has_conf):
 
     container1 = MagicMock()
     container1.name = "container1"
-    container2 = MagicMock()
-    container2.name = "container2"
 
     pod1 = MagicMock()
     pod1.metadata.name = "my-app-1"
-    pod1.spec.containers = [container1, container2]
-
-    pod2 = MagicMock()
-    pod2.metadata.name = "my-app-2"
-    pod2.spec.containers = [container1, container2]
+    pod1.spec.containers = [container1]
 
     result = MagicMock()
-    result.items = [pod1, pod2]
+    result.items = [pod1]
 
     v1 = MagicMock()
     v1.list_namespaced_pod.return_value = result
@@ -731,8 +717,6 @@ def test_exec_in_pods_no_pod_found_with_name(cl, client, has_conf):
         name_pattern="no-app-[0-9]$",
         cmd="dummy -a -b -c",
         container_name="container1",
-        qty=2,
-        rand=True,
     )
 
     assert stream.stream.call_count == 0
@@ -746,21 +730,19 @@ def test_exec_in_pods_order_by_oldest(cl, client, has_conf):
 
     container1 = MagicMock()
     container1.name = "container1"
-    container2 = MagicMock()
-    container2.name = "container2"
 
     pod1 = MagicMock()
     pod1.metadata.name = "my-app-1"
-    pod1.metadata.creation_timestamp = "2019-11-25T13:50:31Z"
-    pod1.spec.containers = [container1, container2]
+    pod1.metadata.creation_timestamp = "2019-11-25T13:55:31Z"
+    pod1.spec.containers = [container1]
 
     pod2 = MagicMock()
     pod2.metadata.name = "my-app-2"
-    pod2.metadata.creation_timestamp = "2019-11-25T13:55:00Z"
-    pod2.spec.containers = [container1, container2]
+    pod2.metadata.creation_timestamp = "2019-11-25T13:50:00Z"
+    pod2.spec.containers = [container1]
 
     result = MagicMock()
-    result.items = [pod1, pod2]
+    result.items = [pod2, pod1]
 
     v1 = MagicMock()
     v1.list_namespaced_pod.return_value = result
@@ -776,7 +758,6 @@ def test_exec_in_pods_order_by_oldest(cl, client, has_conf):
         cmd="dummy -a -b -c",
         container_name="container1",
         qty=2,
-        rand=True,
     )
 
     assert stream.stream.call_count == 2
@@ -790,19 +771,13 @@ def test_exec_in_pods_invalid_order(cl, client, has_conf):
 
     container1 = MagicMock()
     container1.name = "container1"
-    container2 = MagicMock()
-    container2.name = "container2"
 
     pod1 = MagicMock()
     pod1.metadata.name = "my-app-1"
-    pod1.spec.containers = [container1, container2]
-
-    pod2 = MagicMock()
-    pod2.metadata.name = "my-app-2"
-    pod2.spec.containers = [container1, container2]
+    pod1.spec.containers = [container1]
 
     result = MagicMock()
-    result.items = [pod1, pod2]
+    result.items = [pod1]
 
     v1 = MagicMock()
     v1.list_namespaced_pod.return_value = result
@@ -814,8 +789,6 @@ def test_exec_in_pods_invalid_order(cl, client, has_conf):
             order="bad_order",
             cmd="dummy -a -b -c",
             container_name="container1",
-            qty=2,
-            rand=True,
         )
     assert "Cannot select pods. Order 'bad_order' is invalid." in str(excinfo.value)
     assert stream.stream.call_count == 0
@@ -860,7 +833,6 @@ def test_exec_in_pods_using_pod_label_selector(cl, client, has_conf):
         cmd="dummy -a -b -c",
         container_name="container1",
         qty=2,
-        rand=True,
     )
     assert stream.stream.call_count == 1
 
@@ -874,19 +846,9 @@ def test_exec_in_pods_return_value(cl, client, has_conf):
     container1 = MagicMock()
     container1.name = "container1"
 
-    container2 = MagicMock()
-    container2.name = "container2"
-    container2.metadata.labels = {
-        "dummy_label1": "dummy_value1",
-    }
-
     pod1 = MagicMock()
     pod1.metadata.name = "my-app-1"
-    pod1.spec.containers = [container1, container2]
-
-    pod2 = MagicMock()
-    pod2.metadata.name = "my-app-2"
-    pod2.spec.containers = [container1, container2]
+    pod1.spec.containers = [container1]
 
     result = MagicMock()
     result.items = [pod1]
@@ -900,11 +862,9 @@ def test_exec_in_pods_return_value(cl, client, has_conf):
     stream.stream.return_value.read_channel.return_value = '{"status":"Success"}'
 
     exec_in_pods(
-        label_selector="dummy_label1=dummy_value1",
+        name_pattern="my-app-[0-9]$",
         cmd="dummy -a -b -c",
         container_name="container1",
-        qty=2,
-        rand=True,
     )
     assert stream.stream.call_count == 1
 
