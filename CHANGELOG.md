@@ -4,6 +4,11 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.26.1...HEAD
 
+### Added
+
+- Allow passing cmd as an array for exec_in_pods [#127][127]
+
+[127]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/127
 
 ## [0.26.1][] - 2021-12-13
 
