@@ -1,3 +1,4 @@
+import json
 from unittest.mock import ANY, MagicMock, call, patch
 
 import pytest
@@ -924,7 +925,10 @@ def test_exec_in_pods_cmd_as_list(cl, client, has_conf):
 
     stream.stream = MagicMock()
     stream.stream.return_value.read_channel = MagicMock()
-    stream.stream.return_value.read_channel.return_value = '{"status":"Success"}'
+    stream.stream.return_value.read_channel.side_effect = [
+        "hello",
+        '{"status":"Success"}',
+    ]
 
     command = ["dummy", "-l", "Long and 'complex'"]
 
@@ -935,6 +939,7 @@ def test_exec_in_pods_cmd_as_list(cl, client, has_conf):
     )
     assert stream.stream.call_count == 1
     assert stream.stream.call_args[1]["command"] == command
+    assert result[0]["exit_code"] == 0
 
 
 @patch("chaosk8s.has_local_config_file", autospec=True)
@@ -1047,3 +1052,79 @@ def test_terminate_pods_by_name_with_prefix_pattern_rand(cl, client, has_conf):
         v1.delete_namespaced_pod.assert_called_with(
             pod3.metadata.name, "default", body=ANY
         )
+
+
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.pod.actions.client", autospec=True)
+@patch("chaosk8s.client")
+def test_exec_in_pods_stderr_can_be_json(cl, client, has_conf):
+    has_conf.return_value = False
+
+    container1 = MagicMock()
+    container1.name = "container1"
+
+    pod1 = MagicMock()
+    pod1.metadata.name = "my-app-1"
+    pod1.spec.containers = [container1]
+
+    result = MagicMock()
+    result.items = [pod1]
+
+    v1 = MagicMock()
+    v1.list_namespaced_pod.return_value = result
+    client.CoreV1Api.return_value = v1
+
+    stream.stream = MagicMock()
+    stream.stream.return_value.read_channel = MagicMock()
+    stream.stream.return_value.read_channel.return_value = json.dumps(
+        {
+            "status": "Error",
+            "message": "failed",
+            "details": {"causes": [{"message": 2}]},
+        }
+    )
+
+    result = exec_in_pods(
+        name_pattern="my-app-1",
+        cmd="dummy -a -b -c",
+        container_name="container1",
+    )
+    assert stream.stream.call_count == 1
+    assert stream.stream.call_args[1]["command"] == ["dummy", "-a", "-b", "-c"]
+    assert result[0]["exit_code"] == 2
+    assert result[0]["stderr"] == "failed"
+
+
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.pod.actions.client", autospec=True)
+@patch("chaosk8s.client")
+def test_exec_in_pods_stderr_sometimes_not_json(cl, client, has_conf):
+    has_conf.return_value = False
+
+    container1 = MagicMock()
+    container1.name = "container1"
+
+    pod1 = MagicMock()
+    pod1.metadata.name = "my-app-1"
+    pod1.spec.containers = [container1]
+
+    result = MagicMock()
+    result.items = [pod1]
+
+    v1 = MagicMock()
+    v1.list_namespaced_pod.return_value = result
+    client.CoreV1Api.return_value = v1
+
+    stream.stream = MagicMock()
+    stream.stream.return_value.read_channel = MagicMock()
+    stream.stream.return_value.read_channel.return_value = "BOOM"
+
+    result = exec_in_pods(
+        name_pattern="my-app-1",
+        cmd="dummy -a -b -c",
+        container_name="container1",
+    )
+    assert stream.stream.call_count == 1
+    assert stream.stream.call_args[1]["command"] == ["dummy", "-a", "-b", "-c"]
+    assert result[0]["exit_code"] == 1
+    assert result[0]["stderr"] == "BOOM"

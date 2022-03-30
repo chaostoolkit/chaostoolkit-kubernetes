@@ -157,12 +157,22 @@ def exec_in_pods(
 
         resp.run_forever(timeout=request_timeout)
 
-        err = json.loads(resp.read_channel(ERROR_CHANNEL))
         out = resp.read_channel(STDOUT_CHANNEL)
+        err = resp.read_channel(ERROR_CHANNEL).strip()
 
-        if err["status"] != "Success":
+        try:
+            err = json.loads(err)
+        except json.decoder.JSONDecodeError:
+            logger.debug(
+                "Failed loading pod exec error stream as a json payload", exc_info=True
+            )
+
+        if isinstance(err, dict) and (err["status"] != "Success"):
             error_code = err["details"]["causes"][0]["message"]
             error_message = err["message"]
+        elif isinstance(err, str):
+            error_code = 1
+            error_message = err
         else:
             error_code = 0
             error_message = ""

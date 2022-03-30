@@ -143,6 +143,10 @@ def test_uncordon_node_by_name(cl, client, has_conf):
 def test_drain_nodes_by_name(cl, client, has_conf):
     has_conf.return_value = False
 
+    client.V1beta1Eviction = MagicMock()
+    client.V1ObjectMeta = MagicMock()
+    client.V1DeleteOptions = MagicMock()
+
     v1 = MagicMock()
     client.CoreV1Api.return_value = v1
 
@@ -259,6 +263,10 @@ def test_pod_with_local_volume_cannot_be_drained(cl, client, has_conf):
 @patch("chaosk8s.client")
 def test_pod_with_local_volume_cannot_be_drained_unless_forced(cl, client, has_conf):
     has_conf.return_value = False
+
+    client.V1beta1Eviction = MagicMock()
+    client.V1ObjectMeta = MagicMock()
+    client.V1DeleteOptions = MagicMock()
 
     v1 = MagicMock()
     client.CoreV1Api.return_value = v1

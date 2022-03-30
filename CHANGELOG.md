@@ -10,6 +10,13 @@
 
 [127]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/127
 
+### Changed
+
+- Exec pods may not always return a value that can be parsed as a json object
+  so, in that case we return the error as-is rather than failing. [#131][131]
+
+[131]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/131
+
 ## [0.26.1][] - 2021-12-13
 
 [0.26.1]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.26.0...0.26.1
