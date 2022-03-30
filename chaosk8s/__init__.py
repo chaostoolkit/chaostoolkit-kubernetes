@@ -12,7 +12,7 @@ from kubernetes import client, config
 from logzero import logger
 
 __all__ = ["create_k8s_api_client", "discover", "__version__"]
-__version__ = "0.26.1"
+__version__ = "0.26.2"
 
 
 def get_config_path() -> str:
