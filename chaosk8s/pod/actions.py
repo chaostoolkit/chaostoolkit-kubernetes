@@ -3,6 +3,7 @@ import json
 import math
 import random
 import re
+import shlex
 from typing import Any, Dict, List, Union
 
 from chaoslib.exceptions import ActivityFailed
@@ -128,7 +129,7 @@ def exec_in_pods(
         v1, label_selector, name_pattern, all, rand, mode, qty, ns, order
     )
 
-    exec_command = cmd.strip().split() if isinstance(cmd, str) else cmd
+    exec_command = shlex.split(cmd) if isinstance(cmd, str) else cmd
 
     results = []
     for po in pods:
