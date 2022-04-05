@@ -4,8 +4,6 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.26.2...HEAD
 
-## [0.26.3][] - 2022-04-05
-
 ### Fixed
 
 -Fixed the cmd splitting issue, therefore the shell commands will now parse correctly
