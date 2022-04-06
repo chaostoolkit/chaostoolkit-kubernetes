@@ -1128,3 +1128,39 @@ def test_exec_in_pods_stderr_sometimes_not_json(cl, client, has_conf):
     assert stream.stream.call_args[1]["command"] == ["dummy", "-a", "-b", "-c"]
     assert result[0]["exit_code"] == 1
     assert result[0]["stderr"] == "BOOM"
+
+
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.pod.actions.client", autospec=True)
+@patch("chaosk8s.client")
+def test_exec_in_pods_cmd_as_shlex(cl, client, has_conf):
+    has_conf.return_value = False
+
+    container1 = MagicMock()
+    container1.name = "container1"
+
+    pod1 = MagicMock()
+    pod1.metadata.name = "my-app-1"
+    pod1.spec.containers = [container1]
+
+    result = MagicMock()
+    result.items = [pod1]
+
+    v1 = MagicMock()
+    v1.list_namespaced_pod.return_value = result
+    client.CoreV1Api.return_value = v1
+
+    stream.stream = MagicMock()
+    stream.stream.return_value.read_channel = MagicMock()
+    stream.stream.return_value.read_channel.return_value = '{"status":"Success"}'
+
+    command = ["/bin/sh -c ls"]
+
+    result = exec_in_pods(
+        name_pattern="my-app-1",
+        cmd=command,
+        container_name="container1",
+    )
+    assert stream.stream.call_count == 1
+    assert stream.stream.call_args[1]["command"] == command
+    assert result[0]["exit_code"] == 0
