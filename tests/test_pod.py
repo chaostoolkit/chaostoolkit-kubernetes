@@ -1162,5 +1162,5 @@ def test_exec_in_pods_cmd_as_shlex(cl, client, has_conf):
         container_name="container1",
     )
     assert stream.stream.call_count == 1
-    assert stream.stream.call_args[1]["command"] == ["/bin/sh -c ls"]
+    assert stream.stream.call_args[1]["command"] == ["/bin/sh", "-c", "ls"]
     assert result[0]["exit_code"] == 0
