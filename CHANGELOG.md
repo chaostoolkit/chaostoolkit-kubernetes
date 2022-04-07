@@ -8,6 +8,7 @@
 
 -Fixed the cmd splitting issue, therefore the shell commands will now parse correctly [#133][133]
 
+[133]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/133
 
 ## [0.26.2][] - 2022-03-30
 
