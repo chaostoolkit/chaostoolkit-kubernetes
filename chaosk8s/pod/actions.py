@@ -1,31 +1,35 @@
-# -*- coding: utf-8 -*-
 import datetime
 import json
 import math
 import random
 import re
-from typing import Any, Dict, List
+import shlex
+from typing import Any, Dict, List, Union
 
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
-from kubernetes import client
-from kubernetes import stream
-from kubernetes.stream.ws_client import ERROR_CHANNEL
-from kubernetes.stream.ws_client import STDOUT_CHANNEL
+from kubernetes import client, stream
 from kubernetes.client.models.v1_pod import V1Pod
+from kubernetes.stream.ws_client import ERROR_CHANNEL, STDOUT_CHANNEL
 from logzero import logger
 
-from chaosk8s import create_k8s_api_client
+from chaosk8s import _log_deprecated, create_k8s_api_client
 
-__all__ = ["terminate_pods", "exec_in_pods", "delete_pods"]
+__all__ = ["terminate_pods", "exec_in_pods"]
 
 
-def terminate_pods(label_selector: str = None, name_pattern: str = None,
-                   all: bool = False, rand: bool = False,
-                   mode: str = "fixed", qty: int = 1,
-                   grace_period: int = -1,
-                   ns: str = "default", order: str = "alphabetic",
-                   secrets: Secrets = None):
+def terminate_pods(
+    label_selector: str = None,
+    name_pattern: str = None,
+    all: bool = False,
+    rand: bool = False,
+    mode: str = "fixed",
+    qty: int = 1,
+    grace_period: int = -1,
+    ns: str = "default",
+    order: str = "alphabetic",
+    secrets: Secrets = None,
+):
     """
     Terminate a pod gracefully. Select the appropriate pods by label and/or
     name patterns. Whenever a pattern is provided for the name, all pods
@@ -57,8 +61,9 @@ def terminate_pods(label_selector: str = None, name_pattern: str = None,
     api = create_k8s_api_client(secrets)
     v1 = client.CoreV1Api(api)
 
-    pods = _select_pods(v1, label_selector, name_pattern,
-                        all, rand, mode, qty, ns, order)
+    pods = _select_pods(
+        v1, label_selector, name_pattern, all, rand, mode, qty, ns, order
+    )
 
     body = client.V1DeleteOptions()
     if grace_period >= 0:
@@ -72,14 +77,20 @@ def terminate_pods(label_selector: str = None, name_pattern: str = None,
     return deleted_pods
 
 
-def exec_in_pods(cmd: str,
-                 label_selector: str = None, name_pattern: str = None,
-                 all: bool = False, rand: bool = False,
-                 mode: str = "fixed", qty: int = 1,
-                 ns: str = "default", order: str = "alphabetic",
-                 container_name: str = None,
-                 request_timeout: int = 60,
-                 secrets: Secrets = None) -> List[Dict[str, Any]]:
+def exec_in_pods(
+    cmd: Union[str, List[str]],
+    label_selector: str = None,
+    name_pattern: str = None,
+    all: bool = False,
+    rand: bool = False,
+    mode: str = "fixed",
+    qty: int = 1,
+    ns: str = "default",
+    order: str = "alphabetic",
+    container_name: str = None,
+    request_timeout: int = 60,
+    secrets: Secrets = None,
+) -> List[Dict[str, Any]]:
     """
     Execute the command `cmd` in the specified pod's container.
     Select the appropriate pods by label and/or name patterns.
@@ -102,6 +113,11 @@ def exec_in_pods(cmd: str,
 
     If `rand` is set to `True`, n random pods will be affected
     Otherwise, the first retrieved n pods will be used
+
+    The `cmd` should be a string or a sequence of program arguments. Providing
+    a sequence of arguments is generally preferred, as it allows the action to
+    take care of any required escaping and quoting (e.g. to permit spaces in the
+    arguments). If passing a single string it will be split automatically.
     """
     if not cmd:
         raise ActivityFailed("A command must be set to run a container")
@@ -109,50 +125,68 @@ def exec_in_pods(cmd: str,
     api = create_k8s_api_client(secrets)
     v1 = client.CoreV1Api(api)
 
-    pods = _select_pods(v1, label_selector, name_pattern,
-                        all, rand, mode, qty, ns, order)
+    pods = _select_pods(
+        v1, label_selector, name_pattern, all, rand, mode, qty, ns, order
+    )
 
-    exec_command = cmd.strip().split()
+    exec_command = shlex.split(cmd) if isinstance(cmd, str) else cmd
 
     results = []
     for po in pods:
-        logger.debug("Picked pods '{p}' for command execution {c}".format(
-            p=po.metadata.name, c=exec_command))
+        logger.debug(
+            f"Picked pods '{po.metadata.name}' for command execution {exec_command}"
+        )
         if not any(c.name == container_name for c in po.spec.containers):
-            logger.debug("Pod {p} do not have container named '{n}'".format(
-                p=po.metadata.name, n=container_name))
+            logger.debug(
+                f"Pod {po.metadata.name} do not have container named '{container_name}'"
+            )
             continue
 
-        pod_execution_result = {}
         # Use _preload_content to get back the raw JSON response.
-        resp = stream.stream(v1.connect_get_namespaced_pod_exec,
-                             po.metadata.name,
-                             ns,
-                             container=container_name,
-                             command=exec_command,
-                             stderr=True,
-                             stdin=False,
-                             stdout=True,
-                             tty=False,
-                             _preload_content=False)
+        resp = stream.stream(
+            v1.connect_get_namespaced_pod_exec,
+            po.metadata.name,
+            ns,
+            container=container_name,
+            command=exec_command,
+            stderr=True,
+            stdin=False,
+            stdout=True,
+            tty=False,
+            _preload_content=False,
+        )
 
         resp.run_forever(timeout=request_timeout)
 
-        err = json.loads(resp.read_channel(ERROR_CHANNEL))
         out = resp.read_channel(STDOUT_CHANNEL)
+        err = resp.read_channel(ERROR_CHANNEL).strip()
 
-        if err['status'] != "Success":
-            error_code = err['details']['causes'][0]['message']
-            error_message = err['message']
+        try:
+            err = json.loads(err)
+        except json.decoder.JSONDecodeError:
+            logger.debug(
+                "Failed loading pod exec error stream as a json payload", exc_info=True
+            )
+
+        if isinstance(err, dict) and (err["status"] != "Success"):
+            error_code = err["details"]["causes"][0]["message"]
+            error_message = err["message"]
+        elif isinstance(err, str):
+            error_code = 1
+            error_message = err
         else:
             error_code = 0
-            error_message = ''
+            error_message = ""
 
-        results.append(dict(pod_name=po.metadata.name,
-                            exit_code=error_code,
-                            cmd=cmd,
-                            stdout=out,
-                            stderr=error_message))
+        results.append(
+            dict(
+                pod_name=po.metadata.name,
+                exit_code=error_code,
+                cmd=cmd,
+                stdout=out,
+                stderr=error_message,
+            )
+        )
     return results
 
 
@@ -166,12 +200,17 @@ def _sort_by_pod_creation_timestamp(pod: V1Pod) -> datetime.datetime:
     return pod.metadata.creation_timestamp
 
 
-def _select_pods(v1: client.CoreV1Api = None, label_selector: str = None,
-                 name_pattern: str = None,
-                 all: bool = False, rand: bool = False,
-                 mode: str = "fixed", qty: int = 1,
-                 ns: str = "default",
-                 order: str = "alphabetic") -> List[V1Pod]:
+def _select_pods(
+    v1: client.CoreV1Api = None,
+    label_selector: str = None,
+    name_pattern: str = None,
+    all: bool = False,
+    rand: bool = False,
+    mode: str = "fixed",
+    qty: int = 1,
+    ns: str = "default",
+    order: str = "alphabetic",
+) -> List[V1Pod]:
 
     # Fail if CoreV1Api is not instanciated
     if v1 is None:
@@ -179,27 +218,24 @@ def _select_pods(v1: client.CoreV1Api = None, label_selector: str = None,
 
     # Fail when quantity is less than 0
     if qty < 0:
-        raise ActivityFailed(
-            "Cannot select pods. Quantity '{q}' is negative.".format(q=qty))
+        raise ActivityFailed(f"Cannot select pods. Quantity '{qty}' is negative.")
 
     # Fail when mode is not `fixed` or `percentage`
-    if mode not in ['fixed', 'percentage']:
-        raise ActivityFailed(
-            "Cannot select pods. Mode '{m}' is invalid.".format(m=mode))
+    if mode not in ["fixed", "percentage"]:
+        raise ActivityFailed(f"Cannot select pods. Mode '{mode}' is invalid.")
 
     # Fail when order not `alphabetic` or `oldest`
-    if order not in ['alphabetic', 'oldest']:
-        raise ActivityFailed(
-            "Cannot select pods. Order '{o}' is invalid.".format(o=order))
+    if order not in ["alphabetic", "oldest"]:
+        raise ActivityFailed(f"Cannot select pods. Order '{order}' is invalid.")
 
     if label_selector:
         ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
-        logger.debug("Found {d} pods labelled '{s}' in ns {n}".format(
-            d=len(ret.items), s=label_selector, n=ns))
+        logger.debug(
+            f"Found {len(ret.items)} pods labelled '{label_selector}' in ns {ns}"
+        )
     else:
         ret = v1.list_namespaced_pod(ns)
-        logger.debug("Found {d} pods in ns '{n}'".format(
-            d=len(ret.items), n=ns))
+        logger.debug(f"Found {len(ret.items)} pods in ns '{ns}'")
 
     pods = []
     if name_pattern:
@@ -207,15 +243,14 @@ def _select_pods(v1: client.CoreV1Api = None, label_selector: str = None,
         for p in ret.items:
             if pattern.search(p.metadata.name):
                 pods.append(p)
-                logger.debug("Pod '{p}' match pattern".format(
-                    p=p.metadata.name))
+                logger.debug(f"Pod '{p.metadata.name}' match pattern")
     else:
         pods = ret.items
 
-    if order == 'oldest':
+    if order == "oldest":
         pods.sort(key=_sort_by_pod_creation_timestamp)
     if not all:
-        if mode == 'percentage':
+        if mode == "percentage":
             qty = math.ceil((qty * len(pods)) / 100)
         # If quantity is greater than number of pods present, cap the
         # quantity to maximum number of pods
@@ -229,30 +264,18 @@ def _select_pods(v1: client.CoreV1Api = None, label_selector: str = None,
     return pods
 
 
-def delete_pods(name: str = None, ns: str = "default",
-                label_selector: str = None, secrets: Secrets = None):
+def delete_pods(
+    name: str = None,
+    ns: str = "default",
+    label_selector: str = None,
+    secrets: Secrets = None,
+):
     """
     Delete pods by `name` or `label_selector` in the namespace `ns`.
 
-    The pods are deleted without a graceful period to trigger an abrupt
-    termination.
-
-    If neither of `name` and `label_selector` is specified, all the pods will
-    be deleted in the namespace.
+    This action has been deprecated in favor of `terminate_pods`.
     """
-    api = create_k8s_api_client(secrets)
-    v1 = client.CoreV1Api(api)
-    if name:
-        ret = v1.list_namespaced_pod(
-            ns, field_selector="metadata.name={}".format(name))
-    elif label_selector:
-        ret = v1.list_namespaced_pod(ns, label_selector=label_selector)
-    else:
-        ret = v1.list_namespaced_pod(ns)
-
-    logger.debug("Found {d} pods named '{n}'".format(
-        d=len(ret.items), n=name))
-
-    body = client.V1DeleteOptions()
-    for p in ret.items:
-        v1.delete_namespaced_pod(p.metadata.name, ns, body=body)
+    _log_deprecated("delete_pods", "terminate_pods")
+    return terminate_pods(
+        name_pattern=name, label_selector=label_selector, ns=ns, secrets=secrets
+    )

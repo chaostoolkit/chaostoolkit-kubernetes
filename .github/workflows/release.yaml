@@ -1,0 +1,65 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+rc[0-9]+'
+
+jobs:
+  release-to-pypi:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.6'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install --upgrade setuptools wheel twine
+    - name: Build and publish
+      env:
+        TWINE_USERNAME: chaostoolkit
+        TWINE_PASSWORD: ${{ secrets.PYPI_PWD }}
+      run: |
+        python3 setup.py release
+        twine upload dist/*
+    - name: Upload packages as artifacts
+      uses: actions/upload-artifact@v2-preview
+      with:
+        name: chaostoolkit-kubernetes-packages
+        path: dist/chaostoolkit_kubernetes-*
+
+  create-gh-release:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Create Release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+  upload-gh-release-assets:
+    runs-on: ubuntu-20.04
+    needs:
+      - create-gh-release
+      - release-to-pypi
+    steps:
+      - name: Download pypi artifacts
+        uses: actions/download-artifact@v2-preview
+        with:
+          name: chaostoolkit-kubernetes-packages
+          path: dist
+      - name: Upload wheel & source dist to GH release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "dist/*.whl,dist/*.tar.gz"
+          artifact: ""
+          token: ${{ secrets.GITHUB_TOKEN }}
+          allowUpdates: true

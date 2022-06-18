@@ -2,13 +2,69 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.25.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.26.2...HEAD
+
+### Fixed
+
+-Fixed the cmd splitting issue, therefore the shell commands will now parse correctly [#133][133]
+
+[133]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/133
+
+## [0.26.2][] - 2022-03-30
+
+[0.26.2]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.26.1...0.26.2
+
+### Added
+
+- Allow passing cmd as an array for exec_in_pods [#127][127]
+
+[127]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/127
+
+### Changed
+
+- Exec pods may not always return a value that can be parsed as a json object
+  so, in that case we return the error as-is rather than failing. [#131][131]
+
+[131]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/131
+
+## [0.26.1][] - 2021-12-13
+
+[0.26.1]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.26.0...0.26.1
+
+### Fixed
+
+- Fixed statefulset probe by using the right properties on it [#112][112]
+
+[112]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/112
+
+## [0.26.0][] - 2021-10-20
+
+[0.26.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.25.1...0.26.0
+
 
 ### Added
 
 - Added probe `deployment_partially_available` in the `deployment` module 
   to return if a deployment has some of its pods ready, making the deployment
   at available (without requiring all pods to be healthy) [#117][117]
+- Add `build-and-test`, `check-pr`, and `release` workflows for GitHub Actions
+- Added `Makefile` to abstract away common development commands
+
+### Changed
+
+- Switched to `black`, `flake8`, and `isort` for formatting/linting instead
+of `pycodestyle`
+- Applied `pyupgrade --py36-plus` across codebase
+- Applied new formatting libs across codebase
+
+### Fixed
+
+- Fixed issue in `replicaset.actions.delete_replica_set`: `'ExtensionsV1beta1Api' object has no attribute 'list_namespaced_replica_set'`,
+we now use the `AppsV1Api` API
+
+### Removed
+
+- Removed lots of duplicate tests which offered no different exercising of the code
 
 [117]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/117
 
@@ -23,9 +79,12 @@
   resource [#111][111]
 - Terminating pods now return the name of the pods that were actually deleted
   [#104][104]
+- Deprecated `chaosk8s.pod.actions.delete_pods` in favor to
+  `chaosk8s.pod.actions.terminate_pods` [#122][122]
 
 [104]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/104
 [111]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/pull/111
+[122]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/122 
 
 ## [0.25.1][] - 2021-02-05
 

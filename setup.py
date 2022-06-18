@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-"""chaostoolkit builder and installer"""
+"""chaostoolkit-kubernetes builder and installer"""
 import os
 import sys
-import io
 
 import setuptools
 
@@ -16,15 +15,15 @@ def get_version_from_package() -> str:
     with open(path) as f:
         for line in f:
             if line.startswith("__version__"):
-                token, version = line.split(" = ", 1)
-                version = version.replace("'", "").strip()
+                _, version = line.split(" = ", 1)
+                version = version.replace("\"", "").strip()
                 return version
 
 
 name = 'chaostoolkit-kubernetes'
 desc = 'Chaos Toolkit Extension for Kubernetes'
 
-with io.open('README.md', encoding='utf-8') as strm:
+with open('README.md', encoding='utf-8') as strm:
     long_desc = strm.read()
 
 classifiers = [
@@ -35,10 +34,10 @@ classifiers = [
     'License :: OSI Approved :: Apache Software License',
     'Programming Language :: Python',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
     'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: Implementation',
     'Programming Language :: Python :: Implementation :: CPython'
 ]
@@ -48,14 +47,14 @@ url = 'http://chaostoolkit.org'
 license = 'Apache License Version 2.0'
 packages = setuptools.find_packages(include=["chaosk8s", "chaosk8s.*"])
 
-needs_pytest = set(['pytest', 'test']).intersection(sys.argv)
+needs_pytest = {'pytest', 'test'}.intersection(sys.argv)
 pytest_runner = ['pytest_runner'] if needs_pytest else []
 test_require = []
-with io.open('requirements-dev.txt') as f:
+with open('requirements-dev.txt') as f:
     test_require = [l.strip() for l in f if not l.startswith('#')]
 
 install_require = []
-with io.open('requirements.txt') as f:
+with open('requirements.txt') as f:
     install_require = [l.strip() for l in f if not l.startswith('#')]
 
 
@@ -75,7 +74,7 @@ setup_params = dict(
     install_requires=install_require,
     tests_require=test_require,
     setup_requires=pytest_runner,
-    python_requires='>=3.5.*'
+    python_requires='>=3.6.*'
 )
 
 
