@@ -1,12 +1,8 @@
 # Changelog
 
-### Removed
-
-Removed method client.V1beta1Eviction()
-
 ### Updated
 
--Updated Pod Eviction Method for Drain Node Scenarios
+-Updated the API/v1 as per the lifecycle of Kubernetes API which states the pod eviction has been V1beta1Eviction was deprecated and removed in Kubernetes 1.22.
 
 ## [Unreleased][]
 
