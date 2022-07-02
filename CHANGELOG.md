@@ -1,5 +1,9 @@
 # Changelog
 
+### Updated
+
+-Updated Pod Eviction Method for Drain Node Scenarios
+
 ## [Unreleased][]
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.26.2...HEAD
