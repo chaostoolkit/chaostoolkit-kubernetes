@@ -1,5 +1,9 @@
 # Changelog
 
+### Removed
+
+Removed method client.V1beta1Eviction()
+
 ### Updated
 
 -Updated Pod Eviction Method for Drain Node Scenarios
