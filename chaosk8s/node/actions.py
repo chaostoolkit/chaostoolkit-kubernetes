@@ -339,6 +339,7 @@ def drain_nodes(
         logger.debug(f"Found {len(eviction_candidates)} pods to evict")
         for pod in eviction_candidates:
             # eviction = client.V1beta1Eviction()
+            # Added method to support  v1.22+
             eviction = client.V1Eviction()
             eviction.metadata = client.V1ObjectMeta()
             eviction.metadata.name = pod.metadata.name
