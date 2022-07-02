@@ -18,13 +18,13 @@ __all__ = ["create_node", "delete_nodes", "cordon_node", "drain_nodes", "uncordo
 
 
 def _select_nodes(
-    name: str = None,
-    label_selector: str = None,
-    count: int = None,
-    secrets: Secrets = None,
-    pod_label_selector: str = None,
-    pod_namespace: str = None,
-    first: bool = False,
+        name: str = None,
+        label_selector: str = None,
+        count: int = None,
+        secrets: Secrets = None,
+        pod_label_selector: str = None,
+        pod_namespace: str = None,
+        first: bool = False,
 ) -> List[client.V1Node]:
     """
     Selects nodes of the kubernetes cluster based on the input parameters and
@@ -94,14 +94,14 @@ def _select_nodes(
 
 
 def delete_nodes(
-    label_selector: str = None,
-    all: bool = False,
-    rand: bool = False,
-    count: int = None,
-    grace_period_seconds: int = None,
-    secrets: Secrets = None,
-    pod_label_selector: str = None,
-    pod_namespace: str = None,
+        label_selector: str = None,
+        all: bool = False,
+        rand: bool = False,
+        count: int = None,
+        grace_period_seconds: int = None,
+        secrets: Secrets = None,
+        pod_label_selector: str = None,
+        pod_namespace: str = None,
 ):
     """
     Delete nodes gracefully. Select the appropriate nodes by label.
@@ -125,9 +125,9 @@ def delete_nodes(
 
     first = False
     if (
-        (all is None or all is False)
-        and (rand is None or rand is False)
-        and (count is None or count < 1)
+            (all is None or all is False)
+            and (rand is None or rand is False)
+            and (count is None or count < 1)
     ):
         first = True
 
@@ -157,7 +157,7 @@ def delete_nodes(
 
 
 def create_node(
-    meta: Dict[str, Any] = None, spec: Dict[str, Any] = None, secrets: Secrets = None
+        meta: Dict[str, Any] = None, spec: Dict[str, Any] = None, secrets: Secrets = None
 ) -> client.V1Node:
     """
     Create one new node in the cluster.
@@ -210,7 +210,7 @@ def cordon_node(name: str = None, label_selector: str = None, secrets: Secrets =
 
 
 def uncordon_node(
-    name: str = None, label_selector: str = None, secrets: Secrets = None
+        name: str = None, label_selector: str = None, secrets: Secrets = None
 ):
     """
     Uncordon nodes matching the given label name, so that pods can be
@@ -235,14 +235,14 @@ def uncordon_node(
 
 
 def drain_nodes(
-    name: str = None,
-    label_selector: str = None,
-    delete_pods_with_local_storage: bool = False,
-    timeout: int = 120,
-    secrets: Secrets = None,
-    count: int = None,
-    pod_label_selector: str = None,
-    pod_namespace: str = None,
+        name: str = None,
+        label_selector: str = None,
+        delete_pods_with_local_storage: bool = False,
+        timeout: int = 120,
+        secrets: Secrets = None,
+        count: int = None,
+        pod_label_selector: str = None,
+        pod_namespace: str = None,
 ) -> bool:
     """
     Drain nodes matching the given label or name, so that no pods are scheduled
@@ -338,8 +338,8 @@ def drain_nodes(
 
         logger.debug(f"Found {len(eviction_candidates)} pods to evict")
         for pod in eviction_candidates:
-            #eviction = client.V1beta1Eviction()
-			eviction = client.V1Eviction()
+            # eviction = client.V1beta1Eviction()
+            eviction = client.V1Eviction()
             eviction.metadata = client.V1ObjectMeta()
             eviction.metadata.name = pod.metadata.name
             eviction.metadata.namespace = pod.metadata.namespace
