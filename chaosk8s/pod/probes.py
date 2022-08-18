@@ -16,7 +16,7 @@ __all__ = [
     "read_pod_logs",
     "count_pods",
     "pod_is_not_available",
-    "count_min_pods"
+    "count_min_pods",
 ]
 
 
@@ -302,15 +302,19 @@ def all_pods_healthy(
     return True
 
 
-def count_min_pods(label_selector: str, phase: str = "Running", min_count: int=2,
-               ns: str = "default", secrets: Secrets = None) -> bool:
+def count_min_pods(
+    label_selector: str,
+    phase: str = "Running",
+    min_count: int = 2,
+    ns: str = "default",
+    secrets: Secrets = None,
+) -> bool:
 
     """
     Check if minimum number of pods are running.
     """
 
-    count = count_pods( label_selector=label_selector, 
-                        phase = phase,
-                        ns = ns, 
-                        secrets =secrets)
+    count = count_pods(
+        label_selector=label_selector, phase=phase, ns=ns, secrets=secrets
+    )
     return count >= min_count

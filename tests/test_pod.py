@@ -9,11 +9,11 @@ from kubernetes import stream
 from chaosk8s.pod.actions import exec_in_pods, terminate_pods
 from chaosk8s.pod.probes import (
     all_pods_healthy,
+    count_min_pods,
+    count_pods,
     pods_in_conditions,
     pods_in_phase,
     pods_not_in_phase,
-    count_min_pods,
-    count_pods
 )
 
 
@@ -1183,7 +1183,10 @@ def test_count_min_pods_true(cl, client, has_conf):
     v1.list_namespaced_pod.return_value = result
     client.CoreV1Api.return_value = v1
 
-    assert count_min_pods(label_selector="app=mysvc", phase="Running", min_count=2) is True
+    assert (
+        count_min_pods(label_selector="app=mysvc", phase="Running", min_count=2) is True
+    )
+
 
 @patch("chaosk8s.has_local_config_file", autospec=True)
 @patch("chaosk8s.pod.probes.client", autospec=True)
@@ -1200,7 +1203,11 @@ def test_count_min_pods_false(cl, client, has_conf):
     v1.list_namespaced_pod.return_value = result
     client.CoreV1Api.return_value = v1
 
-    assert count_min_pods(label_selector="app=mysvc", phase="Running", min_count=2) is False
+    assert (
+        count_min_pods(label_selector="app=mysvc", phase="Running", min_count=2)
+        is False
+    )
+
 
 @patch("chaosk8s.has_local_config_file", autospec=True)
 @patch("chaosk8s.pod.probes.client", autospec=True)
@@ -1218,6 +1225,3 @@ def test_count_running_pods(cl, client, has_conf):
     client.CoreV1Api.return_value = v1
 
     assert count_pods(label_selector="app=mysvc", phase="Running") == 2
-
-
-
