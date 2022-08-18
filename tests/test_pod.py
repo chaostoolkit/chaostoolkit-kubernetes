@@ -12,6 +12,8 @@ from chaosk8s.pod.probes import (
     pods_in_conditions,
     pods_in_phase,
     pods_not_in_phase,
+    count_min_pods,
+    count_pods
 )
 
 
@@ -1164,3 +1166,58 @@ def test_exec_in_pods_cmd_as_shlex(cl, client, has_conf):
     assert stream.stream.call_count == 1
     assert stream.stream.call_args[1]["command"] == ["/bin/sh", "-c", "ls"]
     assert result[0]["exit_code"] == 0
+
+
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.pod.probes.client", autospec=True)
+@patch("chaosk8s.client")
+def test_count_min_pods_true(cl, client, has_conf):
+    has_conf.return_value = False
+    pod = MagicMock()
+    pod.status = MagicMock()
+    pod.status.phase = "Running"
+    result = MagicMock()
+    result.items = [pod, pod]
+
+    v1 = MagicMock()
+    v1.list_namespaced_pod.return_value = result
+    client.CoreV1Api.return_value = v1
+
+    assert count_min_pods(label_selector="app=mysvc", phase="Running", min_count=2) is True
+
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.pod.probes.client", autospec=True)
+@patch("chaosk8s.client")
+def test_count_min_pods_false(cl, client, has_conf):
+    has_conf.return_value = False
+    pod = MagicMock()
+    pod.status = MagicMock()
+    pod.status.phase = "Running"
+    result = MagicMock()
+    result.items = [pod]
+
+    v1 = MagicMock()
+    v1.list_namespaced_pod.return_value = result
+    client.CoreV1Api.return_value = v1
+
+    assert count_min_pods(label_selector="app=mysvc", phase="Running", min_count=2) is False
+
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.pod.probes.client", autospec=True)
+@patch("chaosk8s.client")
+def test_count_running_pods(cl, client, has_conf):
+    has_conf.return_value = False
+    pod = MagicMock()
+    pod.status = MagicMock()
+    pod.status.phase = "Running"
+    result = MagicMock()
+    result.items = [pod, pod]
+
+    v1 = MagicMock()
+    v1.list_namespaced_pod.return_value = result
+    client.CoreV1Api.return_value = v1
+
+    assert count_pods(label_selector="app=mysvc", phase="Running") == 2
+
+
+
