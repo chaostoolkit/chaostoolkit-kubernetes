@@ -143,7 +143,7 @@ def test_uncordon_node_by_name(cl, client, has_conf):
 def test_drain_nodes_by_name(cl, client, has_conf):
     has_conf.return_value = False
 
-    client.V1beta1Eviction = MagicMock()
+    client.V1Eviction = MagicMock()
     client.V1ObjectMeta = MagicMock()
     client.V1DeleteOptions = MagicMock()
 
@@ -264,7 +264,7 @@ def test_pod_with_local_volume_cannot_be_drained(cl, client, has_conf):
 def test_pod_with_local_volume_cannot_be_drained_unless_forced(cl, client, has_conf):
     has_conf.return_value = False
 
-    client.V1beta1Eviction = MagicMock()
+    client.V1Eviction = MagicMock()
     client.V1ObjectMeta = MagicMock()
     client.V1DeleteOptions = MagicMock()
 
