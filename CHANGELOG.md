@@ -10,6 +10,8 @@
 
 [133]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/133
 
+- Fixed version of Kubernetes API for Eviction.
+
 ### Added
 - Added new probe to check whether minimum number of pods are running
 
