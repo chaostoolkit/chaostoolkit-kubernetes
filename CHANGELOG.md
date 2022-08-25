@@ -6,13 +6,23 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.26.2...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.26.3...HEAD
+
+
+## [0.26.3][] - 2022-08-23
+
+[0.26.3]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.26.2...0.26.3
 
 ### Fixed
 
 -Fixed the cmd splitting issue, therefore the shell commands will now parse correctly [#133][133]
 
 [133]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/133
+
+- Fixed version of Kubernetes API for Eviction.
+### Added
+- Added new probe to check whether minimum number of pods are running
+
 
 ## [0.26.2][] - 2022-03-30
 
