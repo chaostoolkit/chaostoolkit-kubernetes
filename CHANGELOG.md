@@ -1,5 +1,9 @@
 # Changelog
 
+### Updated
+
+-Updated the API/v1 as per the lifecycle of Kubernetes API which states the pod eviction has been V1beta1Eviction was deprecated and removed in Kubernetes 1.22.
+
 ## [Unreleased][]
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.26.3...HEAD
