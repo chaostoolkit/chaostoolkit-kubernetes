@@ -32,7 +32,7 @@ def test_cannot_process_other_than_yaml_and_json(has_conf):
 def test_create_node(cl, client, has_conf):
     has_conf.return_value = False
 
-    meta = {"cluster_name": "somevalue"}
+    meta = {"name": "somevalue"}
 
     spec = {"external_id": "somemetavalue"}
 
@@ -53,7 +53,7 @@ def test_create_node(cl, client, has_conf):
 def test_create_node_may_fail(cl, client, has_conf):
     has_conf.return_value = False
 
-    meta = {"cluster_name": "somevalue"}
+    meta = {"name": "somevalue"}
 
     spec = {"external_id": "somemetavalue"}
 
