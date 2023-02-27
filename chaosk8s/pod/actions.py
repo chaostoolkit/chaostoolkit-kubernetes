@@ -211,7 +211,6 @@ def _select_pods(
     ns: str = "default",
     order: str = "alphabetic",
 ) -> List[V1Pod]:
-
     # Fail if CoreV1Api is not instanciated
     if v1 is None:
         raise ActivityFailed("Cannot select pods. Client API is None")

@@ -309,7 +309,6 @@ def count_min_pods(
     ns: str = "default",
     secrets: Secrets = None,
 ) -> bool:
-
     """
     Check if minimum number of pods are running.
     """
