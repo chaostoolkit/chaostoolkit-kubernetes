@@ -6,7 +6,16 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.26.3...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.26.4...HEAD
+
+
+## [0.26.4][] - 2023-02-27
+
+[0.26.4]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.26.3...0.26.4
+
+### Fixed
+
+- Updated build/release to match newer Python packaging rules
 
 
 ## [0.26.3][] - 2022-08-23
