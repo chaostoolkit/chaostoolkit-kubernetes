@@ -1,6 +1,6 @@
+import datetime
 import json
 import os.path
-import datetime
 
 import yaml
 from chaoslib.exceptions import ActivityFailed
@@ -15,7 +15,7 @@ __all__ = [
     "create_deployment",
     "delete_deployment",
     "scale_deployment",
-    "rollout_deployment"
+    "rollout_deployment",
 ]
 
 
@@ -105,13 +105,9 @@ def rollout_deployment(
     now = datetime.datetime.now(datetime.timezone.utc)
     now = str(now.isoformat("T") + "Z")
     body = {
-        'spec': {
-            'template': {
-                'metadata': {
-                    'annotations': {
-                        'kubectl.kubernetes.io/restartedAt': now
-                    }
-                }
+        "spec": {
+            "template": {
+                "metadata": {"annotations": {"kubectl.kubernetes.io/restartedAt": now}}
             }
         }
     }

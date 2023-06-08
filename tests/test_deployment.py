@@ -1,5 +1,5 @@
-from unittest.mock import ANY, MagicMock, call, patch
 from datetime import datetime, timezone
+from unittest.mock import ANY, MagicMock, call, patch
 
 import pytest
 import urllib3
@@ -198,16 +198,16 @@ def test_rollout_deployment(client, api):
     client.AppsV1Api.return_value = v1
     mock_now = _generate_mock_time()
 
-    with patch('datetime.datetime') as mock_time:
+    with patch("datetime.datetime") as mock_time:
         mock_time.now.return_value = mock_now
         mock_now_str = f'{mock_now.isoformat("T")}Z'
 
         body = {
-            'spec': {
-                'template': {
-                    'metadata': {
-                        'annotations': {
-                            'kubectl.kubernetes.io/restartedAt': mock_now_str
+            "spec": {
+                "template": {
+                    "metadata": {
+                        "annotations": {
+                            "kubectl.kubernetes.io/restartedAt": mock_now_str
                         }
                     }
                 }
