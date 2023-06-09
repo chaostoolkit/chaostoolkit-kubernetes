@@ -6,6 +6,10 @@
 
 ## [Unreleased][]
 
+### Added
+
+* Rollout deployment action `chaosk8s.deployment.actions.rollout_deployment`
+
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.26.4...HEAD
 
 

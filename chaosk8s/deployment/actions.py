@@ -1,3 +1,4 @@
+import datetime
 import json
 import os.path
 
@@ -10,7 +11,12 @@ from logzero import logger
 
 from chaosk8s import create_k8s_api_client
 
-__all__ = ["create_deployment", "delete_deployment", "scale_deployment"]
+__all__ = [
+    "create_deployment",
+    "delete_deployment",
+    "scale_deployment",
+    "rollout_deployment",
+]
 
 
 def create_deployment(spec_path: str, ns: str = "default", secrets: Secrets = None):
@@ -81,4 +87,34 @@ def scale_deployment(
     except ApiException as e:
         raise ActivityFailed(
             f"failed to scale '{name}' to {replicas} replicas: {str(e)}"
+        )
+
+
+def rollout_deployment(
+    name: str = None,
+    ns: str = "default",
+    secrets: Secrets = None,
+):
+    """
+    Rolling the deployment. The `name` is the name of the deployment.
+    """
+    api = create_k8s_api_client(secrets)
+
+    v1 = client.AppsV1Api(api)
+
+    now = datetime.datetime.now(datetime.timezone.utc)
+    now = str(now.isoformat("T") + "Z")
+    body = {
+        "spec": {
+            "template": {
+                "metadata": {"annotations": {"kubectl.kubernetes.io/restartedAt": now}}
+            }
+        }
+    }
+
+    try:
+        v1.patch_namespaced_deployment(name=name, namespace=ns, body=body)
+    except ApiException as e:
+        raise ActivityFailed(
+            f"failed to rollout the deployment '{name}'! Error: {str(e)}"
         )

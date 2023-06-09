@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from unittest.mock import ANY, MagicMock, call, patch
 
 import pytest
@@ -8,6 +9,7 @@ from kubernetes.client.models import V1Deployment, V1DeploymentList, V1ObjectMet
 from chaosk8s.deployment.actions import (
     create_deployment,
     delete_deployment,
+    rollout_deployment,
     scale_deployment,
 )
 from chaosk8s.deployment.probes import (
@@ -183,3 +185,37 @@ def test_deployment_is_not_fully_available_when_it_should(cl, client, watch, has
     with pytest.raises(ActivityFailed) as x:
         deployment_fully_available("mysvc")
     assert "deployment 'mysvc' failed to recover within" in str(x.value)
+
+
+def _generate_mock_time():
+    return datetime(2023, 6, 7, 10, 30, 0, tzinfo=timezone.utc)
+
+
+@patch("chaosk8s.deployment.actions.create_k8s_api_client", autospec=True)
+@patch("chaosk8s.deployment.actions.client", autospec=True)
+def test_rollout_deployment(client, api):
+    v1 = MagicMock()
+    client.AppsV1Api.return_value = v1
+    mock_now = _generate_mock_time()
+
+    with patch("datetime.datetime") as mock_time:
+        mock_time.now.return_value = mock_now
+        mock_now_str = f'{mock_now.isoformat("T")}Z'
+
+        body = {
+            "spec": {
+                "template": {
+                    "metadata": {
+                        "annotations": {
+                            "kubectl.kubernetes.io/restartedAt": mock_now_str
+                        }
+                    }
+                }
+            }
+        }
+
+        rollout_deployment("fake", "fake_ns")
+
+        v1.patch_namespaced_deployment.assert_called_with(
+            name="fake", namespace="fake_ns", body=body
+        )
