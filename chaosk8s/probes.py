@@ -30,7 +30,7 @@ def all_microservices_healthy(
     !!!DEPRECATED!!!
     """
     _log_deprecated("all_microservices_healthy", "all_pods_healthy")
-    return all_pods_healthy(ns, secrets)
+    return all_pods_healthy(ns, secrets=secrets)
 
 
 # moved to deployment/probes.py
@@ -43,7 +43,7 @@ def microservice_available_and_healthy(
     _log_deprecated(
         "microservice_available_and_healthy", "deployment_available_and_healthy"
     )
-    deployment_available_and_healthy(name, ns, label_selector, secrets)
+    deployment_available_and_healthy(name, ns, label_selector, secrets=secrets)
 
 
 # moved to pod/probes.py
@@ -57,7 +57,7 @@ def microservice_is_not_available(
     !!!DEPRECATED!!!
     """
     _log_deprecated("microservice_is_not_available", "pod_is_not_available")
-    return pod_is_not_available(name, ns, label_selector, secrets)
+    return pod_is_not_available(name, ns, label_selector, secrets=secrets)
 
 
 # moved to service/probes.py
@@ -71,7 +71,7 @@ def service_endpoint_is_initialized(
     !!!DEPRECATED!!!
     """
     _log_deprecated("service_endpoint_is_initialized", "service_is_initialized")
-    return service_is_initialized(name, ns, label_selector, secrets)
+    return service_is_initialized(name, ns, label_selector, secrets=secrets)
 
 
 # moved to deployment/probes.py
@@ -88,7 +88,9 @@ def deployment_is_not_fully_available(
     _log_deprecated(
         "deployment_is_not_fully_available", "deployment_not_fully_available"
     )
-    return deployment_not_fully_available(name, ns, label_selector, timeout, secrets)
+    return deployment_not_fully_available(
+        name, ns, label_selector, timeout, secrets=secrets
+    )
 
 
 # moved to deployment/probes.py
@@ -103,7 +105,9 @@ def deployment_is_fully_available(
     !!!DEPRECATED!!!
     """
     _log_deprecated("deployment_is_fully_available", "deployment_fully_available")
-    return deployment_fully_available(name, ns, label_selector, timeout, secrets)
+    return deployment_fully_available(
+        name, ns, label_selector, timeout, secrets=secrets
+    )
 
 
 # moved to pod/probes.py

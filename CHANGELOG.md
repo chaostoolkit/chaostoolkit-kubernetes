@@ -1,16 +1,20 @@
 # Changelog
 
+## [Unreleased][]
+
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.26.4...HEAD
+
 ### Updated
 
 -Updated the API/v1 as per the lifecycle of Kubernetes API which states the pod eviction has been V1beta1Eviction was deprecated and removed in Kubernetes 1.22.
 
-## [Unreleased][]
-
 ### Added
 
 * Rollout deployment action `chaosk8s.deployment.actions.rollout_deployment`
-
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.26.4...HEAD
+* Flags to Pod probes so they can return a boolean on failure rather than
+  raising an `ActifityFailed` error. The outcome is the same but the output
+  can be misinterpreted when raising vs using a bool. Specially from a tolerance
+  perspective.
 
 
 ## [0.26.4][] - 2023-02-27

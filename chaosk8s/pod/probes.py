@@ -90,13 +90,14 @@ def pods_in_phase(
     label_selector: str,
     phase: str = "Running",
     ns: str = "default",
+    raise_on_invalid_phase: bool = True,
     secrets: Secrets = None,
 ) -> bool:
     """
     Lookup a pod by `label_selector` in the namespace `ns`.
 
     Raises :exc:`chaoslib.exceptions.ActivityFailed` when the state is not
-    as expected.
+    as expected unless `raise_on_invalid_phase`. In that case, returns `False`.
     """
     api = create_k8s_api_client(secrets)
 
@@ -112,14 +113,24 @@ def pods_in_phase(
         logger.debug(f"Found {len(ret.items)} pods in ns '{ns}'")
 
     if not ret.items:
-        raise ActivityFailed(f"no pods '{label_selector}' were found")
+        m = f"no pods '{label_selector}' were found"
+        if not raise_on_invalid_phase:
+            logger.debug(m)
+            return False
+        else:
+            raise ActivityFailed(m)
 
     for d in ret.items:
         if d.status.phase != phase:
-            raise ActivityFailed(
+            m = (
                 f"pod '{label_selector}' is in phase '{d.status.phase}'"
                 f" but should be '{phase}'"
             )
+            if not raise_on_invalid_phase:
+                logger.debug(m)
+                return False
+            else:
+                raise ActivityFailed(m)
 
     return True
 
@@ -128,13 +139,15 @@ def pods_in_conditions(
     label_selector: str,
     conditions: List[Dict[str, str]],
     ns: str = "default",
+    raise_on_invalid_conditions: bool = True,
     secrets: Secrets = None,
 ) -> bool:
     """
     Lookup a pod by `label_selector` in the namespace `ns`.
 
     Raises :exc:`chaoslib.exceptions.ActivityFailed` if one of the given
-    conditions type/status is not as expected
+    conditions type/status is not as expected unless
+    `raise_on_invalid_conditions`. In that case, returns `False`.
     """
     api = create_k8s_api_client(secrets)
 
@@ -150,7 +163,12 @@ def pods_in_conditions(
         logger.debug(f"Found {len(ret.items)} pods in ns '{ns}'")
 
     if not ret.items:
-        raise ActivityFailed(f"no pods '{label_selector}' were found")
+        m = f"no pods '{label_selector}' were found"
+        if not raise_on_invalid_conditions:
+            logger.debug(m)
+            return False
+        else:
+            raise ActivityFailed(m)
 
     for d in ret.items:
         # create a list of hash to compare with the given conditions
@@ -159,10 +177,15 @@ def pods_in_conditions(
         ]
         for condition in conditions:
             if condition not in pod_conditions:
-                raise ActivityFailed(
+                m = (
                     f"pod {d.metadata.name} does not match the following "
                     f"given condition: {condition}"
                 )
+                if not raise_on_invalid_conditions:
+                    logger.debug(m)
+                    return False
+                else:
+                    raise ActivityFailed(m)
 
     return True
 
@@ -171,13 +194,15 @@ def pods_not_in_phase(
     label_selector: str,
     phase: str = "Running",
     ns: str = "default",
+    raise_on_in_phase: bool = True,
     secrets: Secrets = None,
 ) -> bool:
     """
     Lookup a pod by `label_selector` in the namespace `ns`.
 
     Raises :exc:`chaoslib.exceptions.ActivityFailed` when the pod is in the
-    given phase and should not have.
+    given phase and should not have, unless
+    `raise_on_in_phase`. In that case, returns `False`.
     """
     api = create_k8s_api_client(secrets)
 
@@ -193,13 +218,21 @@ def pods_not_in_phase(
         logger.debug(f"Found {len(ret.items)} pods in ns '{ns}'")
 
     if not ret.items:
-        raise ActivityFailed(f"no pods '{label_selector}' were found")
+        m = f"no pods '{label_selector}' were found"
+        if not raise_on_in_phase:
+            logger.debug(m)
+            return False
+        else:
+            raise ActivityFailed(m)
 
     for d in ret.items:
         if d.status.phase == phase:
-            raise ActivityFailed(
-                f"pod '{label_selector}' should not be in phase '{d.status.phase}'"
-            )
+            m = f"pod '{label_selector}' should not be in phase '{d.status.phase}'"
+            if not raise_on_in_phase:
+                logger.debug(m)
+                return False
+            else:
+                raise ActivityFailed(m)
 
     return True
 
@@ -242,6 +275,7 @@ def pod_is_not_available(
     name: str,
     ns: str = "default",
     label_selector: str = "name in ({name})",
+    raise_on_is_available: bool = True,
     secrets: Secrets = None,
 ) -> bool:
     """
@@ -266,19 +300,25 @@ def pod_is_not_available(
         phase = p.status.phase
         logger.debug(f"Pod '{p.metadata.name}' has status '{phase}'")
         if phase == "Running":
-            raise ActivityFailed(f"pod '{name}' is actually running")
+            m = f"pod '{name}' is actually running"
+            if not raise_on_is_available:
+                logger.debug(m)
+                return False
+            else:
+                raise ActivityFailed(m)
 
     return True
 
 
 def all_pods_healthy(
-    ns: str = "default", secrets: Secrets = None
+    ns: str = "default", raise_on_any_unhealthy: bool = True, secrets: Secrets = None
 ) -> MicroservicesStatus:
     """
     Check all pods in the system are running and available.
 
     Raises :exc:`chaoslib.exceptions.ActivityFailed` when the state is not
-    as expected.
+    as expected. Unless `raise_on_any_unhealthy` is `False` and in that case
+    returns `False`.
     """
     api = create_k8s_api_client(secrets)
     not_ready = []
@@ -297,7 +337,12 @@ def all_pods_healthy(
 
     # we probably should list them in the message
     if failed or not_ready:
-        raise ActivityFailed("the system is unhealthy")
+        m = "the system is unhealthy"
+        if not raise_on_any_unhealthy:
+            logger.debug(m)
+            return False
+        else:
+            raise ActivityFailed(m)
 
     return True
 
