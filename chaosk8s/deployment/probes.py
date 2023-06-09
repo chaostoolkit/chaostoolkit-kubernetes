@@ -18,7 +18,11 @@ __all__ = [
 
 
 def deployment_available_and_healthy(
-    name: str, ns: str = "default", label_selector: str = None, secrets: Secrets = None
+    name: str,
+    ns: str = "default",
+    label_selector: str = None,
+    raise_on_unavailable: bool = True,
+    secrets: Secrets = None,
 ) -> Union[bool, None]:
     """
     Lookup a deployment by `name` in the namespace `ns`.
@@ -26,7 +30,8 @@ def deployment_available_and_healthy(
     The selected resources are matched by the given `label_selector`.
 
     Raises :exc:`chaoslib.exceptions.ActivityFailed` when the state is not
-    as expected.
+    as expected. Unless `raise_on_unavailable` is set to `False` which means
+    the probe will return `False` rather than raise the exception.
     """
 
     field_selector = f"metadata.name={name}"
@@ -43,7 +48,12 @@ def deployment_available_and_healthy(
     logger.debug(f"Found {len(ret.items)} deployment(s) named '{name}' in ns '{ns}'")
 
     if not ret.items:
-        raise ActivityFailed(f"Deployment '{name}' was not found")
+        m = f"Deployment '{name}' was not found"
+        if not raise_on_unavailable:
+            logger.debug(m)
+            return False
+        else:
+            raise ActivityFailed(m)
 
     for d in ret.items:
         logger.debug(
@@ -51,19 +61,29 @@ def deployment_available_and_healthy(
         )
 
         if d.status.available_replicas != d.spec.replicas:
-            raise ActivityFailed(f"Deployment '{name}' is not healthy")
+            m = f"Deployment '{name}' is not healthy"
+            if not raise_on_unavailable:
+                logger.debug(m)
+                return False
+            else:
+                raise ActivityFailed(m)
 
     return True
 
 
 def deployment_partially_available(
-    name: str, ns: str = "default", label_selector: str = None, secrets: Secrets = None
+    name: str,
+    ns: str = "default",
+    label_selector: str = None,
+    raise_on_not_partially_available: bool = True,
+    secrets: Secrets = None,
 ) -> Union[bool, None]:
     """
     Check whether if the given deployment state is ready or at-least partially
     ready.
     Raises :exc:`chaoslib.exceptions.ActivityFailed` when the state is not
-    as expected.
+    as expected. Unless `raise_on_not_partially_available` is set to `False`
+    which means the probe will return `False` rather than raise the exception.
     """
 
     field_selector = f"metadata.name={name}"
@@ -80,7 +100,12 @@ def deployment_partially_available(
     logger.debug(f"Found {len(ret.items)} deployment(s) named '{name}' in ns '{ns}'")
 
     if not ret.items:
-        raise ActivityFailed(f"Deployment '{name}' was not found")
+        m = f"Deployment '{name}' was not found"
+        if not raise_on_not_partially_available:
+            logger.debug(m)
+            return False
+        else:
+            raise ActivityFailed(m)
 
     for d in ret.items:
         logger.debug(
@@ -90,7 +115,12 @@ def deployment_partially_available(
         if d.status.available_replicas >= 1:
             return True
         else:
-            raise ActivityFailed(f"Deployment '{name}' is not healthy")
+            m = f"Deployment '{name}' is not healthy"
+            if not raise_on_not_partially_available:
+                logger.debug(m)
+                return False
+            else:
+                raise ActivityFailed(m)
 
 
 def _deployment_readiness_has_state(
@@ -161,6 +191,7 @@ def deployment_not_fully_available(
     ns: str = "default",
     label_selector: str = None,
     timeout: int = 30,
+    raise_on_fully_available: bool = True,
     secrets: Secrets = None,
 ) -> Union[bool, None]:
     """
@@ -168,6 +199,9 @@ def deployment_not_fully_available(
     expected replicas are available. Once this state is reached, return `True`.
     If the state is not reached after `timeout` seconds, a
     :exc:`chaoslib.exceptions.ActivityFailed` exception is raised.
+
+    If `raise_on_fully_available` is set to `False`, return `False` instead
+    of raising the exception.
     """
     if _deployment_readiness_has_state(
         name,
@@ -179,9 +213,12 @@ def deployment_not_fully_available(
     ):
         return True
     else:
-        raise ActivityFailed(
-            f"deployment '{name}' failed to stop running within {timeout}s"
-        )
+        m = f"deployment '{name}' failed to stop running within {timeout}s"
+        if not raise_on_fully_available:
+            logger.debug(m)
+            return False
+        else:
+            raise ActivityFailed(m)
 
 
 def deployment_fully_available(
@@ -189,6 +226,7 @@ def deployment_fully_available(
     ns: str = "default",
     label_selector: str = None,
     timeout: int = 30,
+    raise_on_not_fully_available: bool = True,
     secrets: Secrets = None,
 ) -> Union[bool, None]:
     """
@@ -196,6 +234,9 @@ def deployment_fully_available(
     Once this state is reached, return `True`.
     If the state is not reached after `timeout` seconds, a
     :exc:`chaoslib.exceptions.ActivityFailed` exception is raised.
+
+    If `raise_on_not_fully_available` is set to `False`, return `False` instead
+    of raising the exception.
     """
     if _deployment_readiness_has_state(
         name,
@@ -207,4 +248,9 @@ def deployment_fully_available(
     ):
         return True
     else:
-        raise ActivityFailed(f"deployment '{name}' failed to recover within {timeout}s")
+        m = f"deployment '{name}' failed to recover within {timeout}s"
+        if not raise_on_not_fully_available:
+            logger.debug(m)
+            return False
+        else:
+            raise ActivityFailed(m)

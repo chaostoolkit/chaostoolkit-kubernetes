@@ -80,6 +80,7 @@ def statefulset_not_fully_available(
     ns: str = "default",
     label_selector: str = None,
     timeout: int = 30,
+    raise_on_fully_available: bool = True,
     secrets: Secrets = None,
 ):
     """
@@ -87,6 +88,9 @@ def statefulset_not_fully_available(
     expected replicas are available. Once this state is reached, return `True`.
     If the state is not reached after `timeout` seconds, a
     :exc:`chaoslib.exceptions.ActivityFailed` exception is raised.
+
+    If `raise_on_fully_available` is set to `False`, return `False` instead
+    of raising the exception.
     """
     if _statefulset_readiness_has_state(
         name,
@@ -98,9 +102,12 @@ def statefulset_not_fully_available(
     ):
         return True
     else:
-        raise ActivityFailed(
-            f"microservice '{name}' failed to stop running within {timeout}s"
-        )
+        m = f"microservice '{name}' failed to stop running within {timeout}s"
+        if not raise_on_fully_available:
+            logger.debug(m)
+            return False
+        else:
+            raise ActivityFailed(m)
 
 
 def statefulset_fully_available(
@@ -108,6 +115,7 @@ def statefulset_fully_available(
     ns: str = "default",
     label_selector: str = None,
     timeout: int = 30,
+    raise_on_not_fully_available: bool = True,
     secrets: Secrets = None,
 ):
     """
@@ -115,6 +123,9 @@ def statefulset_fully_available(
     Once this state is reached, return `True`.
     If the state is not reached after `timeout` seconds, a
     :exc:`chaoslib.exceptions.ActivityFailed` exception is raised.
+
+    If `raise_on_not_fully_available` is set to `False`, return `False` instead
+    of raising the exception.
     """
     if _statefulset_readiness_has_state(
         name,
@@ -126,6 +137,9 @@ def statefulset_fully_available(
     ):
         return True
     else:
-        raise ActivityFailed(
-            f"microservice '{name}' failed to recover within {timeout}s"
-        )
+        m = f"microservice '{name}' failed to recover within {timeout}s"
+        if not raise_on_not_fully_available:
+            logger.debug(m)
+            return False
+        else:
+            raise ActivityFailed(m)

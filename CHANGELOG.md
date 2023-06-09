@@ -4,6 +4,11 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.27.0...HEAD
 
+### Added
+
+* More flags in probes signature so you can choose if you prefer to raise
+  `ActifityFailed` or return a boolean.
+
 ## [0.27.0][] - 2023-06-09
 
 [0.27.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.26.4...0.27.0

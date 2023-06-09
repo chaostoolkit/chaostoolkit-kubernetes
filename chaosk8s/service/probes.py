@@ -12,11 +12,16 @@ def service_is_initialized(
     name: str = None,
     ns: str = "default",
     label_selector: str = None,
+    raise_if_service_not_initialized: bool = True,
     secrets: Secrets = None,
 ) -> bool:
     """
     Lookup a service endpoint by its name and raises :exc:`FailedProbe` when
     the service was not found or not initialized.
+
+    If `raise_if_service_not_initialized` is set to `False` return `False`
+    when probe isn't as expected. Otherwise raises
+    `chaoslib.exceptions.ActivityFailed`
     """
     api = create_k8s_api_client(secrets)
 
@@ -49,6 +54,11 @@ def service_is_initialized(
         logger.debug(f"Found {len(ret.items)} service(s) in ns '{ns}'")
 
     if not ret.items:
-        raise ActivityFailed(f"service '{name}' is not initialized")
+        m = f"service '{name}' is not initialized"
+        if not raise_if_service_not_initialized:
+            logger.debug(m)
+            return False
+        else:
+            raise ActivityFailed(m)
 
     return True
