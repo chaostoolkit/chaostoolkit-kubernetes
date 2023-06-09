@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Check Changelog modified
-        uses: dangoslen/changelog-enforcer@v4
+        uses: dangoslen/changelog-enforcer@v3
         with:
           changeLogPath: 'CHANGELOG.md'
           missingUpdateErrorMessage: |
