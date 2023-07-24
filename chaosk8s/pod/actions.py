@@ -98,7 +98,7 @@ def exec_in_pods(
     filtered out if their name do not match the given pattern.
 
     If neither `label_selector` nor `name_pattern` are provided, all pods
-    in the namespace will be selected for termination.
+    in the namespace will be selected to execute the command.
 
     If `all` is set to `True`, all matching pods will be affected.
 
