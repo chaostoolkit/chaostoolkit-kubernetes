@@ -10,6 +10,7 @@ from chaosk8s.deployment.probes import (
 )
 from chaosk8s.pod.probes import all_pods_healthy, pod_is_not_available, read_pod_logs
 from chaosk8s.service.probes import service_is_initialized
+from chaosk8s.secret.probes import secret_exists
 
 __all__ = [
     "all_microservices_healthy",
@@ -19,6 +20,7 @@ __all__ = [
     "deployment_is_not_fully_available",
     "deployment_is_fully_available",
     "read_microservices_logs",
+    "secret_exists"
 ]
 
 
