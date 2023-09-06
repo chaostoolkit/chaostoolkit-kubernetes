@@ -4,6 +4,11 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.28.0...HEAD
 
+### Added
+
+* Actions `chaosk8s.secret.actions.create_secret` and `chaosk8s.secret.actions.delete_secret`
+* Probes `chaosk8s.secret.probes.secret_exists`
+
 ## [0.28.0][] - 2023-06-09
 
 [0.28.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.27.0...0.28.0
