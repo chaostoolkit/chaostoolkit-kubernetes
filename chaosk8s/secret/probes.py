@@ -1,4 +1,3 @@
-from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
 from kubernetes import client
 from logzero import logger
@@ -12,16 +11,11 @@ def secret_exists(
     name: str = None,
     ns: str = "default",
     label_selector: str = None,
-    raise_if_non_existing: bool = True,
     secrets: Secrets = None,
 ) -> bool:
     """
-    Lookup a secret by its name and raises :exc:`FailedProbe` when
-    the secret was not found or not initialized.
-
-    If `raise_if_non_existing` is set to `False` return `False`
-    when probe isn't as expected. Otherwise raises
-    `chaoslib.exceptions.ActivityFailed`
+    Lookup a secret by its name and returns False when
+    the secret was not found.
     """
     api = create_k8s_api_client(secrets)
 
@@ -55,10 +49,7 @@ def secret_exists(
 
     if not ret.items:
         m = f"secret '{name}' does not exist"
-        if not raise_if_non_existing:
-            logger.debug(m)
-            return False
-        else:
-            raise ActivityFailed(m)
+        logger.debug(m)
+        return False
 
     return True
