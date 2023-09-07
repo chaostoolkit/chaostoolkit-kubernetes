@@ -11,9 +11,7 @@ from chaosk8s import create_k8s_api_client
 __all__ = ["create_secret", "delete_secret"]
 
 
-def create_secret(
-    spec_path: str, ns: str = "default", secrets: Secrets = None
-):
+def create_secret(spec_path: str, ns: str = "default", secrets: Secrets = None):
     """
     Create a secret endpoint described by the secret config, which must be
     the path to the JSON or YAML representation of the secret.
