@@ -31,7 +31,7 @@ def create_deployment(spec_path: str, ns: str = "default", secrets: Secrets = No
         if ext == ".json":
             deployment = json.loads(f.read())
         elif ext in [".yml", ".yaml"]:
-            deployment = yaml.load(f.read())
+            deployment = yaml.safe_load(f.read())
         else:
             raise ActivityFailed(f"cannot process {spec_path}")
 
