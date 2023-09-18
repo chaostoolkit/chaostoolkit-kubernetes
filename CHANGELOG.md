@@ -8,6 +8,7 @@
 
 * Actions `chaosk8s.secret.actions.create_secret` and `chaosk8s.secret.actions.delete_secret`
 * Probes `chaosk8s.secret.probes.secret_exists`
+* Support the `NO_PROXY` environment variable
 
 ### Fixed
 
