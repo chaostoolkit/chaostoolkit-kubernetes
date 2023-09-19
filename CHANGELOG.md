@@ -6,10 +6,21 @@
 
 ### Added
 
-* Actions `chaosk8s.secret.actions.create_secret` and `chaosk8s.secret.actions.delete_secret`
-* Actions `chaosk8s.namespace.actions.create_namespace` and `chaosk8s.namespace.actions.delete_namespace`
-* Probes `chaosk8s.secret.probes.secret_exists`
-* Probes `chaosk8s.namespace.probes.namespace_exists`
+* Actions:
+    * `chaosk8s.secret.actions.create_secret`
+    * `chaosk8s.secret.actions.delete_secret`
+    * `chaosk8s.namespace.actions.create_namespace`
+    * `chaosk8s.namespace.actions.delete_namespace`
+    * `chaosk8s.daemonset.actions.create_daemon_set`
+    * `chaosk8s.daemonset.actions.update_daemon_set`
+    * `chaosk8s.daemonset.actions.delete_daemon_set`
+* Probes:
+    * `chaosk8s.secret.probes.secret_exists`
+    * `chaosk8s.namespace.probes.namespace_exists`
+    * `chaosk8s.daemonset.probes.daemon_set_available_and_healthy`
+    * `chaosk8s.daemonset.probes.daemon_set_not_fully_available`
+    * `chaosk8s.daemonset.probes.daemon_set_fully_available`
+    * `chaosk8s.daemonset.probes.daemon_set_partially_available`
 * Support the `NO_PROXY` environment variable
 
 ### Fixed
