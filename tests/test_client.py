@@ -35,6 +35,27 @@ def test_client_can_be_created_from_secrets(has_conf):
 
 
 @patch("chaosk8s.has_local_config_file", autospec=True)
+@patch.dict(
+    os.environ,
+    {"HTTP_PROXY": "http://example.com:8080", "NO_PROXY": "foobar.example.com"},
+)
+def test_client_configures_proxy_correctly(has_conf):
+    has_conf.return_value = False
+    secrets = {
+        "KUBERNETES_HOST": "http://someplace",
+        "KUBERNETES_API_KEY": "6789",
+        "KUBERNETES_API_KEY_PREFIX": "Boom",
+    }
+
+    api = create_k8s_api_client(secrets)
+    assert api.configuration.host == "http://someplace"
+    assert api.configuration.api_key.get("authorization", "6789")
+    assert api.configuration.api_key_prefix.get("authorization", "Boom")
+    assert api.configuration.proxy == "http://example.com:8080"
+    assert api.configuration.no_proxy == "foobar.example.com"
+
+
+@patch("chaosk8s.has_local_config_file", autospec=True)
 @patch("chaosk8s.config.load_incluster_config", autospec=True)
 @patch.dict(os.environ, {"CHAOSTOOLKIT_IN_POD": "true"})
 def test_client_can_be_created_when_ctk_in_prod(load_incluster_config, has_conf):

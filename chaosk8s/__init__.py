@@ -82,6 +82,9 @@ def create_k8s_api_client(secrets: Secrets = None) -> client.ApiClient:
         proxy_url = os.getenv("HTTP_PROXY", None)
         if proxy_url:
             client.Configuration._default.proxy = proxy_url
+        no_proxy = os.getenv("NO_PROXY", None)
+        if no_proxy:
+            client.Configuration._default.no_proxy = no_proxy
 
         return client.ApiClient()
 
@@ -93,6 +96,9 @@ def create_k8s_api_client(secrets: Secrets = None) -> client.ApiClient:
         proxy_url = os.getenv("HTTP_PROXY", None)
         if proxy_url:
             client.Configuration._default.proxy = proxy_url
+        no_proxy = os.getenv("NO_PROXY", None)
+        if no_proxy:
+            client.Configuration._default.no_proxy = no_proxy
 
         return client.ApiClient()
 
@@ -118,6 +124,9 @@ def create_k8s_api_client(secrets: Secrets = None) -> client.ApiClient:
         proxy_url = os.getenv("HTTP_PROXY", None)
         if proxy_url:
             configuration.proxy = proxy_url
+        no_proxy = os.getenv("NO_PROXY", None)
+        if no_proxy:
+            configuration.no_proxy = no_proxy
 
     return client.ApiClient(configuration)
 

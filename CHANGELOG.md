@@ -10,6 +10,7 @@
 * Actions `chaosk8s.namespace.actions.create_namespace` and `chaosk8s.namespace.actions.delete_namespace`
 * Probes `chaosk8s.secret.probes.secret_exists`
 * Probes `chaosk8s.namespace.probes.namespace_exists`
+* Support the `NO_PROXY` environment variable
 
 ### Fixed
 
