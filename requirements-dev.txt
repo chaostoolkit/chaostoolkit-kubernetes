@@ -1,8 +1,8 @@
 black
 coverage
-flake8
 isort
 pytest>=6.0
 pytest-cov
 pytest-sugar
 requests-mock
+ruff

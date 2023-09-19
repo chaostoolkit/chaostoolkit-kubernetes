@@ -16,6 +16,11 @@
 
 * Use `yaml.safe_load()` in `chaosk8s.deployment.actions`
 
+### Changed
+
+* Switched to ruff to lint the code
+
+
 ## [0.28.0][] - 2023-06-09
 
 [0.28.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.27.0...0.28.0
