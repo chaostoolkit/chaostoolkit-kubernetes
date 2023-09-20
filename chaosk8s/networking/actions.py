@@ -6,10 +6,14 @@ import yaml
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
 from kubernetes import client
+from kubernetes.client.rest import ApiException
 
 from chaosk8s import create_k8s_api_client
 
 __all__ = [
+    "create_ingress",
+    "delete_ingress",
+    "update_ingress",
     "create_network_policy",
     "remove_network_policy",
     "deny_all_ingress",
@@ -19,6 +23,47 @@ __all__ = [
     "allow_dns_access",
     "remove_allow_dns_access",
 ]
+
+
+def create_ingress(spec_path: str, ns: str = "default", secrets: Secrets = None):
+    """
+    Create an ingress object from the specified spec_path, which must be
+    the path to the JSON or YAML representation of the ingress.
+    """
+    api = create_k8s_api_client(secrets)
+
+    with open(spec_path) as f:
+        ext = spec_path.split(".")[-1]
+        if ext == "json":
+            body = json.loads(f.read())
+        elif ext in ["yml", "yaml"]:
+            body = yaml.safe_load(f.read())
+        else:
+            raise ActivityFailed(f"cannot process {spec_path}")
+    v1 = client.NetworkingV1Api(api)
+    v1.create_namespaced_ingress(namespace=ns, body=body)
+
+
+def delete_ingress(name: str, ns: str = "default", secrets: Secrets = None):
+    """
+    Remove the given ingress
+    """
+    api = create_k8s_api_client(secrets)
+    v1 = client.NetworkingV1Api(api)
+    v1.delete_namespaced_ingress(name, namespace=ns)
+
+
+def update_ingress(name: str, spec: dict, ns: str = "default", secrets: Secrets = None):
+    """
+    Update the specification of the targeted ingress according to spec.
+    """
+    api = create_k8s_api_client(secrets)
+
+    v1 = client.NetworkingV1Api(api)
+    try:
+        v1.patch_namespaced_ingress(name=name, namespace=ns, body=spec)
+    except ApiException as e:
+        raise ActivityFailed(f"failed to update daemon set '{name}': {str(e)}")
 
 
 def create_network_policy(

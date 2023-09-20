@@ -14,6 +14,9 @@
     * `chaosk8s.daemonset.actions.create_daemon_set`
     * `chaosk8s.daemonset.actions.update_daemon_set`
     * `chaosk8s.daemonset.actions.delete_daemon_set`
+    * `chaosk8s.networking.actions.create_ingress`
+    * `chaosk8s.networking.actions.update_ingress`
+    * `chaosk8s.networking.actions.delete_ingress`
 * Probes:
     * `chaosk8s.secret.probes.secret_exists`
     * `chaosk8s.namespace.probes.namespace_exists`
@@ -21,6 +24,7 @@
     * `chaosk8s.daemonset.probes.daemon_set_not_fully_available`
     * `chaosk8s.daemonset.probes.daemon_set_fully_available`
     * `chaosk8s.daemonset.probes.daemon_set_partially_available`
+    * `chaosk8s.networking.probes.ingress_exists`
 * Support the `NO_PROXY` environment variable
 
 ### Fixed
