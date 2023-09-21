@@ -17,6 +17,8 @@
     * `chaosk8s.networking.actions.create_ingress`
     * `chaosk8s.networking.actions.update_ingress`
     * `chaosk8s.networking.actions.delete_ingress`
+    * `chaosk8s.crd.actions.apply_from_json`
+    * `chaosk8s.crd.actions.apply_from_yaml`
 * Probes:
     * `chaosk8s.secret.probes.secret_exists`
     * `chaosk8s.namespace.probes.namespace_exists`

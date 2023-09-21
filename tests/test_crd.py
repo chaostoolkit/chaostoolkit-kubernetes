@@ -3,10 +3,13 @@ from tempfile import NamedTemporaryFile
 from unittest.mock import ANY, MagicMock, patch
 
 import pytest
+import yaml
 from chaoslib.exceptions import ActivityFailed
 from kubernetes.client.rest import ApiException
 
 from chaosk8s.crd.actions import (
+    apply_from_json,
+    apply_from_yaml,
     create_cluster_custom_object,
     create_custom_object,
     delete_custom_object,
@@ -473,4 +476,84 @@ def test_listing_cros(cl, client, has_conf):
     assert v1.list_namespaced_custom_object.call_count == 1
     v1.list_namespaced_custom_object.assert_called_with(
         "stable.example.com", "v1", "default", "crontabs", _preload_content=False
+    )
+
+
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.crd.actions.client", autospec=True)
+@patch("chaosk8s.client")
+def test_apply_from_json(cl, client, has_conf):
+    has_conf.return_value = False
+
+    resp_data = {"apiVersion": "stable.example.com/v1", "kind": "CronTab"}
+    resp = MagicMock()
+    resp.data = json.dumps(resp_data)
+
+    v1 = MagicMock()
+    client.CustomObjectsApi.return_value = v1
+    v1.create_namespaced_custom_object.return_value = resp
+
+    o = apply_from_json(
+        resource=json.dumps(
+            {
+                "apiVersion": "stable.example.com/v1",
+                "kind": "CronTab",
+                "metadata": {"name": "my-new-cron-object"},
+                "spec": {
+                    "cronSpec": "* * * * */5",
+                    "image": "my-awesome-cron-image",
+                },
+            }
+        )
+    )
+    assert o == resp_data
+
+    assert v1.create_namespaced_custom_object.call_count == 1
+    v1.create_namespaced_custom_object.assert_called_with(
+        "stable.example.com",
+        "v1",
+        "default",
+        "crontabs",
+        ANY,
+        _preload_content=False,
+    )
+
+
+@patch("chaosk8s.has_local_config_file", autospec=True)
+@patch("chaosk8s.crd.actions.client", autospec=True)
+@patch("chaosk8s.client")
+def test_apply_from_yaml(cl, client, has_conf):
+    has_conf.return_value = False
+
+    resp_data = {"apiVersion": "stable.example.com/v1", "kind": "CronTab"}
+    resp = MagicMock()
+    resp.data = json.dumps(resp_data)
+
+    v1 = MagicMock()
+    client.CustomObjectsApi.return_value = v1
+    v1.create_namespaced_custom_object.return_value = resp
+
+    o = apply_from_yaml(
+        resource=yaml.safe_dump(
+            {
+                "apiVersion": "stable.example.com/v1",
+                "kind": "CronTab",
+                "metadata": {"name": "my-new-cron-object"},
+                "spec": {
+                    "cronSpec": "* * * * */5",
+                    "image": "my-awesome-cron-image",
+                },
+            }
+        )
+    )
+    assert o == resp_data
+
+    assert v1.create_namespaced_custom_object.call_count == 1
+    v1.create_namespaced_custom_object.assert_called_with(
+        "stable.example.com",
+        "v1",
+        "default",
+        "crontabs",
+        ANY,
+        _preload_content=False,
     )
