@@ -26,6 +26,7 @@
     * `chaosk8s.daemonset.probes.daemon_set_partially_available`
     * `chaosk8s.networking.probes.ingress_exists`
 * Support the `NO_PROXY` environment variable
+* Actions `chaosk8s.crd.actions.apply_from_json` and `chaosk8s.crd.actions.apply_from_yaml`
 
 ### Fixed
 

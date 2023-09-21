@@ -20,7 +20,52 @@ __all__ = [
     "replace_custom_object",
     "patch_cluster_custom_object",
     "replace_cluster_custom_object",
+    "apply_from_json",
+    "apply_from_yaml",
 ]
+
+
+def apply_from_json(resource: str = None, secrets: Secrets = None) -> Dict[str, Any]:
+    """
+    Apply the given custom resource, given as a JSON string, to the cluster.
+    """
+    obj = json.loads(resource)
+    api_version = obj.get("apiVersion")
+    kind = obj.get("kind")
+    ns = obj.get("metadata", {}).get("namespace", "default")
+
+    if not api_version:
+        raise ActivityFailed("missing apiVersion in resource")
+
+    if not kind:
+        raise ActivityFailed("missing kind in resource")
+
+    group, version = api_version.rsplit("/", 1)
+    plural = get_plural(kind)
+
+    return create_custom_object(group, version, plural, ns, resource, secrets=secrets)
+
+
+def apply_from_yaml(resource: str = None, secrets: Secrets = None) -> Dict[str, Any]:
+    """
+    Apply the given custom resource, given as a YAML string, to the cluster.
+    """
+    obj = yaml.safe_load(resource)
+
+    api_version = obj.get("apiVersion")
+    kind = obj.get("kind")
+    ns = obj.get("metadata", {}).get("namespace", "default")
+
+    if not api_version:
+        raise ActivityFailed("missing apiVersion in resource")
+
+    if not kind:
+        raise ActivityFailed("missing kind in resource")
+
+    group, version = api_version.rsplit("/", 1)
+    plural = get_plural(kind)
+
+    return create_custom_object(group, version, plural, ns, resource, secrets=secrets)
 
 
 def create_custom_object(
@@ -286,3 +331,19 @@ def load_body(
     else:
         with open(body_as_yaml_file) as f:
             return yaml.safe_load(f.read())
+
+
+# https://github.com/kubernetes/kubernetes/blob/v1.28.2/staging/src/k8s.io/apimachinery/pkg/api/meta/restmapper.go#L126
+def get_plural(singular: str) -> str:
+    singular = singular.lower()
+
+    if singular == "endpoints":
+        return singular
+
+    last = singular[-1]
+    if last == "s":
+        return singular + "es"
+    elif last == "y":
+        return singular[:-1] + "ies"
+
+    return singular + "s"
