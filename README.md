@@ -75,6 +75,14 @@ Please explore the [documentation][doc] to see existing probes and actions.
 
 [doc]: https://docs.chaostoolkit.org/drivers/kubernetes/#exported-activities
 
+### Low level fault injections
+
+Note, for the network, cpu and memory stressors we rely on the fantastic
+[Chaos Mesh project](https://chaos-mesh.org/) that provides a great interface
+to inject these faults.
+
+You will need to install Chaos Mesh first in your cluster to use them.
+
 ## Configuration
 
 ### Use ~/.kube/config
