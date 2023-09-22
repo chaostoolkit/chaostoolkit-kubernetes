@@ -2,7 +2,11 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.28.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.29.0...HEAD
+
+## [0.29.0][] - 2023-09-22
+
+[0.29.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.28.0...0.29.0
 
 ### Added
 
