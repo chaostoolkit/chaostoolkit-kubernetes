@@ -19,6 +19,14 @@
     * `chaosk8s.networking.actions.delete_ingress`
     * `chaosk8s.crd.actions.apply_from_json`
     * `chaosk8s.crd.actions.apply_from_yaml`
+    * `chaosk8s.chaosmesh.stress.actions.stress_cpu`
+    * `chaosk8s.chaosmesh.stress.actions.stress_memory`
+    * `chaosk8s.chaosmesh.network.actions.add_latency`
+    * `chaosk8s.chaosmesh.network.actions.corrupt_packets`
+    * `chaosk8s.chaosmesh.network.actions.duplicate_packets`
+    * `chaosk8s.chaosmesh.network.actions.reorder_packets`
+    * `chaosk8s.chaosmesh.network.actions.set_bandwidth`
+    * `chaosk8s.chaosmesh.network.actions.set_loss`
 * Probes:
     * `chaosk8s.secret.probes.secret_exists`
     * `chaosk8s.namespace.probes.namespace_exists`
@@ -28,6 +36,7 @@
     * `chaosk8s.daemonset.probes.daemon_set_partially_available`
     * `chaosk8s.networking.probes.ingress_exists`
 * Support the `NO_PROXY` environment variable
+
 
 ### Fixed
 
