@@ -4,6 +4,17 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.29.0...HEAD
 
+### Added
+
+* Actions:
+    * `chaosk8s.chaosmesh.stress.actions.delete_stressor`
+    * `chaosk8s.chaosmesh.network.actions.delete_network_fault`
+* Probes:
+    * `chaosk8s.chaosmesh.stress.probes.get_stressor`
+    * `chaosk8s.chaosmesh.stress.probes.get_stressors`
+    * `chaosk8s.chaosmesh.network.probes.get_network_faults`
+    * `chaosk8s.chaosmesh.network.probes.get_network_fault`
+
 ## [0.29.0][] - 2023-09-22
 
 [0.29.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.28.0...0.29.0

@@ -177,6 +177,8 @@ def load_exported_activities() -> List[DiscoveredActivities]:
     activities.extend(discover_probes("chaosk8s.crd.probes"))
     activities.extend(discover_actions("chaosk8s.chaosmesh.network.actions"))
     activities.extend(discover_actions("chaosk8s.chaosmesh.stress.actions"))
+    activities.extend(discover_probes("chaosk8s.chaosmesh.network.probes"))
+    activities.extend(discover_probes("chaosk8s.chaosmesh.stress.probes"))
     return activities
 
 
