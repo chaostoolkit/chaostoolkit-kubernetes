@@ -4,11 +4,12 @@ from typing import Any, Dict, List, Optional, Union
 import yaml
 from chaoslib.types import Secrets
 
-from chaosk8s.crd.actions import create_custom_object
+from chaosk8s.crd.actions import create_custom_object, delete_custom_object
 
 __all__ = [
     "stress_memory",
     "stress_cpu",
+    "delete_stressor",
 ]
 
 
@@ -170,6 +171,25 @@ def stress_memory(
         "stresschaos",
         ns,
         resource=r,
+        secrets=secrets,
+    )
+
+
+def delete_stressor(
+    name: str,
+    ns: str = "default",
+    secrets: Secrets = None,
+) -> Dict[str, Any]:
+    """
+    Remove a Chaos Mesh stressor.
+    """
+
+    return delete_custom_object(
+        "chaos-mesh.org",
+        "v1alpha1",
+        "stresschaos",
+        name,
+        ns,
         secrets=secrets,
     )
 

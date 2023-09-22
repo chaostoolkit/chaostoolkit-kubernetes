@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional, Union
 import yaml
 from chaoslib.types import Secrets
 
-from chaosk8s.crd.actions import create_custom_object
+from chaosk8s.crd.actions import create_custom_object, delete_custom_object
 
 __all__ = [
     "add_latency",
@@ -13,6 +13,7 @@ __all__ = [
     "corrupt_packets",
     "reorder_packets",
     "set_bandwidth",
+    "delete_network_fault",
 ]
 
 
@@ -417,6 +418,25 @@ def set_bandwidth(
         "networkchaos",
         ns,
         resource=r,
+        secrets=secrets,
+    )
+
+
+def delete_network_fault(
+    name: str,
+    ns: str = "default",
+    secrets: Secrets = None,
+) -> Dict[str, Any]:
+    """
+    Remove a Chaos Mesh network fault.
+    """
+
+    return delete_custom_object(
+        "chaos-mesh.org",
+        "v1alpha1",
+        "networkchaos",
+        name,
+        ns,
         secrets=secrets,
     )
 
