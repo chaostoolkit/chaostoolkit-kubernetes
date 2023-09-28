@@ -29,6 +29,7 @@ def add_latency(
     latency: Optional[str] = None,
     correlation: Optional[str] = None,
     jitter: Optional[str] = None,
+    external_targets: Optional[Union[str, List[str]]] = None,
     secrets: Secrets = None,
 ) -> Dict[str, Any]:
     """
@@ -74,6 +75,7 @@ def add_latency(
         mode,
         mode_value,
         direction,
+        external_targets,
     )
 
     return create_custom_object(
@@ -97,6 +99,7 @@ def set_loss(
     direction: str = "to",
     loss: Optional[str] = None,
     correlation: Optional[str] = None,
+    external_targets: Optional[Union[str, List[str]]] = None,
     secrets: Secrets = None,
 ) -> Dict[str, Any]:
     """
@@ -139,6 +142,7 @@ def set_loss(
         mode,
         mode_value,
         direction,
+        external_targets,
     )
 
     return create_custom_object(
@@ -162,6 +166,7 @@ def duplicate_packets(
     direction: str = "to",
     duplicate: Optional[str] = None,
     correlation: Optional[str] = None,
+    external_targets: Optional[Union[str, List[str]]] = None,
     secrets: Secrets = None,
 ) -> Dict[str, Any]:
     """
@@ -204,6 +209,7 @@ def duplicate_packets(
         mode,
         mode_value,
         direction,
+        external_targets,
     )
 
     return create_custom_object(
@@ -228,6 +234,7 @@ def reorder_packets(
     reorder: Optional[str] = None,
     correlation: Optional[str] = None,
     gap: Optional[str] = None,
+    external_targets: Optional[Union[str, List[str]]] = None,
     secrets: Secrets = None,
 ) -> Dict[str, Any]:
     """
@@ -273,6 +280,7 @@ def reorder_packets(
         mode,
         mode_value,
         direction,
+        external_targets,
     )
 
     return create_custom_object(
@@ -296,6 +304,7 @@ def corrupt_packets(
     direction: str = "to",
     corrupt: Optional[str] = None,
     correlation: Optional[str] = None,
+    external_targets: Optional[Union[str, List[str]]] = None,
     secrets: Secrets = None,
 ) -> Dict[str, Any]:
     """
@@ -338,6 +347,7 @@ def corrupt_packets(
         mode,
         mode_value,
         direction,
+        external_targets,
     )
 
     return create_custom_object(
@@ -364,6 +374,7 @@ def set_bandwidth(
     direction: str = "to",
     peakrate: Optional[int] = None,
     minburst: Optional[int] = None,
+    external_targets: Optional[Union[str, List[str]]] = None,
     secrets: Secrets = None,
 ) -> Dict[str, Any]:
     """
@@ -410,6 +421,7 @@ def set_bandwidth(
         mode,
         mode_value,
         direction,
+        external_targets,
     )
 
     return create_custom_object(
@@ -452,6 +464,7 @@ def add_common_spec(
     mode: str = "one",
     mode_value: Optional[str] = None,
     direction: str = "to",
+    external_targets: Optional[Union[str, List[str]]] = None,
 ) -> None:
     s = resource["spec"]
 
@@ -486,3 +499,9 @@ def add_common_spec(
                 k, v = ls.split("=", 1)
                 selectors[k] = v
         s["selector"]["annotationSelectors"] = selectors
+
+    if external_targets:
+        targets = external_targets
+        if isinstance(external_targets, str):
+            targets = external_targets.split(",")
+        s["externalTargets"] = targets

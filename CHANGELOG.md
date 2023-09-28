@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.30.0...HEAD
 
+### Added
+
+* All network actions in the Chaos Mesh module now takes also a target parameter
+
 ## [0.30.0][] - 2023-09-22
 
 [0.30.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.29.0...0.30.0
