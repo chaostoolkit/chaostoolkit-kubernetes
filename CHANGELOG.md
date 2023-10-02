@@ -2,7 +2,16 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.30.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.30.2...HEAD
+
+## [0.30.2][] - 2023-10-02
+
+[0.30.2]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.30.1...0.30.2
+
+### Fixed
+
+* Patching Custom Resources required the appropriate header to be set as per
+  https://github.com/kubernetes-client/python/issues/1216#issuecomment-1229132922
 
 ## [0.30.1][] - 2023-09-28
 

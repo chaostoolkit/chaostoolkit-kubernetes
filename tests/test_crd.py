@@ -377,7 +377,6 @@ def test_patching_cro(cl, client, has_conf):
         "crontabs",
         "my-new-cron-object",
         resource,
-        force=False,
         _preload_content=False,
     )
 

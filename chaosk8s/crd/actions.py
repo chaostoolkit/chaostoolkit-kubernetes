@@ -200,6 +200,8 @@ def patch_custom_object(
     updated version to apply. Force will re-acquire conflicting fields
     owned by others.
 
+    The resource, or resource_as_yaml_file, must be a JSON Patch document.
+
     Read more about custom resources here:
     https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/
     """  # noqa: E501
@@ -207,8 +209,10 @@ def patch_custom_object(
     body = load_body(resource, resource_as_yaml_file)
 
     try:
+        # https://github.com/kubernetes-client/python/issues/1216
+        api.api_client.set_default_header("Content-Type", "application/json-patch+json")
         r = api.patch_namespaced_custom_object(
-            group, version, ns, plural, name, body, force=force, _preload_content=False
+            group, version, ns, plural, name, body, _preload_content=False
         )
         return json.loads(r.data)
     except ApiException as x:
@@ -264,6 +268,8 @@ def patch_cluster_custom_object(
     updated version to apply. Force will re-acquire conflicting fields
     owned by others.
 
+    The resource, or resource_as_yaml_file, must be a JSON Patch document.
+
     Read more about custom resources here:
     https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/
     """  # noqa: E501
@@ -271,8 +277,10 @@ def patch_cluster_custom_object(
     body = load_body(resource, resource_as_yaml_file)
 
     try:
+        # https://github.com/kubernetes-client/python/issues/1216
+        api.api_client.set_default_header("Content-Type", "application/json-patch+json")
         r = api.patch_cluster_custom_object(
-            group, version, plural, name, body, force=force, _preload_content=False
+            group, version, plural, name, body, _preload_content=False
         )
         return json.loads(r.data)
     except ApiException as x:
