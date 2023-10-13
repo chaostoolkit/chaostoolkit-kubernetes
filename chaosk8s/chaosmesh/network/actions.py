@@ -30,13 +30,25 @@ def add_latency(
     correlation: Optional[str] = None,
     jitter: Optional[str] = None,
     external_targets: Optional[Union[str, List[str]]] = None,
+    target_mode: Optional[str] = "one",
+    target_mode_value: Optional[str] = None,
+    target_namespaces_selectors: Optional[Union[str, List[str]]] = None,
+    target_label_selectors: Optional[Union[str, Dict[str, Any]]] = None,
+    target_annotations_selectors: Optional[Union[str, Dict[str, Any]]] = None,
     secrets: Secrets = None,
 ) -> Dict[str, Any]:
     """
     Set network delay on a pod.
 
+    You may set the argument starting with `target` to be specific about the
+    network link you want to impact.
+
+    When setting the direction to either `from` or `both`, then a target
+    must be set.
+
     See: https://chaos-mesh.org/docs/simulate-network-chaos-on-kubernetes/
-    """
+    See: https://github.com/chaos-mesh/chaos-mesh/blob/master/config/crd/bases/chaos-mesh.org_networkchaos.yaml
+    """  # noqa: E501
 
     r = yaml.safe_load(
         dedent(
@@ -76,6 +88,11 @@ def add_latency(
         mode_value,
         direction,
         external_targets,
+        target_mode,
+        target_mode_value,
+        target_namespaces_selectors,
+        target_label_selectors,
+        target_annotations_selectors,
     )
 
     return create_custom_object(
@@ -100,10 +117,21 @@ def set_loss(
     loss: Optional[str] = None,
     correlation: Optional[str] = None,
     external_targets: Optional[Union[str, List[str]]] = None,
+    target_mode: Optional[str] = "one",
+    target_mode_value: Optional[str] = None,
+    target_namespaces_selectors: Optional[Union[str, List[str]]] = None,
+    target_label_selectors: Optional[Union[str, Dict[str, Any]]] = None,
+    target_annotations_selectors: Optional[Union[str, Dict[str, Any]]] = None,
     secrets: Secrets = None,
 ) -> Dict[str, Any]:
     """
     Set network loss on a pod.
+
+    You may set the argument starting with `target` to be specific about the
+    network link you want to impact.
+
+    When setting the direction to either `from` or `both`, then a target
+    must be set.
 
     See: https://chaos-mesh.org/docs/simulate-network-chaos-on-kubernetes/
     """
@@ -143,6 +171,11 @@ def set_loss(
         mode_value,
         direction,
         external_targets,
+        target_mode,
+        target_mode_value,
+        target_namespaces_selectors,
+        target_label_selectors,
+        target_annotations_selectors,
     )
 
     return create_custom_object(
@@ -167,10 +200,18 @@ def duplicate_packets(
     duplicate: Optional[str] = None,
     correlation: Optional[str] = None,
     external_targets: Optional[Union[str, List[str]]] = None,
+    target_mode: Optional[str] = "one",
+    target_mode_value: Optional[str] = None,
+    target_namespaces_selectors: Optional[Union[str, List[str]]] = None,
+    target_label_selectors: Optional[Union[str, Dict[str, Any]]] = None,
+    target_annotations_selectors: Optional[Union[str, Dict[str, Any]]] = None,
     secrets: Secrets = None,
 ) -> Dict[str, Any]:
     """
     Duplicate network packets on a pod.
+
+    When setting the direction to either `from` or `both`, then a target
+    must be set.
 
     See: https://chaos-mesh.org/docs/simulate-network-chaos-on-kubernetes/
     """
@@ -210,6 +251,11 @@ def duplicate_packets(
         mode_value,
         direction,
         external_targets,
+        target_mode,
+        target_mode_value,
+        target_namespaces_selectors,
+        target_label_selectors,
+        target_annotations_selectors,
     )
 
     return create_custom_object(
@@ -235,10 +281,18 @@ def reorder_packets(
     correlation: Optional[str] = None,
     gap: Optional[str] = None,
     external_targets: Optional[Union[str, List[str]]] = None,
+    target_mode: Optional[str] = "one",
+    target_mode_value: Optional[str] = None,
+    target_namespaces_selectors: Optional[Union[str, List[str]]] = None,
+    target_label_selectors: Optional[Union[str, Dict[str, Any]]] = None,
+    target_annotations_selectors: Optional[Union[str, Dict[str, Any]]] = None,
     secrets: Secrets = None,
 ) -> Dict[str, Any]:
     """
     Reorder network packets on a pod.
+
+    When setting the direction to either `from` or `both`, then a target
+    must be set.
 
     See: https://chaos-mesh.org/docs/simulate-network-chaos-on-kubernetes/
     """
@@ -281,6 +335,11 @@ def reorder_packets(
         mode_value,
         direction,
         external_targets,
+        target_mode,
+        target_mode_value,
+        target_namespaces_selectors,
+        target_label_selectors,
+        target_annotations_selectors,
     )
 
     return create_custom_object(
@@ -305,10 +364,18 @@ def corrupt_packets(
     corrupt: Optional[str] = None,
     correlation: Optional[str] = None,
     external_targets: Optional[Union[str, List[str]]] = None,
+    target_mode: Optional[str] = "one",
+    target_mode_value: Optional[str] = None,
+    target_namespaces_selectors: Optional[Union[str, List[str]]] = None,
+    target_label_selectors: Optional[Union[str, Dict[str, Any]]] = None,
+    target_annotations_selectors: Optional[Union[str, Dict[str, Any]]] = None,
     secrets: Secrets = None,
 ) -> Dict[str, Any]:
     """
     Corrupt network packets on a pod.
+
+    When setting the direction to either `from` or `both`, then a target
+    must be set.
 
     See: https://chaos-mesh.org/docs/simulate-network-chaos-on-kubernetes/
     """
@@ -348,6 +415,11 @@ def corrupt_packets(
         mode_value,
         direction,
         external_targets,
+        target_mode,
+        target_mode_value,
+        target_namespaces_selectors,
+        target_label_selectors,
+        target_annotations_selectors,
     )
 
     return create_custom_object(
@@ -375,10 +447,18 @@ def set_bandwidth(
     peakrate: Optional[int] = None,
     minburst: Optional[int] = None,
     external_targets: Optional[Union[str, List[str]]] = None,
+    target_mode: Optional[str] = "one",
+    target_mode_value: Optional[str] = None,
+    target_namespaces_selectors: Optional[Union[str, List[str]]] = None,
+    target_label_selectors: Optional[Union[str, Dict[str, Any]]] = None,
+    target_annotations_selectors: Optional[Union[str, Dict[str, Any]]] = None,
     secrets: Secrets = None,
 ) -> Dict[str, Any]:
     """
     Simulate bandwdith on a pod.
+
+    When setting the direction to either `from` or `both`, then a target
+    must be set.
 
     See: https://chaos-mesh.org/docs/simulate-network-chaos-on-kubernetes/
     """
@@ -422,6 +502,11 @@ def set_bandwidth(
         mode_value,
         direction,
         external_targets,
+        target_mode,
+        target_mode_value,
+        target_namespaces_selectors,
+        target_label_selectors,
+        target_annotations_selectors,
     )
 
     return create_custom_object(
@@ -465,6 +550,11 @@ def add_common_spec(
     mode_value: Optional[str] = None,
     direction: str = "to",
     external_targets: Optional[Union[str, List[str]]] = None,
+    target_mode: Optional[str] = "one",
+    target_mode_value: Optional[str] = None,
+    target_namespaces_selectors: Optional[Union[str, List[str]]] = None,
+    target_label_selectors: Optional[Union[str, Dict[str, Any]]] = None,
+    target_annotations_selectors: Optional[Union[str, Dict[str, Any]]] = None,
 ) -> None:
     s = resource["spec"]
 
@@ -505,3 +595,32 @@ def add_common_spec(
         if isinstance(external_targets, str):
             targets = external_targets.split(",")
         s["externalTargets"] = targets
+
+    if target_mode:
+        target = {"mode": target_mode_value, "selector": {}}
+
+        if target_namespaces_selectors:
+            if isinstance(target_namespaces_selectors, str):
+                target_namespaces_selectors = target_namespaces_selectors.split(",")
+
+            target["selector"]["namespaces"] = target_namespaces_selectors
+
+        if target_label_selectors:
+            selectors = target_label_selectors
+            if isinstance(target_label_selectors, str):
+                selectors = {}
+                for ls in target_label_selectors.split(","):
+                    k, v = ls.split("=", 1)
+                    selectors[k] = v
+            target["selector"]["labelSelectors"] = selectors
+
+        if target_annotations_selectors:
+            selectors = target_annotations_selectors
+            if isinstance(target_annotations_selectors, str):
+                selectors = {}
+                for ls in target_annotations_selectors.split(","):
+                    k, v = ls.split("=", 1)
+                    selectors[k] = v
+            target["selector"]["annotationSelectors"] = selectors
+
+        s["target"] = target

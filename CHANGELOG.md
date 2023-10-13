@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.30.2...HEAD
 
+### Added
+
+* Target arguments to Chaos Mesh network actions
+
 ## [0.30.2][] - 2023-10-02
 
 [0.30.2]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.30.1...0.30.2
