@@ -597,7 +597,10 @@ def add_common_spec(
         s["externalTargets"] = targets
 
     if target_mode:
-        target = {"mode": target_mode_value, "selector": {}}
+        target = {"mode": target_mode, "selector": {}}
+
+        if target_mode in ("fixed", "fixed-percent", "random-max-percent"):
+            target["value"] = target_mode_value
 
         if target_namespaces_selectors:
             if isinstance(target_namespaces_selectors, str):

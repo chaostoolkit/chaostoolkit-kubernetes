@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.31.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.31.1...HEAD
+
+## [0.31.1][] - 2023-10-02
+
+[0.31.1]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.31.0...0.31.1
+
+### Fixed
+
+* Set target mode value in chaos mesh network actions
 
 ## [0.31.0][] - 2023-10-02
 
