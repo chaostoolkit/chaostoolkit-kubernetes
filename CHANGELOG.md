@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.32.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.32.1...HEAD
+
+## [0.32.1][] - 2023-10-28
+
+[0.32.1]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.32.0...0.32.1
+
+### Added
+
+* Make event probe discoverable
 
 ## [0.32.0][] - 2023-10-28
 

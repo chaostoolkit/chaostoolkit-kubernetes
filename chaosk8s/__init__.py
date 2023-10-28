@@ -12,7 +12,7 @@ from kubernetes import client, config
 from logzero import logger
 
 __all__ = ["create_k8s_api_client", "discover", "__version__"]
-__version__ = "0.32.0"
+__version__ = "0.32.1"
 
 
 def get_config_path() -> str:
@@ -179,6 +179,7 @@ def load_exported_activities() -> List[DiscoveredActivities]:
     activities.extend(discover_actions("chaosk8s.chaosmesh.stress.actions"))
     activities.extend(discover_probes("chaosk8s.chaosmesh.network.probes"))
     activities.extend(discover_probes("chaosk8s.chaosmesh.stress.probes"))
+    activities.extend(discover_probes("chaosk8s.event.probes"))
     return activities
 
 
