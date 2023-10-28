@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.31.1...HEAD
 
+### Added
+
+* A new probe to list cluster events
+
 ## [0.31.1][] - 2023-10-02
 
 [0.31.1]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.31.0...0.31.1
