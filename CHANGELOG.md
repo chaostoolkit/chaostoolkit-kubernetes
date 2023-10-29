@@ -2,7 +2,16 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.32.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.33.0...HEAD
+
+## [0.33.0][] - 2023-10-29
+
+[0.33.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.32.1...0.33.0
+
+### Added
+
+* Probes to retrieve and verify node statuses
+* Advertize support for Python 3.11 and Python 3.12
 
 ## [0.32.1][] - 2023-10-28
 
