@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.33.0...HEAD
 
+### Fixed
+
+* Draining multiple nodes only drained a single one
+
 ## [0.33.0][] - 2023-10-29
 
 [0.33.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.32.1...0.33.0

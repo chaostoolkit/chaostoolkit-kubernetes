@@ -390,4 +390,4 @@ def drain_nodes(
 
             time.sleep(10)
 
-        return True
+    return True
