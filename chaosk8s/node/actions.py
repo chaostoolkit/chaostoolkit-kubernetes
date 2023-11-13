@@ -102,7 +102,7 @@ def delete_nodes(
     secrets: Secrets = None,
     pod_label_selector: str = None,
     pod_namespace: str = None,
-):
+) -> List[str]:
     """
     Delete nodes gracefully. Select the appropriate nodes by label.
 
@@ -146,6 +146,7 @@ def delete_nodes(
         first=first,
     )
 
+    deleted = []
     body = client.V1DeleteOptions()
     for n in nodes:
         res = v1.delete_node(
@@ -154,6 +155,10 @@ def delete_nodes(
 
         if res.status != "Success":
             logger.debug(f"Terminating nodes failed: {res.message}")
+        else:
+            deleted.append(n.metadata.name)
+
+    return deleted
 
 
 def create_node(
@@ -186,7 +191,7 @@ def create_node(
     return res
 
 
-def cordon_node(name: str = None, label_selector: str = None, secrets: Secrets = None):
+def cordon_node(name: str = None, label_selector: str = None, secrets: Secrets = None) -> List[str]:
     """
     Cordon nodes matching the given label or name, so that no pods
     are scheduled on them any longer.
@@ -199,19 +204,23 @@ def cordon_node(name: str = None, label_selector: str = None, secrets: Secrets =
 
     body = {"spec": {"unschedulable": True}}
 
+    cordoned = []
     for n in nodes:
         try:
             v1.patch_node(n.metadata.name, body)
+            cordoned.append(n.metadata.name)
         except ApiException as x:
             logger.debug(f"Unscheduling node '{n.metadata.name}' failed: {x.body}")
             raise ActivityFailed(
                 f"Failed to unschedule node '{n.metadata.name}': {x.body}"
             )
+    
+    return cordoned
 
 
 def uncordon_node(
     name: str = None, label_selector: str = None, secrets: Secrets = None
-):
+) -> List[str]:
     """
     Uncordon nodes matching the given label name, so that pods can be
     scheduled on them again.
@@ -224,14 +233,18 @@ def uncordon_node(
 
     body = {"spec": {"unschedulable": False}}
 
+    uncordoned = []
     for n in nodes:
         try:
             v1.patch_node(n.metadata.name, body)
+            uncordoned.append(n.metadata.name)
         except ApiException as x:
             logger.debug(f"Scheduling node '{n.metadata.name}' failed: {x.body}")
             raise ActivityFailed(
                 f"Failed to schedule node '{n.metadata.name}': {x.body}"
             )
+
+    return uncordoned
 
 
 def drain_nodes(
@@ -243,7 +256,7 @@ def drain_nodes(
     count: int = None,
     pod_label_selector: str = None,
     pod_namespace: str = None,
-) -> bool:
+) -> List[str]:
     """
     Drain nodes matching the given label or name, so that no pods are scheduled
     on them any longer and running pods are evicted.
@@ -390,4 +403,4 @@ def drain_nodes(
 
             time.sleep(10)
 
-    return True
+    return [n.metadata.name for n in nodes]

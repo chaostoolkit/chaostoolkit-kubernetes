@@ -8,6 +8,10 @@
 
 * Draining multiple nodes only drained a single one
 
+### Changed
+
+* Nodes actions now return the list of node names they operated on
+
 ## [0.33.0][] - 2023-10-29
 
 [0.33.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.32.1...0.33.0
