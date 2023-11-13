@@ -191,7 +191,9 @@ def create_node(
     return res
 
 
-def cordon_node(name: str = None, label_selector: str = None, secrets: Secrets = None) -> List[str]:
+def cordon_node(
+    name: str = None, label_selector: str = None, secrets: Secrets = None
+) -> List[str]:
     """
     Cordon nodes matching the given label or name, so that no pods
     are scheduled on them any longer.
@@ -214,7 +216,7 @@ def cordon_node(name: str = None, label_selector: str = None, secrets: Secrets =
             raise ActivityFailed(
                 f"Failed to unschedule node '{n.metadata.name}': {x.body}"
             )
-    
+
     return cordoned
 
 
