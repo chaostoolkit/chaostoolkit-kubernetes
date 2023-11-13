@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.34.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.34.1...HEAD
+
+## [0.34.1][] - 2023-11-13
+
+[0.34.1]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.34.0...0.34.1
+
+### Fixed
+
+* Don't escape node draining too soon
 
 ## [0.34.0][] - 2023-11-13
 

@@ -348,8 +348,8 @@ def drain_nodes(
                 )
 
         if not eviction_candidates:
-            logger.debug("No pods to evict. Let's return.")
-            return True
+            logger.debug("No pods to evict. Let's move on to the next node.")
+            continue
 
         logger.debug(f"Found {len(eviction_candidates)} pods to evict")
         for pod in eviction_candidates:
