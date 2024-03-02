@@ -98,9 +98,9 @@ $ export KUBECONFIG=/tmp/my-config
 
 #### Specify the Kubernetes context
 
-Quite often, your Kubernetes configuration contains several entries and you
-need to define the one to use as a default context when not it isn't
-explicitely provided.
+Quite often, your Kubernetes configuration contains several entries, and you
+need to define the one to use as a default context when it isn't
+explicitly provided.
 
 You may of course change your default using
 `kubectl config use-context KUBERNETES_CONTEXT` but you can also be explicit
@@ -182,7 +182,7 @@ env:
 
 ## Pass all credentials in the experiment
 
-Finally, you may pass explicitely all required credentials information to the
+Finally, you may pass explicitly all required credentials information to the
 experiment as follows:
 
 ### Using an API key
@@ -290,7 +290,7 @@ the dependencies.
 $ pdm install
 ```
 
-Now, you can edit the files and they will be automatically be seen by your
+Now, you can edit the files, and they will be automatically be seen by your
 environment, even when running from the `chaos` command locally.
 
 ### Tests
