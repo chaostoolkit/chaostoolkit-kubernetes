@@ -73,7 +73,7 @@ That's it! Notice how the action gives you the way to kill one pod randomly.
 
 Please explore the [documentation][doc] to see existing probes and actions.
 
-[doc]: https://docs.chaostoolkit.org/drivers/kubernetes/#exported-activities
+[doc]: https://chaostoolkit.org/drivers/kubernetes/#exported-activities
 
 ### Low level fault injections
 
