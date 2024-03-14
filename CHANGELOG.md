@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.34.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.35.0...HEAD
+
+## [0.35.0][] - 2024-03-14
+
+[0.35.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.34.1...0.35.0
+
+### Changed
+
+* Added `field_selector` to the `get_events` probe
 
 ## [0.34.1][] - 2023-11-13
 

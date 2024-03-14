@@ -11,6 +11,7 @@ __all__ = ["get_events"]
 
 def get_events(
     label_selector: str = None,
+    field_selector: str = None,
     limit: int = 100,
     configuration: Configuration = None,
     secrets: Secrets = None,
@@ -23,7 +24,10 @@ def get_events(
 
     v1 = client.EventsV1Api(api)
     ret = v1.list_event_for_all_namespaces(
-        _preload_content=False, label_selector=label_selector, limit=limit
+        _preload_content=False,
+        label_selector=label_selector,
+        field_selector=field_selector,
+        limit=limit,
     )
 
     return json.loads(ret.read().decode("utf-8"))
