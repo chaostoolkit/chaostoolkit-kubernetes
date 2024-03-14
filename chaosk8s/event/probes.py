@@ -19,7 +19,10 @@ def get_events(
     """
     Retrieve Kubernetes events across all namespaces. If a `label_selector`
     is set, filter to that selector only.
-    """
+
+    The right values for `field_selector` come from
+    https://github.com/kubernetes/kubernetes/blob/d1a2a134c532109540025c990697a6900c2e62fc/pkg/apis/events/v1/conversion.go#L66
+    """  # no: E501
     api = create_k8s_api_client(secrets)
 
     v1 = client.EventsV1Api(api)

@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.35.0...HEAD
 
+### Added
+
+* Where to find the right values of field selectors
+
 ## [0.35.0][] - 2024-03-14
 
 [0.35.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.34.1...0.35.0
