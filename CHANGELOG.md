@@ -8,6 +8,12 @@
 
 * Where to find the right values of field selectors
 
+### Changed
+
+* Moved to PDM away from setuptools
+* Moved to Trusted Publisher to publish the package to Pypi
+* Removed black and isort dependencies to keep ruff
+
 ## [0.35.0][] - 2024-03-14
 
 [0.35.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.34.1...0.35.0

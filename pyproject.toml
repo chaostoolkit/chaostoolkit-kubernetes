@@ -1,0 +1,96 @@
+[project]
+name = "chaostoolkit-kubernetes"
+dynamic = ["version"]
+description = "Chaos Toolkit Extension for Kubernetes"
+authors = [
+    {name = "Chaos Toolkit", email = "contact@chaostoolkit.org"},
+]
+requires-python = ">=3.8"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+dependencies = [
+    "chaostoolkit-lib>=1.42.1",
+    "kubernetes>=29.0.0",
+    "dateparser>=1.2.0",
+    "pyyaml>=6.0.1",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: Freely Distributable",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation",
+    "Programming Language :: Python :: Implementation :: CPython",
+]
+
+[project.urls]
+documentation = "https://chaostoolkit.org"
+repository = "https://github.com/chaostoolkit/chaostoolkit-kubernetes"
+changelog = "https://github.com/chaostoolkit/chaostoolkit-kubernetes/blob/master/CHANGELOG.md"
+
+[build-system]
+requires = [
+    "pdm-backend",
+]
+build-backend = "pdm.backend"
+
+[tool]
+
+[tool.black]
+color = true
+line-length = 80
+target-version = ['py310']
+
+[tool.ruff]
+line-length = 80
+exclude = [
+    ".eggs",
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "build",
+    "dist",
+]
+
+[tool.isort]
+line_length = 80
+known_first_party = 'chaosk8s'
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+combine_as_imports = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = ["tests"]
+addopts = "-v -rxs --cov chaosk8s --cov-report term-missing:skip-covered -p no:warnings"
+
+
+[tool.pdm]
+version = { source = "scm" }
+[tool.pdm.dev-dependencies]
+dev = [
+    "pytest-cov>=4.1.0",
+    "pytest>=8.1.1",
+    "coverage>=7.4.4",
+    "pytest-sugar>=1.0.0",
+    "ruff>=0.3.3",
+    "requests-mock>=1.11.0",
+]
+
+[tool.pdm.scripts]
+lint = {composite = ["ruff check chaosk8s/"]}
+format = {composite = ["ruff format chaosk8s/"]}
+test = {cmd = "pytest"}

@@ -115,3 +115,12 @@ junit-test-results.xml
 .idea/
 .chaosiq
 journal.json
+
+
+# pdm
+.pdm-python
+.pdm-build/
+
+
+# ruff
+.ruff_cache/

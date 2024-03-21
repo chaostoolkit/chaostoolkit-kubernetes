@@ -41,7 +41,9 @@ def daemon_set_available_and_healthy(
     else:
         ret = v1.list_namespaced_daemon_set(ns, field_selector=field_selector)
 
-    logger.debug(f"Found {len(ret.items)} daemon_set(s) named '{name}' in ns '{ns}'")
+    logger.debug(
+        f"Found {len(ret.items)} daemon_set(s) named '{name}' in ns '{ns}'"
+    )
 
     if not ret.items:
         logger.debug(f"daemon set '{name}' was not found")
@@ -79,7 +81,9 @@ def daemon_set_partially_available(
     else:
         ret = v1.list_namespaced_daemon_set(ns, field_selector=field_selector)
 
-    logger.debug(f"Found {len(ret.items)} daemon_set(s) named '{name}' in ns '{ns}'")
+    logger.debug(
+        f"Found {len(ret.items)} daemon_set(s) named '{name}' in ns '{ns}'"
+    )
 
     if not ret.items:
         logger.debug(f"daemon set '{name}' was not found")
@@ -183,7 +187,9 @@ def daemon_set_not_fully_available(
     ):
         return True
     else:
-        logger.debug(f"daemon set '{name}' failed to stop running within {timeout}s")
+        logger.debug(
+            f"daemon set '{name}' failed to stop running within {timeout}s"
+        )
         return False
 
 

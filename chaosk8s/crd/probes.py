@@ -44,7 +44,11 @@ def get_custom_object(
 
 
 def list_custom_objects(
-    group: str, version: str, plural: str, ns: str = "default", secrets: Secrets = None
+    group: str,
+    version: str,
+    plural: str,
+    ns: str = "default",
+    secrets: Secrets = None,
 ) -> List[Dict[str, Any]]:
     """
     List custom objects in the given namespace.

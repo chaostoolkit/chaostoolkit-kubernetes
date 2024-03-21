@@ -23,8 +23,12 @@ def secret_exists(
 
     if name and not label_selector:
         logger.debug(f"Filtering secrets by name {name}")
-        ret = v1.list_namespaced_secret(ns, field_selector=f"metadata.name={name}")
-        logger.debug(f"Found {len(ret.items)} secrets(s) named '{name}' in ns '{ns}'")
+        ret = v1.list_namespaced_secret(
+            ns, field_selector=f"metadata.name={name}"
+        )
+        logger.debug(
+            f"Found {len(ret.items)} secrets(s) named '{name}' in ns '{ns}'"
+        )
     elif label_selector and not name:
         logger.debug(f"Filtering secrets by label {label_selector}")
         ret = v1.list_namespaced_secret(ns, label_selector=label_selector)
@@ -33,7 +37,9 @@ def secret_exists(
             " labelled '{label_selector}'"
         )
     elif name and label_selector:
-        logger.debug(f"Filtering secrets by name {name} and label {label_selector}")
+        logger.debug(
+            f"Filtering secrets by name {name} and label {label_selector}"
+        )
         ret = v1.list_namespaced_secret(
             ns,
             field_selector=f"metadata.name={name}",

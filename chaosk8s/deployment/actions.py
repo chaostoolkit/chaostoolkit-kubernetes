@@ -19,7 +19,9 @@ __all__ = [
 ]
 
 
-def create_deployment(spec_path: str, ns: str = "default", secrets: Secrets = None):
+def create_deployment(
+    spec_path: str, ns: str = "default", secrets: Secrets = None
+):
     """
     Create a deployment described by the deployment config, which must be the
     path to the JSON or YAML representation of the deployment.
@@ -59,7 +61,9 @@ def delete_deployment(
     v1 = client.AppsV1Api(api)
 
     if name:
-        ret = v1.list_namespaced_deployment(ns, field_selector=f"metadata.name={name}")
+        ret = v1.list_namespaced_deployment(
+            ns, field_selector=f"metadata.name={name}"
+        )
     elif label_selector:
         ret = v1.list_namespaced_deployment(ns, label_selector=label_selector)
     else:
@@ -107,7 +111,9 @@ def rollout_deployment(
     body = {
         "spec": {
             "template": {
-                "metadata": {"annotations": {"kubectl.kubernetes.io/restartedAt": now}}
+                "metadata": {
+                    "annotations": {"kubectl.kubernetes.io/restartedAt": now}
+                }
             }
         }
     }

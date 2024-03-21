@@ -165,7 +165,8 @@ def exec_in_pods(
             err = json.loads(err)
         except json.decoder.JSONDecodeError:
             logger.debug(
-                "Failed loading pod exec error stream as a json payload", exc_info=True
+                "Failed loading pod exec error stream as a json payload",
+                exc_info=True,
             )
 
         if isinstance(err, dict) and (err["status"] != "Success"):
@@ -217,7 +218,9 @@ def _select_pods(
 
     # Fail when quantity is less than 0
     if qty < 0:
-        raise ActivityFailed(f"Cannot select pods. Quantity '{qty}' is negative.")
+        raise ActivityFailed(
+            f"Cannot select pods. Quantity '{qty}' is negative."
+        )
 
     # Fail when mode is not `fixed` or `percentage`
     if mode not in ["fixed", "percentage"]:

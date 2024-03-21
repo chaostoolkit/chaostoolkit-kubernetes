@@ -27,7 +27,9 @@ def get_nodes(
 
     v1 = client.CoreV1Api(api)
     if label_selector:
-        ret = v1.list_node(label_selector=label_selector, _preload_content=False)
+        ret = v1.list_node(
+            label_selector=label_selector, _preload_content=False
+        )
     else:
         ret = v1.list_node(_preload_content=False)
 

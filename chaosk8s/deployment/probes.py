@@ -45,7 +45,9 @@ def deployment_available_and_healthy(
     else:
         ret = v1.list_namespaced_deployment(ns, field_selector=field_selector)
 
-    logger.debug(f"Found {len(ret.items)} deployment(s) named '{name}' in ns '{ns}'")
+    logger.debug(
+        f"Found {len(ret.items)} deployment(s) named '{name}' in ns '{ns}'"
+    )
 
     if not ret.items:
         m = f"Deployment '{name}' was not found"
@@ -97,7 +99,9 @@ def deployment_partially_available(
     else:
         ret = v1.list_namespaced_deployment(ns, field_selector=field_selector)
 
-    logger.debug(f"Found {len(ret.items)} deployment(s) named '{name}' in ns '{ns}'")
+    logger.debug(
+        f"Found {len(ret.items)} deployment(s) named '{name}' in ns '{ns}'"
+    )
 
     if not ret.items:
         m = f"Deployment '{name}' was not found"

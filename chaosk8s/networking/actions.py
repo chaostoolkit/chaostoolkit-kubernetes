@@ -25,7 +25,9 @@ __all__ = [
 ]
 
 
-def create_ingress(spec_path: str, ns: str = "default", secrets: Secrets = None):
+def create_ingress(
+    spec_path: str, ns: str = "default", secrets: Secrets = None
+):
     """
     Create an ingress object from the specified spec_path, which must be
     the path to the JSON or YAML representation of the ingress.
@@ -53,7 +55,9 @@ def delete_ingress(name: str, ns: str = "default", secrets: Secrets = None):
     v1.delete_namespaced_ingress(name, namespace=ns)
 
 
-def update_ingress(name: str, spec: dict, ns: str = "default", secrets: Secrets = None):
+def update_ingress(
+    name: str, spec: dict, ns: str = "default", secrets: Secrets = None
+):
     """
     Update the specification of the targeted ingress according to spec.
     """
@@ -92,7 +96,9 @@ def create_network_policy(
     v1.create_namespaced_network_policy(ns, body=spec)
 
 
-def remove_network_policy(name: str, ns: str = "default", secrets: Secrets = None):
+def remove_network_policy(
+    name: str, ns: str = "default", secrets: Secrets = None
+):
     """
     Create a network policy in the given namespace eitehr from the definition
     as `spec` or from a file containing the definition at `spec_path`.
@@ -103,7 +109,9 @@ def remove_network_policy(name: str, ns: str = "default", secrets: Secrets = Non
 
 
 def deny_all_ingress(
-    label_selectors: Dict[str, Any] = None, ns: str = "default", secrets: Secrets = None
+    label_selectors: Dict[str, Any] = None,
+    ns: str = "default",
+    secrets: Secrets = None,
 ):
     """
     Convenient helper policy to deny ingress network to all pods in a
@@ -134,11 +142,15 @@ def remove_deny_all_ingress(ns: str = "default", secrets: Secrets = None):
     """
     Remove the rule set by the `deny_all_ingress` action.
     """
-    remove_network_policy("chaostoolkit-deny-all-ingress", ns=ns, secrets=secrets)
+    remove_network_policy(
+        "chaostoolkit-deny-all-ingress", ns=ns, secrets=secrets
+    )
 
 
 def deny_all_egress(
-    label_selectors: Dict[str, Any] = None, ns: str = "default", secrets: Secrets = None
+    label_selectors: Dict[str, Any] = None,
+    ns: str = "default",
+    secrets: Secrets = None,
 ):
     """
     Convenient helper rule to deny all egress network from all pods in a
@@ -165,11 +177,15 @@ def remove_deny_all_egress(ns: str = "default", secrets: Secrets = None):
     """
     Remove the rule set by the `deny_all_egress` action.
     """
-    remove_network_policy("chaostoolkit-deny-all-egress", ns=ns, secrets=secrets)
+    remove_network_policy(
+        "chaostoolkit-deny-all-egress", ns=ns, secrets=secrets
+    )
 
 
 def allow_dns_access(
-    label_selectors: Dict[str, Any] = None, ns: str = "default", secrets: Secrets = None
+    label_selectors: Dict[str, Any] = None,
+    ns: str = "default",
+    secrets: Secrets = None,
 ):
     """
     Convenient helper rule to DNS access from all pods

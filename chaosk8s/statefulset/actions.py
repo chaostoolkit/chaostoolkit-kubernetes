@@ -13,7 +13,9 @@ from chaosk8s import create_k8s_api_client
 __all__ = ["create_statefulset", "scale_statefulset", "remove_statefulset"]
 
 
-def create_statefulset(spec_path: str, ns: str = "default", secrets: Secrets = None):
+def create_statefulset(
+    spec_path: str, ns: str = "default", secrets: Secrets = None
+):
     """
     Create a statefulset described by the service config, which must be
     the path to the JSON or YAML representation of the statefulset.
@@ -79,7 +81,9 @@ def remove_statefulset(
     else:
         ret = v1.list_namespaced_stateful_set(ns)
 
-    logger.debug(f"Found {len(ret.items)} statefulset(s) named '{name}' in ns '{ns}'")
+    logger.debug(
+        f"Found {len(ret.items)} statefulset(s) named '{name}' in ns '{ns}'"
+    )
 
     body = client.V1DeleteOptions()
     for d in ret.items:

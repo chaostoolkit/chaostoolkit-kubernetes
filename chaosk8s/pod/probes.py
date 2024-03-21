@@ -238,7 +238,10 @@ def pods_not_in_phase(
 
 
 def count_pods(
-    label_selector: str, phase: str = None, ns: str = "default", secrets: Secrets = None
+    label_selector: str,
+    phase: str = None,
+    ns: str = "default",
+    secrets: Secrets = None,
 ) -> int:
     """
     Count the number of pods matching the given selector in a given `phase`, if
@@ -311,7 +314,9 @@ def pod_is_not_available(
 
 
 def all_pods_healthy(
-    ns: str = "default", raise_on_any_unhealthy: bool = True, secrets: Secrets = None
+    ns: str = "default",
+    raise_on_any_unhealthy: bool = True,
+    secrets: Secrets = None,
 ) -> MicroservicesStatus:
     """
     Check all pods in the system are running and available.
@@ -333,7 +338,9 @@ def all_pods_healthy(
         elif phase not in ("Running", "Succeeded"):
             not_ready.append(p)
 
-    logger.debug(f"Found {len(failed)} failed and {len(not_ready)} not ready pods")
+    logger.debug(
+        f"Found {len(failed)} failed and {len(not_ready)} not ready pods"
+    )
 
     # we probably should list them in the message
     if failed or not_ready:

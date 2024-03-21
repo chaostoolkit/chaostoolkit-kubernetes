@@ -18,7 +18,9 @@ __all__ = [
 ]
 
 
-def start_microservice(spec_path: str, ns: str = "default", secrets: Secrets = None):
+def start_microservice(
+    spec_path: str, ns: str = "default", secrets: Secrets = None
+):
     """
     !!!DEPRECATED!!!
     """
@@ -26,7 +28,9 @@ def start_microservice(spec_path: str, ns: str = "default", secrets: Secrets = N
     create_deployment(spec_path, ns, secrets)
 
 
-def remove_service_endpoint(name: str, ns: str = "default", secrets: Secrets = None):
+def remove_service_endpoint(
+    name: str, ns: str = "default", secrets: Secrets = None
+):
     """
     !!!DEPRECATED!!!
     """

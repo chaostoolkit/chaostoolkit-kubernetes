@@ -17,7 +17,9 @@ __all__ = [
 ]
 
 
-def create_daemon_set(spec_path: str, ns: str = "default", secrets: Secrets = None):
+def create_daemon_set(
+    spec_path: str, ns: str = "default", secrets: Secrets = None
+):
     """
     Create a daemon set described by the daemon set spec, which must be the
     path to the JSON or YAML representation of the daemon_set.
@@ -57,7 +59,9 @@ def delete_daemon_set(
     v1 = client.AppsV1Api(api)
 
     if name:
-        ret = v1.list_namespaced_daemon_set(ns, field_selector=f"metadata.name={name}")
+        ret = v1.list_namespaced_daemon_set(
+            ns, field_selector=f"metadata.name={name}"
+        )
     elif label_selector:
         ret = v1.list_namespaced_daemon_set(ns, label_selector=label_selector)
     else:

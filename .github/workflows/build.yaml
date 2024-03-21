@@ -1,0 +1,41 @@
+name: Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  checks:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        os: ["ubuntu-latest", "macos-latest"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: true
+          prerelease: true
+
+      - name: Ensure lock file is up to date
+        run: |
+          pdm lock --check
+
+      - name: Install dependencies
+        run: |
+          pdm sync -d
+
+      - name: Run Lint
+        run: |
+          pdm run lint
+
+      - name: Run Tests
+        run: |
+          pdm run pytest

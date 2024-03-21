@@ -604,7 +604,9 @@ def add_common_spec(
 
         if target_namespaces_selectors:
             if isinstance(target_namespaces_selectors, str):
-                target_namespaces_selectors = target_namespaces_selectors.split(",")
+                target_namespaces_selectors = target_namespaces_selectors.split(
+                    ","
+                )
 
             target["selector"]["namespaces"] = target_namespaces_selectors
 
