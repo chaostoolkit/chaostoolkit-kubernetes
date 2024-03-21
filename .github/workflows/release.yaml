@@ -9,6 +9,9 @@ on:
 jobs:
   release-to-pypi:
     runs-on: ubuntu-22.04
+    environment: release
+    permissions:
+      id-token: write
     steps:
     - uses: actions/checkout@v4
     - name: Set up PDM
