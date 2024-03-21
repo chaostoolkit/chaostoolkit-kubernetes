@@ -1,4 +1,5 @@
 import json
+import logging
 import os.path
 from typing import Any, Dict
 
@@ -7,7 +8,6 @@ from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
 from kubernetes import client
 from kubernetes.client.rest import ApiException
-from logzero import logger
 
 from chaosk8s import create_k8s_api_client
 
@@ -23,6 +23,7 @@ __all__ = [
     "apply_from_json",
     "apply_from_yaml",
 ]
+logger = logging.getLogger("chaostoolkit")
 
 
 def apply_from_json(

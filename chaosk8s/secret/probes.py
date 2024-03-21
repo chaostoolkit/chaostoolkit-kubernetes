@@ -1,10 +1,11 @@
+import logging
 from chaoslib.types import Secrets
 from kubernetes import client
-from logzero import logger
 
 from chaosk8s import create_k8s_api_client
 
 __all__ = ["secret_exists"]
+logger = logging.getLogger("chaostoolkit")
 
 
 def secret_exists(

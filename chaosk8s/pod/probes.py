@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import Dict, List, Union
 
@@ -5,7 +6,6 @@ import dateparser
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import MicroservicesStatus, Secrets
 from kubernetes import client
-from logzero import logger
 
 from chaosk8s import create_k8s_api_client
 
@@ -18,6 +18,7 @@ __all__ = [
     "pod_is_not_available",
     "count_min_pods",
 ]
+logger = logging.getLogger("chaostoolkit")
 
 
 def read_pod_logs(

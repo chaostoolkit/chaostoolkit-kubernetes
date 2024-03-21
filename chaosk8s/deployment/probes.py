@@ -1,3 +1,4 @@
+import logging
 from functools import partial
 from typing import Union
 
@@ -5,7 +6,6 @@ import urllib3
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
 from kubernetes import client, watch
-from logzero import logger
 
 from chaosk8s import create_k8s_api_client
 
@@ -15,6 +15,7 @@ __all__ = [
     "deployment_fully_available",
     "deployment_partially_available",
 ]
+logger = logging.getLogger("chaostoolkit")
 
 
 def deployment_available_and_healthy(

@@ -2,6 +2,7 @@
 # cluster. While Chaos Engineering is all about disrupting and weaknesses,
 # it is important to take the time to fully appreciate what those actions
 # do and how they do it.
+import logging
 import random
 import time
 from typing import Any, Dict, List
@@ -10,7 +11,6 @@ from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
 from kubernetes import client
 from kubernetes.client.rest import ApiException
-from logzero import logger
 
 from chaosk8s import create_k8s_api_client
 
@@ -21,6 +21,7 @@ __all__ = [
     "drain_nodes",
     "uncordon_node",
 ]
+logger = logging.getLogger("chaostoolkit")
 
 
 def _select_nodes(

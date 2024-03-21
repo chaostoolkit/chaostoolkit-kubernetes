@@ -1,9 +1,9 @@
 import json
+import logging
 from typing import Dict, List
 
 from chaoslib.types import Configuration, Secrets
 from kubernetes import client
-from logzero import logger
 
 from chaosk8s import create_k8s_api_client
 
@@ -12,6 +12,7 @@ __all__ = [
     "all_nodes_must_be_ready_to_schedule",
     "get_all_node_status_conditions",
 ]
+logger = logging.getLogger("chaostoolkit")
 
 
 def get_nodes(

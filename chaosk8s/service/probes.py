@@ -1,11 +1,13 @@
+import logging
+
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
 from kubernetes import client
-from logzero import logger
 
 from chaosk8s import create_k8s_api_client
 
 __all__ = ["service_is_initialized"]
+logger = logging.getLogger("chaostoolkit")
 
 
 def service_is_initialized(

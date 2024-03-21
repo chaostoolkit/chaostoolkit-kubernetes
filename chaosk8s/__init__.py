@@ -1,3 +1,4 @@
+import logging
 import os
 import os.path
 from typing import List
@@ -9,10 +10,10 @@ from chaoslib.discovery.discover import (
 )
 from chaoslib.types import DiscoveredActivities, Discovery, Secrets
 from kubernetes import client, config
-from logzero import logger
 
 __all__ = ["create_k8s_api_client", "discover", "__version__"]
 __version__ = "0.35.0"
+logger = logging.getLogger("chaostoolkit")
 
 
 def get_config_path() -> str:

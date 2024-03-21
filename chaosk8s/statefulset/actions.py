@@ -1,4 +1,5 @@
 import json
+import logging
 import os.path
 
 import yaml
@@ -6,11 +7,11 @@ from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
 from kubernetes import client
 from kubernetes.client.rest import ApiException
-from logzero import logger
 
 from chaosk8s import create_k8s_api_client
 
 __all__ = ["create_statefulset", "scale_statefulset", "remove_statefulset"]
+logger = logging.getLogger("chaostoolkit")
 
 
 def create_statefulset(
