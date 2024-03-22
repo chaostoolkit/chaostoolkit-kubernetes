@@ -4,6 +4,10 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.36.0...HEAD
 
+### Added
+
+* Improved logging of `delete_node` to grasp corner cases
+
 ## [0.36.0][] - 2024-03-21
 
 [0.36.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.35.0...0.36.0

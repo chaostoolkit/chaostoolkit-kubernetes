@@ -160,15 +160,20 @@ def delete_nodes(
     deleted = []
     body = client.V1DeleteOptions()
     for n in nodes:
-        res = v1.delete_node(
+        res: client.V1Status = v1.delete_node(
             n.metadata.name,
             body=body,
             grace_period_seconds=grace_period_seconds,
         )
 
         if res.status != "Success":
-            logger.debug(f"Terminating nodes failed: {res.message}")
+            logger.debug(
+                f"Deleting node '{n.metadata.name}' failed: "
+                f"{res.message} [{res.status}] - {res.reason}"
+            )
+            logger.debug(f"The response was: {res.to_dict()}")
         else:
+            logger.debug("Node '{n.metadata.name}' deleted")
             deleted.append(n.metadata.name)
 
     return deleted
