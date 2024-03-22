@@ -12,6 +12,7 @@ __all__ = [
     "all_nodes_must_be_ready_to_schedule",
     "get_all_node_status_conditions",
     "verify_nodes_condition",
+    "nodes_must_be_healthy",
 ]
 logger = logging.getLogger("chaostoolkit")
 
@@ -108,5 +109,60 @@ def verify_nodes_condition(
                 "expected state"
             )
             return False
+
+    return True
+
+
+def nodes_must_be_healthy(
+    label_selector: str = None,
+    configuration: Configuration = None,
+    secrets: Secrets = None,
+) -> bool:
+    """
+    Verifies the state of the following node conditions:
+
+    * FrequentKubeletRestart must be False
+    * FrequentDockerRestart must be False
+    * FrequentContainerdRestart must be False
+    * ReadonlyFilesystem must be False
+    * KernelDeadlock must be False
+    * CorruptDockerOverlay2 must be False
+    * FrequentUnregisterNetDevice must be False
+    * NetworkUnavailable must be False
+    * FrequentKubeletRestart must be False
+    * MemoryPressure must be False
+    * DiskPressure must be False
+    * PIDPressure must be False
+    * Ready must be True
+
+    For all matching nodes, if any is not in the expected state, returns False.
+    """
+    result = get_all_node_status_conditions(
+        label_selector, configuration, secrets
+    )
+
+    expectations = [
+        ("FrequentKubeletRestart", "False"),
+        ("FrequentDockerRestart", "False"),
+        ("FrequentContainerdRestart", "False"),
+        ("ReadonlyFilesystem", "False"),
+        ("KernelDeadlock", "False"),
+        ("CorruptDockerOverlay2", "False"),
+        ("FrequentUnregisterNetDevice", "False"),
+        ("NetworkUnavailable", "False"),
+        ("MemoryPressure", "False"),
+        ("DiskPressure", "False"),
+        ("PIDPressure", "False"),
+        ("Ready", "True"),
+    ]
+
+    for statuses in result:
+        for ctype, cvalue in expectations:
+            if (ctype in statuses) and (statuses[ctype] != cvalue):
+                logger.debug(
+                    f"Node {statuses['name']} does not match '{ctype}' "
+                    "expected state: {cvalue}"
+                )
+                return False
 
     return True

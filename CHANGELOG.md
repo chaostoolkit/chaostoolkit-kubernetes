@@ -12,6 +12,8 @@
 
 * Improved logging of `delete_node` to grasp corner cases
 * A new `verify_nodes_condition` probe to check any condition on nodes
+* A new `nodes_must_be_healthy` prove to check a set of node conditions against
+  expected values
 
 ### Changed
 
