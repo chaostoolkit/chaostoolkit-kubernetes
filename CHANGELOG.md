@@ -7,6 +7,12 @@
 ### Added
 
 * Improved logging of `delete_node` to grasp corner cases
+* A new `verify_nodes_condition` probe to check any condition on nodes
+
+### Changed
+
+* Now, `all_nodes_must_be_ready_to_schedule` accepts a `label_selector` to
+  filter a subset of nodes to verify
 
 ## [0.36.0][] - 2024-03-21
 
