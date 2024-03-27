@@ -1,11 +1,13 @@
+import logging
+
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
 from kubernetes import client
-from logzero import logger
 
 from chaosk8s import create_k8s_api_client
 
 __all__ = ["service_is_initialized"]
+logger = logging.getLogger("chaostoolkit")
 
 
 def service_is_initialized(
@@ -29,8 +31,12 @@ def service_is_initialized(
 
     if name and not label_selector:
         logger.debug(f"Filtering services by name {name}")
-        ret = v1.list_namespaced_service(ns, field_selector=f"metadata.name={name}")
-        logger.debug(f"Found {len(ret.items)} service(s) named '{name}' in ns '{ns}'")
+        ret = v1.list_namespaced_service(
+            ns, field_selector=f"metadata.name={name}"
+        )
+        logger.debug(
+            f"Found {len(ret.items)} service(s) named '{name}' in ns '{ns}'"
+        )
     elif label_selector and not name:
         logger.debug(f"Filtering services by label {label_selector}")
         ret = v1.list_namespaced_service(ns, label_selector=label_selector)
@@ -39,7 +45,9 @@ def service_is_initialized(
             " labelled '{label_selector}'"
         )
     elif name and label_selector:
-        logger.debug(f"Filtering services by name {name} and label {label_selector}")
+        logger.debug(
+            f"Filtering services by name {name} and label {label_selector}"
+        )
         ret = v1.list_namespaced_service(
             ns,
             field_selector=f"metadata.name={name}",

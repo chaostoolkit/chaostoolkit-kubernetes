@@ -1,14 +1,15 @@
+import logging
 from functools import partial
 
 import urllib3
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
 from kubernetes import client, watch
-from logzero import logger
 
 from chaosk8s import create_k8s_api_client
 
 __all__ = ["statefulset_fully_available", "statefulset_not_fully_available"]
+logger = logging.getLogger("chaostoolkit")
 
 
 def _statefulset_readiness_has_state(

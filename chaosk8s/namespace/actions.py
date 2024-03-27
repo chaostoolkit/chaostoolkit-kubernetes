@@ -11,7 +11,9 @@ from chaosk8s import create_k8s_api_client
 __all__ = ["create_namespace", "delete_namespace"]
 
 
-def create_namespace(name: str = None, spec_path: str = None, secrets: Secrets = None):
+def create_namespace(
+    name: str = None, spec_path: str = None, secrets: Secrets = None
+):
     """
     Create a namespace from the specified spec_path, which must be
     the path to the JSON or YAML representation of the namespace.
@@ -29,7 +31,11 @@ def create_namespace(name: str = None, spec_path: str = None, secrets: Secrets =
                 raise ActivityFailed(f"cannot process {spec_path}")
 
     elif name:
-        ns = {"apiVersion": "v1", "kind": "Namespace", "metadata": {"name": name}}
+        ns = {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {"name": name},
+        }
     else:
         raise ActivityFailed("You need to either specify name or spec_path")
     v1 = client.CoreV1Api(api)

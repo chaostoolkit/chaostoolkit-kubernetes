@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import Dict, List, Union
 
@@ -5,7 +6,6 @@ import dateparser
 from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import MicroservicesStatus, Secrets
 from kubernetes import client
-from logzero import logger
 
 from chaosk8s import create_k8s_api_client
 
@@ -18,6 +18,7 @@ __all__ = [
     "pod_is_not_available",
     "count_min_pods",
 ]
+logger = logging.getLogger("chaostoolkit")
 
 
 def read_pod_logs(
@@ -238,7 +239,10 @@ def pods_not_in_phase(
 
 
 def count_pods(
-    label_selector: str, phase: str = None, ns: str = "default", secrets: Secrets = None
+    label_selector: str,
+    phase: str = None,
+    ns: str = "default",
+    secrets: Secrets = None,
 ) -> int:
     """
     Count the number of pods matching the given selector in a given `phase`, if
@@ -311,7 +315,9 @@ def pod_is_not_available(
 
 
 def all_pods_healthy(
-    ns: str = "default", raise_on_any_unhealthy: bool = True, secrets: Secrets = None
+    ns: str = "default",
+    raise_on_any_unhealthy: bool = True,
+    secrets: Secrets = None,
 ) -> MicroservicesStatus:
     """
     Check all pods in the system are running and available.
@@ -333,7 +339,9 @@ def all_pods_healthy(
         elif phase not in ("Running", "Succeeded"):
             not_ready.append(p)
 
-    logger.debug(f"Found {len(failed)} failed and {len(not_ready)} not ready pods")
+    logger.debug(
+        f"Found {len(failed)} failed and {len(not_ready)} not ready pods"
+    )
 
     # we probably should list them in the message
     if failed or not_ready:

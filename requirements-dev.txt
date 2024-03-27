@@ -1,8 +1,0 @@
-black
-coverage
-isort
-pytest>=6.0
-pytest-cov
-pytest-sugar
-requests-mock
-ruff

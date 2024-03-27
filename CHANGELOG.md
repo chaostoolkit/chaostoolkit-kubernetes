@@ -2,11 +2,38 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.35.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.37.0...HEAD
+
+## [0.37.0][] - 2024-03-22
+
+[0.37.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.36.0...0.37.0
+
+### Added
+
+* Improved logging of `delete_node` to grasp corner cases
+* A new `verify_nodes_condition` probe to check any condition on nodes
+* A new `nodes_must_be_healthy` prove to check a set of node conditions against
+  expected values
+
+### Changed
+
+* Now, `all_nodes_must_be_ready_to_schedule` accepts a `label_selector` to
+  filter a subset of nodes to verify
+
+## [0.36.0][] - 2024-03-21
+
+[0.36.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.35.0...0.36.0
 
 ### Added
 
 * Where to find the right values of field selectors
+
+### Changed
+
+* Moved to PDM away from setuptools
+* Moved to Trusted Publisher to publish the package to Pypi
+* Removed black and isort dependencies to keep ruff
+* Dropped logzero dependency
 
 ## [0.35.0][] - 2024-03-14
 

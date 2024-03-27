@@ -2,6 +2,7 @@
 # cluster. While Chaos Engineering is all about disrupting and weaknesses,
 # it is important to take the time to fully appreciate what those actions
 # do and how they do it.
+import logging
 import random
 import time
 from typing import Any, Dict, List
@@ -10,11 +11,17 @@ from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
 from kubernetes import client
 from kubernetes.client.rest import ApiException
-from logzero import logger
 
 from chaosk8s import create_k8s_api_client
 
-__all__ = ["create_node", "delete_nodes", "cordon_node", "drain_nodes", "uncordon_node"]
+__all__ = [
+    "create_node",
+    "delete_nodes",
+    "cordon_node",
+    "drain_nodes",
+    "uncordon_node",
+]
+logger = logging.getLogger("chaostoolkit")
 
 
 def _select_nodes(
@@ -71,7 +78,9 @@ def _select_nodes(
 
     if pod_label_selector and pod_namespace:
         logger.debug(f"Filtering nodes by pod label {pod_label_selector}")
-        pods = v1.list_namespaced_pod(pod_namespace, label_selector=pod_label_selector)
+        pods = v1.list_namespaced_pod(
+            pod_namespace, label_selector=pod_label_selector
+        )
         for node in ret.items:
             for pod in pods.items:
                 if pod.spec.node_name == node.metadata.name:
@@ -88,7 +97,9 @@ def _select_nodes(
         nodes = [nodes[0]]
     elif count is not None:
         nodes = random.choices(nodes, k=count)
-    logger.debug(f"Picked nodes '{', '.join([n.metadata.name for n in nodes])}'")
+    logger.debug(
+        f"Picked nodes '{', '.join([n.metadata.name for n in nodes])}'"
+    )
 
     return nodes
 
@@ -149,20 +160,29 @@ def delete_nodes(
     deleted = []
     body = client.V1DeleteOptions()
     for n in nodes:
-        res = v1.delete_node(
-            n.metadata.name, body=body, grace_period_seconds=grace_period_seconds
+        res: client.V1Status = v1.delete_node(
+            n.metadata.name,
+            body=body,
+            grace_period_seconds=grace_period_seconds,
         )
 
         if res.status != "Success":
-            logger.debug(f"Terminating nodes failed: {res.message}")
+            logger.debug(
+                f"Deleting node '{n.metadata.name}' failed: "
+                f"{res.message} [{res.status}] - {res.reason}"
+            )
+            logger.debug(f"The response was: {res.to_dict()}")
         else:
+            logger.debug("Node '{n.metadata.name}' deleted")
             deleted.append(n.metadata.name)
 
     return deleted
 
 
 def create_node(
-    meta: Dict[str, Any] = None, spec: Dict[str, Any] = None, secrets: Secrets = None
+    meta: Dict[str, Any] = None,
+    spec: Dict[str, Any] = None,
+    secrets: Secrets = None,
 ) -> client.V1Node:
     """
     Create one new node in the cluster.
@@ -202,7 +222,9 @@ def cordon_node(
 
     v1 = client.CoreV1Api(api)
 
-    nodes = _select_nodes(name=name, label_selector=label_selector, secrets=secrets)
+    nodes = _select_nodes(
+        name=name, label_selector=label_selector, secrets=secrets
+    )
 
     body = {"spec": {"unschedulable": True}}
 
@@ -212,7 +234,9 @@ def cordon_node(
             v1.patch_node(n.metadata.name, body)
             cordoned.append(n.metadata.name)
         except ApiException as x:
-            logger.debug(f"Unscheduling node '{n.metadata.name}' failed: {x.body}")
+            logger.debug(
+                f"Unscheduling node '{n.metadata.name}' failed: {x.body}"
+            )
             raise ActivityFailed(
                 f"Failed to unschedule node '{n.metadata.name}': {x.body}"
             )
@@ -231,7 +255,9 @@ def uncordon_node(
 
     v1 = client.CoreV1Api(api)
 
-    nodes = _select_nodes(name=name, label_selector=label_selector, secrets=secrets)
+    nodes = _select_nodes(
+        name=name, label_selector=label_selector, secrets=secrets
+    )
 
     body = {"spec": {"unschedulable": False}}
 
@@ -241,7 +267,9 @@ def uncordon_node(
             v1.patch_node(n.metadata.name, body)
             uncordoned.append(n.metadata.name)
         except ApiException as x:
-            logger.debug(f"Scheduling node '{n.metadata.name}' failed: {x.body}")
+            logger.debug(
+                f"Scheduling node '{n.metadata.name}' failed: {x.body}"
+            )
             raise ActivityFailed(
                 f"Failed to schedule node '{n.metadata.name}': {x.body}"
             )
@@ -311,7 +339,8 @@ def drain_nodes(
             # do not handle mirror pods
             if annotations and "kubernetes.io/config.mirror" in annotations:
                 logger.debug(
-                    f"Not deleting mirror pod '{name}' on " f"node '{node_name}'"
+                    f"Not deleting mirror pod '{name}' on "
+                    f"node '{node_name}'"
                 )
                 continue
 

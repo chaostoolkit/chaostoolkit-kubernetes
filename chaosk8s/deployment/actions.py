@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 import os.path
 
 import yaml
@@ -7,7 +8,6 @@ from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
 from kubernetes import client
 from kubernetes.client.rest import ApiException
-from logzero import logger
 
 from chaosk8s import create_k8s_api_client
 
@@ -17,9 +17,12 @@ __all__ = [
     "scale_deployment",
     "rollout_deployment",
 ]
+logger = logging.getLogger("chaostoolkit")
 
 
-def create_deployment(spec_path: str, ns: str = "default", secrets: Secrets = None):
+def create_deployment(
+    spec_path: str, ns: str = "default", secrets: Secrets = None
+):
     """
     Create a deployment described by the deployment config, which must be the
     path to the JSON or YAML representation of the deployment.
@@ -59,7 +62,9 @@ def delete_deployment(
     v1 = client.AppsV1Api(api)
 
     if name:
-        ret = v1.list_namespaced_deployment(ns, field_selector=f"metadata.name={name}")
+        ret = v1.list_namespaced_deployment(
+            ns, field_selector=f"metadata.name={name}"
+        )
     elif label_selector:
         ret = v1.list_namespaced_deployment(ns, label_selector=label_selector)
     else:
@@ -107,7 +112,9 @@ def rollout_deployment(
     body = {
         "spec": {
             "template": {
-                "metadata": {"annotations": {"kubectl.kubernetes.io/restartedAt": now}}
+                "metadata": {
+                    "annotations": {"kubectl.kubernetes.io/restartedAt": now}
+                }
             }
         }
     }

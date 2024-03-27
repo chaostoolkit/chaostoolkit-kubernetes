@@ -1,4 +1,5 @@
 import json
+import logging
 import os.path
 from typing import Any, Dict
 
@@ -7,7 +8,6 @@ from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
 from kubernetes import client
 from kubernetes.client.rest import ApiException
-from logzero import logger
 
 from chaosk8s import create_k8s_api_client
 
@@ -23,9 +23,12 @@ __all__ = [
     "apply_from_json",
     "apply_from_yaml",
 ]
+logger = logging.getLogger("chaostoolkit")
 
 
-def apply_from_json(resource: str = None, secrets: Secrets = None) -> Dict[str, Any]:
+def apply_from_json(
+    resource: str = None, secrets: Secrets = None
+) -> Dict[str, Any]:
     """
     Apply the given custom resource, given as a JSON string, to the cluster.
     """
@@ -43,10 +46,14 @@ def apply_from_json(resource: str = None, secrets: Secrets = None) -> Dict[str, 
     group, version = api_version.rsplit("/", 1)
     plural = get_plural(kind)
 
-    return create_custom_object(group, version, plural, ns, resource, secrets=secrets)
+    return create_custom_object(
+        group, version, plural, ns, resource, secrets=secrets
+    )
 
 
-def apply_from_yaml(resource: str = None, secrets: Secrets = None) -> Dict[str, Any]:
+def apply_from_yaml(
+    resource: str = None, secrets: Secrets = None
+) -> Dict[str, Any]:
     """
     Apply the given custom resource, given as a YAML string, to the cluster.
     """
@@ -65,7 +72,9 @@ def apply_from_yaml(resource: str = None, secrets: Secrets = None) -> Dict[str, 
     group, version = api_version.rsplit("/", 1)
     plural = get_plural(kind)
 
-    return create_custom_object(group, version, plural, ns, resource, secrets=secrets)
+    return create_custom_object(
+        group, version, plural, ns, resource, secrets=secrets
+    )
 
 
 def create_custom_object(
@@ -94,7 +103,9 @@ def create_custom_object(
         return json.loads(r.data)
     except ApiException as x:
         if x.status == 409:
-            logger.debug(f"Custom resource object {group}/{version} already exists")
+            logger.debug(
+                f"Custom resource object {group}/{version} already exists"
+            )
             return json.loads(x.body)
         else:
             raise ActivityFailed(
@@ -154,7 +165,9 @@ def create_cluster_custom_object(
         return json.loads(r.data)
     except ApiException as x:
         if x.status == 409:
-            logger.debug(f"Custom resource object {group}/{version} already exists")
+            logger.debug(
+                f"Custom resource object {group}/{version} already exists"
+            )
             return json.loads(x.body)
         else:
             raise ActivityFailed(
@@ -210,7 +223,9 @@ def patch_custom_object(
 
     try:
         # https://github.com/kubernetes-client/python/issues/1216
-        api.api_client.set_default_header("Content-Type", "application/json-patch+json")
+        api.api_client.set_default_header(
+            "Content-Type", "application/json-patch+json"
+        )
         r = api.patch_namespaced_custom_object(
             group, version, ns, plural, name, body, _preload_content=False
         )
@@ -244,7 +259,14 @@ def replace_custom_object(
 
     try:
         r = api.replace_namespaced_custom_object(
-            group, version, ns, plural, name, body, force=force, _preload_content=False
+            group,
+            version,
+            ns,
+            plural,
+            name,
+            body,
+            force=force,
+            _preload_content=False,
         )
         return json.loads(r.data)
     except ApiException as x:
@@ -278,7 +300,9 @@ def patch_cluster_custom_object(
 
     try:
         # https://github.com/kubernetes-client/python/issues/1216
-        api.api_client.set_default_header("Content-Type", "application/json-patch+json")
+        api.api_client.set_default_header(
+            "Content-Type", "application/json-patch+json"
+        )
         r = api.patch_cluster_custom_object(
             group, version, plural, name, body, _preload_content=False
         )
@@ -311,7 +335,13 @@ def replace_cluster_custom_object(
 
     try:
         r = api.replace_cluster_custom_object(
-            group, version, plural, name, body, force=force, _preload_content=False
+            group,
+            version,
+            plural,
+            name,
+            body,
+            force=force,
+            _preload_content=False,
         )
         return json.loads(r.data)
     except ApiException as x:
@@ -335,7 +365,9 @@ def load_body(
         return body_as_object
 
     if not os.path.isfile(body_as_yaml_file):
-        raise ActivityFailed(f"Path '{body_as_yaml_file}' is not a valid resource file")
+        raise ActivityFailed(
+            f"Path '{body_as_yaml_file}' is not a valid resource file"
+        )
     else:
         with open(body_as_yaml_file) as f:
             return yaml.safe_load(f.read())

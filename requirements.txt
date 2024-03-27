@@ -1,5 +1,0 @@
-dateparser
-kubernetes
-logzero
-chaostoolkit-lib>=1.30
-pyyaml

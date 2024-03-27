@@ -1,4 +1,5 @@
 import json
+import logging
 import os.path
 
 import yaml
@@ -6,7 +7,6 @@ from chaoslib.exceptions import ActivityFailed
 from chaoslib.types import Secrets
 from kubernetes import client
 from kubernetes.client.rest import ApiException
-from logzero import logger
 
 from chaosk8s import create_k8s_api_client
 
@@ -15,9 +15,12 @@ __all__ = [
     "delete_daemon_set",
     "update_daemon_set",
 ]
+logger = logging.getLogger("chaostoolkit")
 
 
-def create_daemon_set(spec_path: str, ns: str = "default", secrets: Secrets = None):
+def create_daemon_set(
+    spec_path: str, ns: str = "default", secrets: Secrets = None
+):
     """
     Create a daemon set described by the daemon set spec, which must be the
     path to the JSON or YAML representation of the daemon_set.
@@ -57,7 +60,9 @@ def delete_daemon_set(
     v1 = client.AppsV1Api(api)
 
     if name:
-        ret = v1.list_namespaced_daemon_set(ns, field_selector=f"metadata.name={name}")
+        ret = v1.list_namespaced_daemon_set(
+            ns, field_selector=f"metadata.name={name}"
+        )
     elif label_selector:
         ret = v1.list_namespaced_daemon_set(ns, label_selector=label_selector)
     else:

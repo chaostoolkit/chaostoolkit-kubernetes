@@ -1,3 +1,4 @@
+import logging
 import os
 import os.path
 from typing import List
@@ -9,10 +10,10 @@ from chaoslib.discovery.discover import (
 )
 from chaoslib.types import DiscoveredActivities, Discovery, Secrets
 from kubernetes import client, config
-from logzero import logger
 
 __all__ = ["create_k8s_api_client", "discover", "__version__"]
 __version__ = "0.35.0"
+logger = logging.getLogger("chaostoolkit")
 
 
 def get_config_path() -> str:
@@ -106,11 +107,15 @@ def create_k8s_api_client(secrets: Secrets = None) -> client.ApiClient:
         configuration = client.Configuration()
         configuration.debug = debug
         configuration.host = lookup("KUBERNETES_HOST", "http://localhost")
-        configuration.verify_ssl = lookup("KUBERNETES_VERIFY_SSL", False) is not False
+        configuration.verify_ssl = (
+            lookup("KUBERNETES_VERIFY_SSL", False) is not False
+        )
         configuration.ssl_ca_cert = lookup("KUBERNETES_CA_CERT_FILE")
 
         if "KUBERNETES_API_KEY" in env or "KUBERNETES_API_KEY" in secrets:
-            configuration.api_key["authorization"] = lookup("KUBERNETES_API_KEY")
+            configuration.api_key["authorization"] = lookup(
+                "KUBERNETES_API_KEY"
+            )
             configuration.api_key_prefix["authorization"] = lookup(
                 "KUBERNETES_API_KEY_PREFIX", "Bearer"
             )

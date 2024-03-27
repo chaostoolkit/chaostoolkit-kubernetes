@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 import math
 import random
 import re
@@ -11,11 +12,11 @@ from chaoslib.types import Secrets
 from kubernetes import client, stream
 from kubernetes.client.models.v1_pod import V1Pod
 from kubernetes.stream.ws_client import ERROR_CHANNEL, STDOUT_CHANNEL
-from logzero import logger
 
 from chaosk8s import _log_deprecated, create_k8s_api_client
 
 __all__ = ["terminate_pods", "exec_in_pods"]
+logger = logging.getLogger("chaostoolkit")
 
 
 def terminate_pods(
@@ -165,7 +166,8 @@ def exec_in_pods(
             err = json.loads(err)
         except json.decoder.JSONDecodeError:
             logger.debug(
-                "Failed loading pod exec error stream as a json payload", exc_info=True
+                "Failed loading pod exec error stream as a json payload",
+                exc_info=True,
             )
 
         if isinstance(err, dict) and (err["status"] != "Success"):
@@ -217,7 +219,9 @@ def _select_pods(
 
     # Fail when quantity is less than 0
     if qty < 0:
-        raise ActivityFailed(f"Cannot select pods. Quantity '{qty}' is negative.")
+        raise ActivityFailed(
+            f"Cannot select pods. Quantity '{qty}' is negative."
+        )
 
     # Fail when mode is not `fixed` or `percentage`
     if mode not in ["fixed", "percentage"]:

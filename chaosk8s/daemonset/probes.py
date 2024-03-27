@@ -1,9 +1,9 @@
+import logging
 from functools import partial
 
 import urllib3
 from chaoslib.types import Secrets
 from kubernetes import client, watch
-from logzero import logger
 
 from chaosk8s import create_k8s_api_client
 
@@ -13,6 +13,7 @@ __all__ = [
     "daemon_set_fully_available",
     "daemon_set_partially_available",
 ]
+logger = logging.getLogger("chaostoolkit")
 
 
 def daemon_set_available_and_healthy(
@@ -41,7 +42,9 @@ def daemon_set_available_and_healthy(
     else:
         ret = v1.list_namespaced_daemon_set(ns, field_selector=field_selector)
 
-    logger.debug(f"Found {len(ret.items)} daemon_set(s) named '{name}' in ns '{ns}'")
+    logger.debug(
+        f"Found {len(ret.items)} daemon_set(s) named '{name}' in ns '{ns}'"
+    )
 
     if not ret.items:
         logger.debug(f"daemon set '{name}' was not found")
@@ -79,7 +82,9 @@ def daemon_set_partially_available(
     else:
         ret = v1.list_namespaced_daemon_set(ns, field_selector=field_selector)
 
-    logger.debug(f"Found {len(ret.items)} daemon_set(s) named '{name}' in ns '{ns}'")
+    logger.debug(
+        f"Found {len(ret.items)} daemon_set(s) named '{name}' in ns '{ns}'"
+    )
 
     if not ret.items:
         logger.debug(f"daemon set '{name}' was not found")
@@ -183,7 +188,9 @@ def daemon_set_not_fully_available(
     ):
         return True
     else:
-        logger.debug(f"daemon set '{name}' failed to stop running within {timeout}s")
+        logger.debug(
+            f"daemon set '{name}' failed to stop running within {timeout}s"
+        )
         return False
 
 
