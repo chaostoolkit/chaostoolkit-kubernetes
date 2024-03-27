@@ -2,11 +2,6 @@
 
 ## [Unreleased][]
 
-* Patching memory stressor to impact a process/container
-  https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/161#issue-2195501987
-
-## [Unreleased][]
-
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.35.0...HEAD
 
 ### Added
