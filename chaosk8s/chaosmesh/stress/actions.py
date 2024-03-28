@@ -111,7 +111,7 @@ def stress_memory(
     secrets: Secrets = None,
 ) -> Dict[str, Any]:
     """
-    Stress the CPU to impact a process/container.
+    Stress the memory to impact a process/container.
 
     See: https://chaos-mesh.org/docs/simulate-heavy-stress-on-kubernetes/
     """
@@ -125,7 +125,7 @@ def stress_memory(
     spec:
       selector: {}
       stressors:
-        cpu: {}
+        memory: {}
     """
         )
     )
@@ -134,9 +134,9 @@ def stress_memory(
     r["metadata"]["ns"] = ns
 
     s = r["spec"]
-    c = s["stressors"]["cpu"]
+    c = s["stressors"]["memory"]
     c["workers"] = workers
-    c["load"] = size
+    c["size"] = size
     c["time"] = time_to_get_to_size
     c["oomScoreAdj"] = oom_score
 
