@@ -4,6 +4,12 @@
 
 [Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.37.0...HEAD
 
+### Changed
+
+* Fixed the CPU stress action [#161][161]
+
+[161]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/161
+
 ## [0.37.0][] - 2024-03-22
 
 [0.37.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.36.0...0.37.0
