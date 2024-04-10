@@ -7,6 +7,7 @@
 ### Changed
 
 * Fixed the CPU stress action [#161][161]
+* Bump dependencies
 
 [161]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/issues/161
 
