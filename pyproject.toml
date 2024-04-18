@@ -44,11 +44,6 @@ build-backend = "pdm.backend"
 
 [tool]
 
-[tool.black]
-color = true
-line-length = 80
-target-version = ['py310']
-
 [tool.ruff]
 line-length = 80
 exclude = [
@@ -64,13 +59,12 @@ exclude = [
     "dist",
 ]
 
-[tool.isort]
-line_length = 80
-known_first_party = 'chaosk8s'
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-combine_as_imports = true
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = false
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -79,7 +73,9 @@ addopts = "-v -rxs --cov chaosk8s --cov-report term-missing:skip-covered -p no:w
 
 
 [tool.pdm]
+distribution = true
 version = { source = "scm" }
+
 [tool.pdm.dev-dependencies]
 dev = [
     "pytest-cov>=4.1.0",
@@ -92,5 +88,5 @@ dev = [
 
 [tool.pdm.scripts]
 lint = {composite = ["ruff check chaosk8s/"]}
-format = {composite = ["ruff format chaosk8s/"]}
+format = {composite = ["ruff check --fix chaosk8s/", "ruff format chaosk8s/"]}
 test = {cmd = "pytest"}
