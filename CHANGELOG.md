@@ -11,6 +11,7 @@
 ### Changed
 
 * Publish sources alongside the wheel package
+* Bump dependencies
 
 ## [0.38.0][] - 2024-04-10
 
