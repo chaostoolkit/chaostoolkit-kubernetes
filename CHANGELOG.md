@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.38.1...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.38.2...HEAD
+
+## [0.38.2][] - 2024-04-18
+
+[0.38.2]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.38.1...0.38.2
+
+### Fixed
+
+* Read version from package metadata
 
 ## [0.38.1][] - 2024-04-18
 

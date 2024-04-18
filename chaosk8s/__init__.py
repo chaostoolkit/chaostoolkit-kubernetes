@@ -1,6 +1,7 @@
 import logging
 import os
 import os.path
+from importlib.metadata import version, PackageNotFoundError
 from typing import List
 
 from chaoslib.discovery.discover import (
@@ -12,7 +13,11 @@ from chaoslib.types import DiscoveredActivities, Discovery, Secrets
 from kubernetes import client, config
 
 __all__ = ["create_k8s_api_client", "discover", "__version__"]
-__version__ = "0.35.0"
+try:
+    __version__ = version("chaostoolkit-kubernetes")
+except PackageNotFoundError:
+    __version__ = "unknown"
+
 logger = logging.getLogger("chaostoolkit")
 
 
