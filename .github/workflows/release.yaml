@@ -19,7 +19,7 @@ jobs:
       with:
         python-version: "3.8"
     - name: Build wheels
-      run: pdm build --no-sdist
+      run: pdm build
       env:
         PDM_BUILD_SCM_VERSION: ${{github.ref_name}}
     - name: Publish package distributions to PyPI

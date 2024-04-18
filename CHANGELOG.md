@@ -2,7 +2,15 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.38.0...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.38.1...HEAD
+
+## [0.38.1][] - 2024-04-18
+
+[0.38.1]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.38.0...0.38.1
+
+### Changed
+
+* Publish sources alongside the wheel package
 
 ## [0.38.0][] - 2024-04-10
 
