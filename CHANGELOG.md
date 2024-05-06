@@ -2,7 +2,56 @@
 
 ## [Unreleased][]
 
-[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.38.2...HEAD
+[Unreleased]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.39.0...HEAD
+
+## [0.39.0][] - 2024-05-06
+
+[0.39.0]: https://github.com/chaostoolkit/chaostoolkit-kubernetes/compare/0.39.0...0.39.0
+
+### Added
+
+* Added the `chaosk8s.pod.probes.should_be_found_in_logs` probe to search
+  into container logs:
+
+  ```json
+    {
+      "title": "Check pod logs",
+      "description": "n/a",
+      "steady-state-hypothesis": {
+          "title": "extract-logs-with-regex",
+          "probes": [
+              {
+                  "name": "at-least-one-pod-should-have-restarted",
+                  "type": "probe",
+                  "tolerance": {
+                      "name": "search-probe",
+                      "type": "probe",
+                      "provider": {
+                          "type": "python",
+                          "module": "chaosk8s.pod.probes",
+                          "func": "should_be_found_in_logs",
+                          "arguments": {
+                              "pattern": "startup",
+                              "all_containers": false
+                          }
+                      }
+                  },
+                  "provider": {
+                      "type": "python",
+                      "module": "chaosk8s.pod.probes",
+                      "func": "read_pod_logs",
+                      "arguments": {
+                          "last": "60s",
+                          "label_selector": "app=producer",
+                          "container_name": "producer"
+                      }
+                  }
+              }
+          ]
+      },
+      "method": []
+  }
+  ```
 
 ## [0.38.2][] - 2024-04-18
 

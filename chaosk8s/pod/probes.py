@@ -1,4 +1,5 @@
 import logging
+import re
 from datetime import datetime
 from typing import Dict, List, Union
 
@@ -17,6 +18,7 @@ __all__ = [
     "count_pods",
     "pod_is_not_available",
     "count_min_pods",
+    "should_be_found_in_logs",
 ]
 logger = logging.getLogger("chaostoolkit")
 
@@ -370,3 +372,43 @@ def count_min_pods(
         label_selector=label_selector, phase=phase, ns=ns, secrets=secrets
     )
     return count >= min_count
+
+
+def should_be_found_in_logs(
+    pattern: str,
+    all_containers: bool = True,
+    value: Dict[str, str] = None,
+    secrets: Secrets = None,
+) -> bool:
+    """
+    Lookup for the first occurence of `pattern` in the logs of each container
+    fetched by the `read_pod_logs` probe.
+
+    If `all_containers` is set the match must occur on all continers. Otherwise,
+    allow for only a subset of containers to match the search.
+    """
+    if not value:
+        raise ActivityFailed("no logs to search from")
+
+    c_pattern = re.compile(pattern)
+
+    matched: list[re.Match] = []
+
+    for container_name in value:
+        logs = value[container_name]
+        m = c_pattern.search(logs)
+        if m:
+            logger.debug(
+                f"Container '{container_name}' matched at position {m.span()}"
+            )
+            matched.append(m)
+            continue
+
+        logger.debug(f"Container '{container_name}' did not match")
+
+    if all_containers and (len(matched) != len(value)):
+        return False
+    elif not matched:
+        return False
+
+    return True
