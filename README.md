@@ -180,6 +180,12 @@ env:
   value: "true"
 ```
 
+When using this environment variable, it is assumed that the experiment
+targets the same cluster where the experiment is running from. If your
+experiment targets a different cluster, you should not set this variable.
+Instead, you could mount a volume with a Kubernetes config for the target
+cluster and set `KUBECONFIG` to point to it.
+
 ## Pass all credentials in the experiment
 
 Finally, you may pass explicitly all required credentials information to the
